@@ -1,3 +1,4 @@
+use super::token::KeywordKind;
 use std::str::Chars;
 
 use super::token::Token;
@@ -62,7 +63,12 @@ impl<'a> Lexer<'a> {
                 } else {
                     if is_letter(&char) {
                         let ident_name = self.read_identifier();
-                        return Ident { name: ident_name };
+                        let may_be_keyword = is_keyword(&ident_name);
+
+                        match may_be_keyword {
+                            IsKeyword::Yes(kind) => return Keyword { kind },
+                            IsKeyword::No => return Ident { name: ident_name },
+                        }
                     }
 
                     return Illegal;
@@ -148,4 +154,17 @@ fn is_letter(c: &char) -> bool {
         | 'A'..='Z'
         | '_'
     );
+}
+
+pub enum IsKeyword {
+    Yes(KeywordKind),
+    No,
+}
+
+fn is_keyword(word: &String) -> IsKeyword {
+    if word == "const" {
+        return IsKeyword::Yes(KeywordKind::Const);
+    } else {
+        return IsKeyword::No;
+    }
 }

@@ -1,3 +1,5 @@
+use crate::token::KeywordKind;
+
 use super::convert_to_token;
 use super::Token;
 
@@ -75,6 +77,25 @@ fn test_ident() {
         },
         Ident {
             name: String::from("hay"),
+        },
+        Eof,
+    ];
+
+    let actual_output = convert_to_token(input);
+
+    assert_eq!(expected_output, actual_output);
+}
+
+#[test]
+fn test_keyword() {
+    use Token::*;
+
+    let input = "
+    const";
+
+    let expected_output: Vec<Token> = vec![
+        Keyword {
+            kind: KeywordKind::Const,
         },
         Eof,
     ];

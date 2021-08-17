@@ -28,4 +28,11 @@ pub enum Token {
     Eof,     // End of File
 
     Ident { name: String },
+
+    Keyword { kind: KeywordKind },
+}
+
+#[derive(Debug, PartialEq)]
+pub enum KeywordKind {
+    Const,
 }
