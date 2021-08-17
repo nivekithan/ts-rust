@@ -13,10 +13,15 @@ pub fn convert_to_token(input: &str) -> Vec<Token> {
 
     loop {
         let token = lexer.next_token();
+        let mut should_break = false;
+
+        if let Token::Eof = token {
+            should_break = true
+        }
 
         tokens.push(token);
 
-        if let Token::Eof = token {
+        if should_break {
             break;
         }
     }

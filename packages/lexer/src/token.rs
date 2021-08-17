@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq)]
 pub enum Token {
     Assign, // =
 
@@ -26,4 +26,6 @@ pub enum Token {
 
     Illegal, // Unknown token
     Eof,     // End of File
+
+    Ident { name: String },
 }

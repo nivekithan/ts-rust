@@ -4,17 +4,23 @@ use super::token::Token;
 
 pub(crate) struct Lexer<'a> {
     content: Chars<'a>,
+    cur_char: Option<char>,
 }
 
 impl<'a> Lexer<'a> {
     pub(crate) fn new(input: &'a str) -> Lexer<'a> {
         let content = input.chars();
 
-        return Lexer { content };
+        return Lexer {
+            content,
+            cur_char: None,
+        };
     }
 
     pub(crate) fn next_token(&mut self) -> Token {
-        let cur_char = self.eat_whitespace();
+        self.eat_whitespace();
+
+        let cur_char = self.cur_char;
 
         match cur_char {
             None => Token::Eof,
@@ -54,28 +60,58 @@ impl<'a> Lexer<'a> {
                 } else if char == '&' {
                     return Ampersand;
                 } else {
+                    if is_letter(&char) {
+                        let ident_name = self.read_identifier();
+                        return Ident { name: ident_name };
+                    }
+
                     return Illegal;
                 }
             }
         }
     }
 
-    fn eat_whitespace(&mut self) -> Option<char> {
-        let cur_char = self.content.next();
+    fn next(&mut self) -> Option<char> {
+        let next_cur = self.content.next();
+        self.cur_char = next_cur;
 
-        match cur_char {
-            None => return None,
+        return next_cur;
+    }
+
+    fn eat_whitespace(&mut self) {
+        let cur_char = self.next();
+
+        if let Some(mut c) = cur_char {
+            while is_whitespace(&c) {
+                let next_char = self.next();
+                if let Some(ch) = next_char {
+                    c = ch
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
+    fn read_identifier(&mut self) -> String {
+        let mut ident_name = self.cur_char.expect("unreachable").to_string();
+        let next_cur = self.next();
+
+        match next_cur {
+            None => return ident_name,
             Some(mut c) => {
-                while is_whitespace(&c) {
-                    let next_char = self.content.next();
+                while is_letter(&c) {
+                    ident_name.push(c);
 
-                    match next_char {
-                        None => return None,
+                    let next_cur = self.next();
+
+                    match next_cur {
+                        None => return ident_name,
                         Some(ch) => c = ch,
                     }
                 }
 
-                return Some(c);
+                return ident_name;
             }
         }
     }
@@ -102,5 +138,14 @@ fn is_whitespace(c: &char) -> bool {
         // Dedicated whitespace characters from Unicode
         | '\u{2028}' // LINE SEPARATOR
         | '\u{2029}' // PARAGRAPH SEPARATOR)
+    );
+}
+
+fn is_letter(c: &char) -> bool {
+    return matches!(
+        c,
+         'a'..='z'
+        | 'A'..='Z'
+        | '_'
     );
 }
