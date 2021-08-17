@@ -1,7 +1,8 @@
-use crate::token::KeywordKind;
-
-use super::convert_to_token;
-use super::Token;
+use crate::convert_to_token;
+use crate::token;
+use token::KeywordKind;
+use token::LiteralKind;
+use token::Token;
 
 #[test]
 fn test_operators() {
@@ -96,19 +97,33 @@ fn test_keyword() {
     false";
 
     let expected_output: Vec<Token> = vec![
-        Keyword {
-            kind: KeywordKind::Const,
-        },
-        Keyword {
-            kind: KeywordKind::True,
-        },
-        Keyword {
-            kind: KeywordKind::False,
-        },
+        Keyword(KeywordKind::Const),
+        Keyword(KeywordKind::True),
+        Keyword(KeywordKind::False),
         Eof,
     ];
 
     let actual_output = convert_to_token(input);
 
     assert_eq!(expected_output, actual_output);
+}
+
+#[test]
+fn test_literals() {
+    use Token::*;
+
+    let input = "
+    1234";
+
+    let expected_output = vec![
+        Literal(LiteralKind::Float {
+            name: String::from("1234"),
+            value: 1234.0,
+        }),
+        Eof,
+    ];
+
+    let actual_output = convert_to_token(input);
+
+    assert_eq!(expected_output, actual_output)
 }

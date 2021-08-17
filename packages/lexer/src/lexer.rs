@@ -1,3 +1,5 @@
+use crate::token::LiteralKind;
+
 use super::token::KeywordKind;
 use std::str::Chars;
 
@@ -66,9 +68,17 @@ impl<'a> Lexer<'a> {
                         let may_be_keyword = is_keyword(&ident_name);
 
                         match may_be_keyword {
-                            IsKeyword::Yes(kind) => return Keyword { kind },
+                            IsKeyword::Yes(kind) => return Keyword(kind),
                             IsKeyword::No => return Ident { name: ident_name },
                         }
+                    } else if is_digit(&char) {
+                        let digit_name = self.read_digit();
+                        let digit_value: f64 = digit_name.parse().unwrap();
+
+                        return Literal(LiteralKind::Float {
+                            name: digit_name,
+                            value: digit_value,
+                        });
                     }
 
                     return Illegal;
@@ -121,6 +131,30 @@ impl<'a> Lexer<'a> {
             }
         }
     }
+
+    fn read_digit(&mut self) -> String {
+        let mut digit_name = self.cur_char.expect("unreachable").to_string();
+
+        let next_cur = self.next();
+
+        match next_cur {
+            None => return digit_name,
+            Some(mut c) => {
+                while is_digit(&c) {
+                    digit_name.push(c);
+
+                    let next_cur = self.next();
+
+                    match next_cur {
+                        None => return digit_name,
+                        Some(ch) => c = ch,
+                    }
+                }
+
+                return digit_name;
+            }
+        }
+    }
 }
 
 // From rust source code
@@ -154,6 +188,10 @@ fn is_letter(c: &char) -> bool {
         | 'A'..='Z'
         | '_'
     );
+}
+
+fn is_digit(c: &char) -> bool {
+    return matches!(c, '0'..='9');
 }
 
 pub enum IsKeyword {

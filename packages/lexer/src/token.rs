@@ -29,7 +29,9 @@ pub enum Token {
 
     Ident { name: String },
 
-    Keyword { kind: KeywordKind },
+    Keyword(KeywordKind),
+
+    Literal(LiteralKind),
 }
 
 #[derive(Debug, PartialEq)]
@@ -37,4 +39,12 @@ pub enum KeywordKind {
     Const,
     True,
     False,
+}
+
+#[derive(Debug, PartialEq)]
+
+pub enum LiteralKind {
+    Float { name: String, value: f64 },
+
+    String { name: String },
 }
