@@ -113,12 +113,25 @@ fn test_literals() {
     use Token::*;
 
     let input = "
-    1234";
+    1234
+    '12'
+    \"12\"
+    `12`
+    ";
 
     let expected_output = vec![
         Literal(LiteralKind::Float {
             name: String::from("1234"),
             value: 1234.0,
+        }),
+        Literal(LiteralKind::String {
+            name: String::from("12"),
+        }),
+        Literal(LiteralKind::String {
+            name: String::from("12"),
+        }),
+        Literal(LiteralKind::String {
+            name: String::from("12"),
         }),
         Eof,
     ];

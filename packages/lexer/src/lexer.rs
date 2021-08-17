@@ -1,6 +1,7 @@
 use crate::token::LiteralKind;
 
 use super::token::KeywordKind;
+use core::panic;
 use std::str::Chars;
 
 use super::token::Token;
@@ -62,6 +63,15 @@ impl<'a> Lexer<'a> {
                     return Caret;
                 } else if char == '&' {
                     return Ampersand;
+                } else if char == '\'' {
+                    let string_name = self.read_string('\'');
+                    return Literal(LiteralKind::String { name: string_name });
+                } else if char == '\"' {
+                    let string_name = self.read_string('\"');
+                    return Literal(LiteralKind::String { name: string_name });
+                } else if char == '`' {
+                    let string_name = self.read_string('`');
+                    return Literal(LiteralKind::String { name: string_name });
                 } else {
                     if is_letter(&char) {
                         let ident_name = self.read_identifier();
@@ -154,6 +164,26 @@ impl<'a> Lexer<'a> {
                 return digit_name;
             }
         }
+    }
+
+    fn read_string(&mut self, end_char: char) -> String {
+        let mut string_name = String::new();
+        loop {
+            let next_char = self.next();
+
+            match next_char {
+                None => panic!("Lexer error expected \" before end of file"),
+                Some(ch) => {
+                    if ch == end_char {
+                        break;
+                    } else {
+                        string_name.push(ch)
+                    }
+                }
+            }
+        }
+
+        return string_name;
     }
 }
 
