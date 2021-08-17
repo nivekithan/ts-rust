@@ -164,6 +164,10 @@ pub enum IsKeyword {
 fn is_keyword(word: &String) -> IsKeyword {
     if word == "const" {
         return IsKeyword::Yes(KeywordKind::Const);
+    } else if word == "true" {
+        return IsKeyword::Yes(KeywordKind::True);
+    } else if word == "false" {
+        return IsKeyword::Yes(KeywordKind::False);
     } else {
         return IsKeyword::No;
     }

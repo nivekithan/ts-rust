@@ -35,4 +35,6 @@ pub enum Token {
 #[derive(Debug, PartialEq)]
 pub enum KeywordKind {
     Const,
+    True,
+    False,
 }
