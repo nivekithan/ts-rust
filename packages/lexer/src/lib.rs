@@ -17,7 +17,7 @@ pub fn convert_to_token(input: &str) -> Vec<Token> {
         tokens.push(token);
 
         if let Token::Eof = token {
-            break
+            break;
         }
     }
 
