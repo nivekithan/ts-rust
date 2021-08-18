@@ -3,4 +3,5 @@ name="tpm"
 version="0.0.0"
 
 [workspace]
-members=["./packages/lexer"]
+#[derive(Clone, Copy)]
+members=["./packages/lexer", "./packages/ast"]

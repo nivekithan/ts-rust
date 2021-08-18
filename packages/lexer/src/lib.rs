@@ -1,5 +1,5 @@
 mod lexer;
-mod token;
+pub mod token;
 
 use crate::lexer::Lexer;
 use crate::token::Token;
