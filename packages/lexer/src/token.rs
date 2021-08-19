@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Token {
     Assign, // =
 
@@ -34,14 +34,14 @@ pub enum Token {
     Literal(LiteralKind),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum KeywordKind {
     Const,
     True,
     False,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 
 pub enum LiteralKind {
     Float { name: String, value: f64 },
