@@ -2,14 +2,14 @@ use lexer::token::Token;
 
 use crate::data_type::DataType;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 
 pub enum UnaryOperator {
     Plus,  // +
     Minus, // -
     Bang,  // !
 }
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 
 pub enum BinaryOperator {
     Plus,  // +
@@ -22,7 +22,7 @@ pub enum BinaryOperator {
     Ampersand,   // &
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Expression {
     // Literal Expressions
     FloatLiteralExp {

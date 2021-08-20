@@ -15,7 +15,7 @@ impl<'a> Lexer<'a> {
     pub(crate) fn new(input: &'a str) -> Lexer<'a> {
         let content = input.chars();
 
-        let mut lexer =  Lexer {
+        let mut lexer = Lexer {
             content,
             cur_char: None,
         };
@@ -34,7 +34,7 @@ impl<'a> Lexer<'a> {
             None => Token::Eof,
             Some(char) => {
                 use Token::*;
-            
+
                 if char == ';' {
                     self.next(); // consumes ;
                     return SemiColon;
@@ -126,7 +126,6 @@ impl<'a> Lexer<'a> {
 
     // If cur_char is whitespace it wil eat char until cur_char is not whitespace
     fn eat_whitespace(&mut self) {
-        
         let cur_char = self.cur_char;
 
         if let Some(mut c) = cur_char {
@@ -190,7 +189,7 @@ impl<'a> Lexer<'a> {
     }
     // Assumes the cur_char is starting char of string_literal
     // Ex: ' " `
-    // It will end after consuming the end char that 
+    // It will end after consuming the end char that
     // cur_char wont be end_char
     fn read_string(&mut self, end_char: char) -> String {
         let mut string_name = String::new();
@@ -198,7 +197,7 @@ impl<'a> Lexer<'a> {
             let next_char = self.next();
 
             match next_char {
-                None => panic!("Lexer error expected \" before end of file"),
+                None => panic!("Lexer error expected {} before end of file", end_char),
                 Some(ch) => {
                     if ch == end_char {
                         self.next(); // consumes end_char

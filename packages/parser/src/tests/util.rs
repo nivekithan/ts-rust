@@ -4,12 +4,12 @@ use ast::{
     data_type::DataType,
     expression::{BinaryOperator, Expression, UnaryOperator},
 };
-
-pub struct ExpressionForm {
-    top_string: Option<String>,
-    top_expression: Option<Expression>,
-    main_string: String,
-    main_exp: Expression,
+#[derive(Debug)]
+pub(crate) struct ExpressionForm {
+    pub(crate) top_string: Option<String>,
+    pub(crate) top_expression: Option<Expression>,
+    pub(crate) main_string: String,
+    pub(crate) main_exp: Expression,
 }
 
 impl ExpressionForm {
@@ -124,9 +124,9 @@ fn generate_binary_plus_float() -> ExpressionForm {
 
 fn generate_binary_plus_string() -> ExpressionForm {
     return ExpressionForm::new(
-        "(\"1\" + \"1\"",
+        "(\"1\" + \"1\")",
         Expression::BinaryExp {
-            operator: BinaryOperator::Minus,
+            operator: BinaryOperator::Plus,
             left: Box::new(Expression::StringLiteralExp {
                 value: "1".to_string(),
             }),
@@ -239,7 +239,7 @@ fn generate_binary_ampersand() -> ExpressionForm {
     );
 }
 
-pub fn generate_expressions(datatype: &DataType) -> Vec<ExpressionForm> {
+pub(crate) fn generate_expressions(datatype: &DataType) -> Vec<ExpressionForm> {
     let every_expression_form: Vec<fn() -> ExpressionForm> = vec![
         generate_float_literal,
         generate_string_literal,

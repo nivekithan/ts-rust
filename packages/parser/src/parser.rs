@@ -156,7 +156,7 @@ impl<'a> Parser<'a> {
                 self.next(); //  consumes !
                 let arg_exp = self.parse_expression(precedence);
                 return Ok(Expression::UnaryExp {
-                    operator: UnaryOperator::Minus,
+                    operator: UnaryOperator::Bang,
                     argument: Box::new(arg_exp),
                 });
             }
@@ -180,14 +180,44 @@ impl<'a> Parser<'a> {
                 }
             },
 
+            Token::Keyword(keyword_kind) => match keyword_kind {
+                KeywordKind::True => {
+                    self.next(); // consumes true
+
+                    return Ok(Expression::BooleanLiteralExp {
+                        name: "true".to_string(),
+                        value: true,
+                    });
+                }
+
+                KeywordKind::False => {
+                    self.next(); // consumes false
+
+                    return Ok(Expression::BooleanLiteralExp {
+                        name: "false".to_string(),
+                        value: false,
+                    });
+                }
+
+                _ => {
+                    return Err(format!(
+                        "Given keyword does not have a prefix function {:?}",
+                        keyword_kind
+                    ))
+                }
+            },
+
             Token::CurveOpenBracket => {
-                self.next(); // consume /
+                self.next(); // consume (
 
                 let grouped_exp = self.parse_expression(1);
 
                 let cur_tok = self.get_cur_token().unwrap();
 
-                println!("All tokens {:?}", self.content);    
+                if cur_tok == &Token::Eof {
+                    println!("Contents : {:?}", self.content);
+                }
+
                 assert_eq!(cur_tok, &Token::CurveCloseBracket);
                 self.next(); // consumes )
 
