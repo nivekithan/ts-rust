@@ -1,16 +1,15 @@
-
 mod util;
 
+use crate::convert_to_ast;
 use ast::{expression::Expression, Ast};
 use lexer::convert_to_token;
-use crate::convert_to_ast;
 
 #[test]
 fn test_convert_to_ast() {
     let input = "
         const x = 12;
         const y = 23
-        const z =12;";
+        const z =(12);";
 
     let expected_output = vec![
         Ast::new_const_variable_declaration(
@@ -35,7 +34,6 @@ fn test_convert_to_ast() {
             },
         ),
     ];
-
 
     let actual_output = convert_to_ast(convert_to_token(input));
 

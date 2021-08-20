@@ -27,7 +27,7 @@ impl<'a> Parser<'a> {
         match first_token {
             Token::Keyword(keyword_kind) => match keyword_kind {
                 KeywordKind::Const => {
-                    let name = self.next().get_ident_name().unwrap().clone();
+                    let name = self.next().get_ident_name().unwrap().clone(); // consumes Const
 
                     self.assert_next_token(&Token::Assign); // consumes ident
 
@@ -176,9 +176,23 @@ impl<'a> Parser<'a> {
 
                     self.next(); // consumes string
 
-                    return Ok(Expression::StringLiteralExp { name });
+                    return Ok(Expression::StringLiteralExp { value: name });
                 }
             },
+
+            Token::CurveOpenBracket => {
+                self.next(); // consume /
+
+                let grouped_exp = self.parse_expression(1);
+
+                let cur_tok = self.get_cur_token().unwrap();
+
+                println!("All tokens {:?}", self.content);    
+                assert_eq!(cur_tok, &Token::CurveCloseBracket);
+                self.next(); // consumes )
+
+                return Ok(grouped_exp);
+            }
 
             tok => {
                 return Err(format!(

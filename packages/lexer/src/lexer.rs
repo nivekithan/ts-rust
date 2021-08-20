@@ -15,10 +15,14 @@ impl<'a> Lexer<'a> {
     pub(crate) fn new(input: &'a str) -> Lexer<'a> {
         let content = input.chars();
 
-        return Lexer {
+        let mut lexer =  Lexer {
             content,
             cur_char: None,
         };
+
+        lexer.next();
+
+        return lexer;
     }
 
     pub(crate) fn next_token(&mut self) -> Token {
@@ -30,38 +34,54 @@ impl<'a> Lexer<'a> {
             None => Token::Eof,
             Some(char) => {
                 use Token::*;
-
+            
                 if char == ';' {
+                    self.next(); // consumes ;
                     return SemiColon;
                 } else if char == ':' {
+                    self.next(); // consumes :
                     return Colon;
                 } else if char == '=' {
+                    self.next(); // consumes =
                     return Assign;
                 } else if char == '{' {
-                    return LeftBrace;
+                    self.next(); // consumes {
+                    return AngleOpenBracket;
                 } else if char == '}' {
-                    return RightBrace;
+                    self.next(); // consumes }
+                    return AngleCloseBracket;
                 } else if char == '(' {
-                    return LeftBracket;
+                    self.next(); // consumes (
+                    return CurveOpenBracket;
                 } else if char == ')' {
-                    return RightBracket;
+                    self.next(); // consumes )
+                    return CurveCloseBracket;
                 } else if char == ',' {
+                    self.next(); // consumes ,
                     return Comma;
                 } else if char == '!' {
+                    self.next(); // consumes !
                     return Bang;
                 } else if char == '+' {
+                    self.next(); // consumes +
                     return Plus;
                 } else if char == '-' {
+                    self.next(); // consumes -
                     return Minus;
                 } else if char == '*' {
+                    self.next(); // consumes +
                     return Star;
                 } else if char == '/' {
+                    self.next(); // consumes /
                     return Slash;
                 } else if char == '|' {
+                    self.next(); // consumes |
                     return VerticalBar;
                 } else if char == '^' {
+                    self.next(); // consumes ^
                     return Caret;
                 } else if char == '&' {
+                    self.next(); // consumes &
                     return Ampersand;
                 } else if char == '\'' {
                     let string_name = self.read_string('\'');
@@ -90,7 +110,7 @@ impl<'a> Lexer<'a> {
                             value: digit_value,
                         });
                     }
-
+                    self.next(); // consumes Illegal
                     return Illegal;
                 }
             }
@@ -104,8 +124,10 @@ impl<'a> Lexer<'a> {
         return next_cur;
     }
 
+    // If cur_char is whitespace it wil eat char until cur_char is not whitespace
     fn eat_whitespace(&mut self) {
-        let cur_char = self.next();
+        
+        let cur_char = self.cur_char;
 
         if let Some(mut c) = cur_char {
             while is_whitespace(&c) {
@@ -119,6 +141,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    // After executing this function the cur_char wont be a letter
     fn read_identifier(&mut self) -> String {
         let mut ident_name = self.cur_char.expect("unreachable").to_string();
         let next_cur = self.next();
@@ -141,7 +164,7 @@ impl<'a> Lexer<'a> {
             }
         }
     }
-
+    // After executing this function the cur_char wont be a digit
     fn read_digit(&mut self) -> String {
         let mut digit_name = self.cur_char.expect("unreachable").to_string();
 
@@ -165,7 +188,10 @@ impl<'a> Lexer<'a> {
             }
         }
     }
-
+    // Assumes the cur_char is starting char of string_literal
+    // Ex: ' " `
+    // It will end after consuming the end char that 
+    // cur_char wont be end_char
     fn read_string(&mut self, end_char: char) -> String {
         let mut string_name = String::new();
         loop {
@@ -175,6 +201,7 @@ impl<'a> Lexer<'a> {
                 None => panic!("Lexer error expected \" before end of file"),
                 Some(ch) => {
                     if ch == end_char {
+                        self.next(); // consumes end_char
                         break;
                     } else {
                         string_name.push(ch)

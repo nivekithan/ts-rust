@@ -5,11 +5,11 @@ pub enum Token {
     SemiColon, // ;
     Colon,     // :
 
-    LeftBrace,  // {
-    RightBrace, // }
+    AngleOpenBracket,  // {
+    AngleCloseBracket, // }
 
-    LeftBracket,  // (
-    RightBracket, // )
+    CurveOpenBracket,  // (
+    CurveCloseBracket, // )
 
     Comma, // ,
 

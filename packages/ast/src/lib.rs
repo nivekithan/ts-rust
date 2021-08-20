@@ -31,7 +31,7 @@ impl Ast {
 
     pub fn new_string_literal(name: &String) -> Ast {
         return Ast::Expression(Expression::StringLiteralExp {
-            name: name.to_string(),
+            value: name.to_string(),
         });
     }
 

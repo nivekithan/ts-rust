@@ -30,7 +30,7 @@ pub enum Expression {
         value: f64,
     },
     StringLiteralExp {
-        name: String,
+        value: String,
     },
     BooleanLiteralExp {
         name: String,
@@ -53,7 +53,7 @@ impl Expression {
     pub fn get_data_type(&self) -> DataType {
         match self {
             Expression::FloatLiteralExp { name: _, value: _ } => return DataType::Float,
-            Expression::StringLiteralExp { name: _ } => return DataType::String,
+            Expression::StringLiteralExp { value: _ } => return DataType::String,
             Expression::BooleanLiteralExp { name: _, value: _ } => return DataType::Boolean,
 
             Expression::UnaryExp {
