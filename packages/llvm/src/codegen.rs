@@ -38,24 +38,23 @@ impl<'a> Codegen<'a> {
         if let None = self.get_cur() {
             self.next();
         }
-    
-        while self.cur_pos != CodegenPos::End {
 
+        while self.cur_pos != CodegenPos::End {
             if let Some(cur_ast) = self.get_cur() {
                 match cur_ast {
                     Ast::Declaration(dec) => match dec {
                         Declaration::ConstVariableDeclaration { ident_name, exp } => {
                             let data_type = exp.get_data_type();
-                            
+
                             match data_type {
                                 DataType::Float => {
-                                    let pointer =
-                                    builder.build_alloca(context.f64_type(), ident_name.as_str());
+                                    let pointer = builder
+                                        .build_alloca(context.f64_type(), ident_name.as_str());
                                     let value_of_exp =
-                                    self.build_expresserion(context, builder, exp, None);
+                                        self.build_expresserion(context, builder, exp, None);
                                     builder.build_store(pointer, value_of_exp);
                                 }
-                                
+
                                 _ => todo!(),
                             }
                         }
@@ -66,7 +65,7 @@ impl<'a> Codegen<'a> {
             } else {
                 unreachable!()
             }
-            
+
             self.next();
         }
         builder.build_return(None);

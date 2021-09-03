@@ -2,8 +2,9 @@ use std::marker::PhantomData;
 
 use llvm_sys::{
     core::{
-        LLVMBuildAlloca, LLVMBuildFAdd, LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore,
-        LLVMDisposeBuilder, LLVMPositionBuilderAtEnd,
+        LLVMBuildAlloca, LLVMBuildFAdd, LLVMBuildFDiv, LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFSub,
+        LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore, LLVMDisposeBuilder,
+        LLVMPositionBuilderAtEnd,
     },
     prelude::LLVMBuilderRef,
 };
@@ -69,6 +70,57 @@ impl<'a> Builder<'a> {
                 rhs.as_value_ref(),
                 c_name.as_ptr(),
             );
+            return T::new(value);
+        }
+    }
+
+    pub fn build_float_sub<T: FloatMathValueTrait<'a>>(&self, lhs: T, rhs: T, name: &str) -> T {
+        let c_name = to_c_str(name);
+
+        unsafe {
+            let value = LLVMBuildFSub(
+                self.builder,
+                lhs.as_value_ref(),
+                rhs.as_value_ref(),
+                c_name.as_ptr(),
+            );
+            return T::new(value);
+        }
+    }
+
+    pub fn build_float_mul<T: FloatMathValueTrait<'a>>(&self, lhs: T, rhs: T, name: &str) -> T {
+        let c_name = to_c_str(name);
+
+        unsafe {
+            let value = LLVMBuildFMul(
+                self.builder,
+                lhs.as_value_ref(),
+                rhs.as_value_ref(),
+                c_name.as_ptr(),
+            );
+            return T::new(value);
+        }
+    }
+
+    pub fn build_float_div<T: FloatMathValueTrait<'a>>(&self, lhs: T, rhs: T, name: &str) -> T {
+        let c_name = to_c_str(name);
+
+        unsafe {
+            let value = LLVMBuildFDiv(
+                self.builder,
+                lhs.as_value_ref(),
+                rhs.as_value_ref(),
+                c_name.as_ptr(),
+            );
+            return T::new(value);
+        }
+    }
+
+    pub fn build_float_neg<T: FloatMathValueTrait<'a>>(&self, value: T, name: &str) -> T {
+        let c_name = to_c_str(name);
+
+        unsafe {
+            let value = LLVMBuildFNeg(self.builder, value.as_value_ref(), c_name.as_ptr());
             return T::new(value);
         }
     }
