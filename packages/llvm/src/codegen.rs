@@ -89,22 +89,75 @@ impl<'a> Codegen<'a> {
                 left,
                 right,
             } => match operator {
-                BinaryOperator::Plus => {
+                // BinaryOperator::Plus => {
+                //     let left_value = self.build_expresserion(context, builder, left.as_ref(), None);
+                //     let right_value =
+                //         self.build_expresserion(context, builder, right.as_ref(), None);
+
+                //     if let BasicValueEnum::FloatValue(left_float) = left_value {
+                //         if let BasicValueEnum::FloatValue(right_float) = right_value {
+                //             let exp_name = match name {
+                //                 Some(name) => name,
+                //                 None => self.get_temp_name(),
+                //             };
+
+                //             let added_float_value =
+                //                 builder.build_float_add(left_float, right_float, exp_name.as_str());
+
+                //             return BasicValueEnum::FloatValue(added_float_value);
+                //         } else {
+                //             todo!()
+                //         }
+                //     } else {
+                //         todo!()
+                //     }
+                // },
+
+                // BinaryOperator::Minus => {
+                // let left_value = self.build_expresserion(context, builder, left.as_ref(), None);
+                // let right_value = self.build_expresserion(context, builder, right.as_ref(), None);
+
+                // if let BasicValueEnum::FloatValue(left_float) = left_value {
+                //     if let BasicValueEnum::FloatValue(right_float) = right_value {
+                //         let exp_name = match name {
+                //             Some(name) => name,
+                //             None => self.get_temp_name(),
+                //         };
+
+                //         let subbed_float = builder.build_float_sub(left_float, right_float, exp_name.as_str());
+
+                //         return BasicValueEnum::FloatValue(subbed_float);
+                //     } else {
+                //         todo!()
+                //     }
+                //     } else {
+                //         todo!()
+                //     }
+                // }
+                operator => {
                     let left_value = self.build_expresserion(context, builder, left.as_ref(), None);
                     let right_value =
                         self.build_expresserion(context, builder, right.as_ref(), None);
 
-                    if let BasicValueEnum::FloatValue(left_float) = left_value {
-                        if let BasicValueEnum::FloatValue(right_float) = right_value {
-                            let exp_name = match name {
+                    if let BasicValueEnum::FloatValue(lhs) = left_value {
+                        if let BasicValueEnum::FloatValue(rhs) = right_value {
+                            let name = match name {
                                 Some(name) => name,
                                 None => self.get_temp_name(),
                             };
 
-                            let added_float_value =
-                                builder.build_float_add(left_float, right_float, exp_name.as_str());
+                            let name = name.as_str();
 
-                            return BasicValueEnum::FloatValue(added_float_value);
+                            let evaluated_float_value = match operator {
+                                BinaryOperator::Plus => builder.build_float_add(lhs, rhs, name),
+                                BinaryOperator::Minus => builder.build_float_sub(lhs, rhs, name),
+                                BinaryOperator::Star => builder.build_float_mul(lhs, rhs, name),
+                                BinaryOperator::Slash => builder.build_float_div(lhs, rhs, name),
+
+                                _ => todo!(),
+                            };
+
+                            return BasicValueEnum::FloatValue(evaluated_float_value);
                         } else {
                             todo!()
                         }
@@ -112,8 +165,6 @@ impl<'a> Codegen<'a> {
                         todo!()
                     }
                 }
-
-                _ => todo!(),
             },
 
             _ => todo!(),
