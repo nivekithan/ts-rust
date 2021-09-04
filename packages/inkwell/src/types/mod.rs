@@ -1,6 +1,7 @@
 pub mod enums;
 pub mod float_type;
 pub mod fn_type;
+pub mod int_type;
 pub mod ptr_type;
 pub mod traits;
 pub mod void_type;

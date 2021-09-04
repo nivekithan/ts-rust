@@ -30,7 +30,7 @@ impl<'a> AsValueRef for FloatValue<'a> {
 impl<'a> BasicValueTrait<'a> for FloatValue<'a> {}
 
 impl<'a> FloatMathValueTrait<'a> for FloatValue<'a> {
-    type BasicType = FloatType<'a>;
+    type BaseType = FloatType<'a>;
 
     fn new(value_ref: LLVMValueRef) -> Self {
         unsafe {

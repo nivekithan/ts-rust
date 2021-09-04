@@ -1,6 +1,6 @@
 use llvm_sys::prelude::LLVMTypeRef;
 
-use crate::values::traits::FloatMathValueTrait;
+use crate::values::traits::{FloatMathValueTrait, IntMathValueTrait};
 
 use super::enums::BasicTypeEnum;
 
@@ -13,7 +13,10 @@ pub trait BasicTypeTrait<'a>: AsTypeRef {
         unsafe { BasicTypeEnum::new(self.as_type_ref()) }
     }
 }
-
 pub trait FloatMathTypeTrait<'a>: BasicTypeTrait<'a> {
     type ValueType: FloatMathValueTrait<'a>;
+}
+
+pub trait IntMathTypeTrait<'a>: BasicTypeTrait<'a> {
+    type ValueType: IntMathValueTrait<'a>;
 }

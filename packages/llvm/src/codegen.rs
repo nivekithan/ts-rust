@@ -1,7 +1,7 @@
 use ast::{
     data_type::DataType,
     declaration::Declaration,
-    expression::{BinaryOperator, Expression},
+    expression::{BinaryOperator, Expression, UnaryOperator},
     Ast,
 };
 use inkwell::{builder::Builder, context::Context, values::enums::BasicValueEnum};
@@ -55,6 +55,14 @@ impl<'a> Codegen<'a> {
                                     builder.build_store(pointer, value_of_exp);
                                 }
 
+                                DataType::Boolean => {
+                                    let pointer = builder
+                                        .build_alloca(context.i64_type(), ident_name.as_str());
+                                    let value_of_exp =
+                                        self.build_expresserion(context, builder, exp, None);
+                                    builder.build_store(pointer, value_of_exp);
+                                }
+
                                 _ => todo!(),
                             }
                         }
@@ -84,89 +92,72 @@ impl<'a> Codegen<'a> {
                 return BasicValueEnum::FloatValue(double_value);
             }
 
+            Expression::BooleanLiteralExp { name: _, value } => {
+                let bool_as_int_value = context.i64_type().const_int(*value as u64, false);
+                return BasicValueEnum::IntValue(bool_as_int_value);
+            }
+
+            Expression::UnaryExp { operator, argument } => {
+                let arg_value = self.build_expresserion(context, builder, argument.as_ref(), None);
+
+                let name = match name {
+                    Some(name) => name,
+                    None => self.get_temp_name(),
+                };
+
+                let name = name.as_str();
+
+                match arg_value {
+                    BasicValueEnum::FloatValue(value) => {
+                        let evaluated_float_value = match operator {
+                            UnaryOperator::Minus => builder.build_float_neg(value, name),
+                            UnaryOperator::Plus => value,
+
+                            _ => todo!(),
+                        };
+
+                        return BasicValueEnum::FloatValue(evaluated_float_value);
+                    }
+
+                    _ => todo!(),
+                }
+            }
+
             Expression::BinaryExp {
                 operator,
                 left,
                 right,
-            } => match operator {
-                // BinaryOperator::Plus => {
-                //     let left_value = self.build_expresserion(context, builder, left.as_ref(), None);
-                //     let right_value =
-                //         self.build_expresserion(context, builder, right.as_ref(), None);
+            } => {
+                let left_value = self.build_expresserion(context, builder, left.as_ref(), None);
+                let right_value = self.build_expresserion(context, builder, right.as_ref(), None);
 
-                //     if let BasicValueEnum::FloatValue(left_float) = left_value {
-                //         if let BasicValueEnum::FloatValue(right_float) = right_value {
-                //             let exp_name = match name {
-                //                 Some(name) => name,
-                //                 None => self.get_temp_name(),
-                //             };
+                if let BasicValueEnum::FloatValue(lhs) = left_value {
+                    if let BasicValueEnum::FloatValue(rhs) = right_value {
+                        let name = match name {
+                            Some(name) => name,
+                            None => self.get_temp_name(),
+                        };
 
-                //             let added_float_value =
-                //                 builder.build_float_add(left_float, right_float, exp_name.as_str());
+                        let name = name.as_str();
 
-                //             return BasicValueEnum::FloatValue(added_float_value);
-                //         } else {
-                //             todo!()
-                //         }
-                //     } else {
-                //         todo!()
-                //     }
-                // },
+                        let evaluated_float_value = match operator {
+                            BinaryOperator::Plus => builder.build_float_add(lhs, rhs, name),
+                            BinaryOperator::Minus => builder.build_float_sub(lhs, rhs, name),
+                            BinaryOperator::Star => builder.build_float_mul(lhs, rhs, name),
+                            BinaryOperator::Slash => builder.build_float_div(lhs, rhs, name),
 
-                // BinaryOperator::Minus => {
-                // let left_value = self.build_expresserion(context, builder, left.as_ref(), None);
-                // let right_value = self.build_expresserion(context, builder, right.as_ref(), None);
+                            _ => todo!(),
+                        };
 
-                // if let BasicValueEnum::FloatValue(left_float) = left_value {
-                //     if let BasicValueEnum::FloatValue(right_float) = right_value {
-                //         let exp_name = match name {
-                //             Some(name) => name,
-                //             None => self.get_temp_name(),
-                //         };
-
-                //         let subbed_float = builder.build_float_sub(left_float, right_float, exp_name.as_str());
-
-                //         return BasicValueEnum::FloatValue(subbed_float);
-                //     } else {
-                //         todo!()
-                //     }
-                //     } else {
-                //         todo!()
-                //     }
-                // }
-                operator => {
-                    let left_value = self.build_expresserion(context, builder, left.as_ref(), None);
-                    let right_value =
-                        self.build_expresserion(context, builder, right.as_ref(), None);
-
-                    if let BasicValueEnum::FloatValue(lhs) = left_value {
-                        if let BasicValueEnum::FloatValue(rhs) = right_value {
-                            let name = match name {
-                                Some(name) => name,
-                                None => self.get_temp_name(),
-                            };
-
-                            let name = name.as_str();
-
-                            let evaluated_float_value = match operator {
-                                BinaryOperator::Plus => builder.build_float_add(lhs, rhs, name),
-                                BinaryOperator::Minus => builder.build_float_sub(lhs, rhs, name),
-                                BinaryOperator::Star => builder.build_float_mul(lhs, rhs, name),
-                                BinaryOperator::Slash => builder.build_float_div(lhs, rhs, name),
-
-                                _ => todo!(),
-                            };
-
-                            return BasicValueEnum::FloatValue(evaluated_float_value);
-                        } else {
-                            todo!()
-                        }
+                        return BasicValueEnum::FloatValue(evaluated_float_value);
                     } else {
                         todo!()
                     }
+                } else {
+                    todo!()
                 }
-            },
-
+            }
+            
             _ => todo!(),
         }
     }

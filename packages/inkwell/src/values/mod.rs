@@ -8,6 +8,7 @@ pub mod enums;
 pub mod float_value;
 pub mod fn_value;
 pub mod instruction_value;
+pub mod int_value;
 pub mod ptr_value;
 pub mod traits;
 

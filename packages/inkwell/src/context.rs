@@ -1,8 +1,8 @@
 use llvm_sys::{
     core::{
         LLVMAppendBasicBlockInContext, LLVMContextCreate, LLVMContextDispose,
-        LLVMCreateBuilderInContext, LLVMDoubleTypeInContext, LLVMModuleCreateWithNameInContext,
-        LLVMVoidTypeInContext,
+        LLVMCreateBuilderInContext, LLVMDoubleTypeInContext, LLVMInt64TypeInContext,
+        LLVMModuleCreateWithNameInContext, LLVMVoidTypeInContext,
     },
     prelude::LLVMContextRef,
 };
@@ -11,7 +11,7 @@ use crate::{
     basic_block::BasicBlock,
     builder::Builder,
     module::Module,
-    types::{float_type::FloatType, void_type::VoidType},
+    types::{float_type::FloatType, int_type::IntType, void_type::VoidType},
     utils::to_c_str,
     values::{fn_value::FunctionValue, traits::AsValueRef},
 };
@@ -40,6 +40,12 @@ impl Context {
                 c_string.as_ptr(),
                 self.context,
             ));
+        }
+    }
+
+    pub fn i64_type(&self) -> IntType {
+        unsafe {
+            return IntType::new(LLVMInt64TypeInContext(self.context));
         }
     }
 
