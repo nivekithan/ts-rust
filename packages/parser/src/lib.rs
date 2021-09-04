@@ -1,4 +1,5 @@
 mod parser;
+mod symbol_table;
 
 #[cfg(test)]
 mod tests;

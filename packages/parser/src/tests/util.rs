@@ -2,12 +2,14 @@ use std::vec;
 
 use ast::{
     data_type::DataType,
+    declaration::Declaration,
     expression::{BinaryOperator, Expression, UnaryOperator},
+    Ast,
 };
 #[derive(Debug)]
 pub(crate) struct ExpressionForm {
     pub(crate) top_string: Option<String>,
-    pub(crate) top_expression: Option<Expression>,
+    pub(crate) top_expression: Option<Vec<Ast>>,
     pub(crate) main_string: String,
     pub(crate) main_exp: Expression,
 }
@@ -24,6 +26,33 @@ impl ExpressionForm {
 
     fn get_data_type(&self) -> DataType {
         return self.main_exp.get_data_type();
+    }
+
+    pub(crate) fn generate_input(&self, exp_str: String) -> String {
+        if let Some(top_str) = &self.top_string {
+            return format!("{}\n {}", top_str, exp_str);
+        } else {
+            return exp_str;
+        }
+    }
+
+    pub(crate) fn generate_expected_output(&self, exp_output: Vec<Ast>) -> Vec<Ast> {
+        if let Some(top_exp) = &self.top_expression {
+            let mut expected_output: Vec<Ast> = vec![];
+
+            for ast in top_exp {
+                let owned_ast = (*ast).clone();
+                expected_output.push(owned_ast);
+            }
+
+            for ast in exp_output {
+                expected_output.push(ast);
+            }
+
+            return expected_output;
+        } else {
+            return exp_output;
+        }
     }
 }
 
@@ -64,6 +93,86 @@ fn generate_boolean_false_literal() -> ExpressionForm {
             value: false,
         },
     );
+}
+
+fn generate_float_ident(var_name: &str) -> ExpressionForm {
+    return ExpressionForm {
+        top_string: Some(format!("const {} = 1;", var_name)),
+        top_expression: Some(vec![Ast::Declaration(
+            Declaration::ConstVariableDeclaration {
+                ident_name: var_name.to_string(),
+                exp: Expression::FloatLiteralExp {
+                    name: "1".to_string(),
+                    value: 1.0,
+                },
+            },
+        )]),
+        main_string: format!("({})", var_name),
+        main_exp: Expression::IdentExp {
+            data_type: DataType::Float,
+            name: var_name.to_string(),
+        },
+    };
+}
+
+fn generate_bool_true_ident(var_name: &str) -> ExpressionForm {
+    return ExpressionForm {
+        top_string: Some(format!("const {} = true;", var_name)),
+        top_expression: Some(vec![Ast::Declaration(
+            Declaration::ConstVariableDeclaration {
+                ident_name: var_name.to_string(),
+                exp: Expression::BooleanLiteralExp {
+                    name: "true".to_string(),
+                    value: true,
+                },
+            },
+        )]),
+        main_string: format!("({})", var_name),
+        main_exp: Expression::IdentExp {
+            data_type: DataType::Boolean,
+            name: var_name.to_string(),
+        },
+    };
+}
+
+fn generate_bool_false_ident(var_name: &str) -> ExpressionForm {
+    return ExpressionForm {
+        top_string: Some(format!("const {} = false;", var_name)),
+        top_expression: Some(vec![Ast::Declaration(
+            Declaration::ConstVariableDeclaration {
+                ident_name: var_name.to_string(),
+                exp: Expression::BooleanLiteralExp {
+                    name: "false".to_string(),
+                    value: false,
+                },
+            },
+        )]),
+        main_string: format!("({})", var_name),
+        main_exp: Expression::IdentExp {
+            data_type: DataType::Boolean,
+            name: var_name.to_string(),
+        },
+    };
+}
+
+fn generate_string_ident(var_name: &str) -> ExpressionForm {
+    return ExpressionForm {
+        top_string: Some(format!("const {} = \"1\";", var_name)),
+        top_expression: Some(vec![Ast::Declaration(
+            Declaration::ConstVariableDeclaration {
+                ident_name: var_name.to_string(),
+                exp: Expression::StringLiteralExp {
+                    value: "1".to_string(),
+                },
+            },
+        )]),
+
+        main_string: format!("({})", var_name),
+        main_exp: Expression::IdentExp {
+            data_type: DataType::String,
+            name: var_name.to_string(),
+        },
+    };
 }
 
 fn generate_unary_plus() -> ExpressionForm {
@@ -239,8 +348,8 @@ fn generate_binary_ampersand() -> ExpressionForm {
     );
 }
 
-pub(crate) fn generate_expressions(datatype: &DataType) -> Vec<ExpressionForm> {
-    let every_expression_form: Vec<fn() -> ExpressionForm> = vec![
+pub(crate) fn generate_expressions(datatype: &DataType, var_name: &str) -> Vec<ExpressionForm> {
+    let every_0_arg_exp_form: Vec<fn() -> ExpressionForm> = vec![
         generate_float_literal,
         generate_string_literal,
         generate_boolean_true_literal,
@@ -258,10 +367,25 @@ pub(crate) fn generate_expressions(datatype: &DataType) -> Vec<ExpressionForm> {
         generate_binary_ampersand,
     ];
 
+    let every_1_arg_exp_form: Vec<fn(name: &str) -> ExpressionForm> = vec![
+        generate_float_ident,
+        generate_bool_true_ident,
+        generate_bool_false_ident,
+        generate_string_ident,
+    ];
+
     let mut valid_expression_form: Vec<ExpressionForm> = vec![];
 
-    for generate_expression_form in every_expression_form {
+    for generate_expression_form in every_0_arg_exp_form {
         let generated_expression_form = generate_expression_form();
+
+        if &generated_expression_form.get_data_type() == datatype {
+            valid_expression_form.push(generated_expression_form);
+        }
+    }
+
+    for generate_expression_form in every_1_arg_exp_form {
+        let generated_expression_form = generate_expression_form(var_name);
 
         if &generated_expression_form.get_data_type() == datatype {
             valid_expression_form.push(generated_expression_form);

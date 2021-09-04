@@ -6,7 +6,7 @@ use data_type::DataType;
 use declaration::Declaration;
 use expression::{BinaryOperator, Expression, UnaryOperator};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Ast {
     Expression(Expression),
     Declaration(Declaration),

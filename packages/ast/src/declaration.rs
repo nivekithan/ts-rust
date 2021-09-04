@@ -1,6 +1,6 @@
 use crate::{data_type::DataType, expression::Expression};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Declaration {
     ConstVariableDeclaration { ident_name: String, exp: Expression },
 }

@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use ast::{
+    data_type::DataType,
     expression::{BinaryOperator, Expression, UnaryOperator},
     Ast,
 };
@@ -7,6 +10,7 @@ use lexer::token::{KeywordKind, LiteralKind, Token};
 pub struct Parser<'a> {
     content: &'a Vec<Token>,
     cur_pos: Option<usize>,
+    symbol_table: HashMap<String, DataType>,
 }
 
 impl<'a> Parser<'a> {
@@ -14,6 +18,7 @@ impl<'a> Parser<'a> {
         let mut parser = Parser {
             content,
             cur_pos: None,
+            symbol_table: HashMap::new(),
         };
 
         parser.next();
@@ -34,6 +39,9 @@ impl<'a> Parser<'a> {
                     self.next(); // consumes =
 
                     let expression = self.parse_expression(1);
+
+                    let expression_data_type = expression.get_data_type();
+                    self.symbol_table.insert(name.clone(), expression_data_type);
 
                     self.skip_semicolon();
                     return Ast::new_const_variable_declaration(&name, expression);
@@ -97,9 +105,6 @@ impl<'a> Parser<'a> {
             );
         }
     }
-
-    // Assumes that only by calling self.next it will get
-    // related token for parsing expression
 
     fn parse_expression(&mut self, precedence: usize) -> Expression {
         let mut prefix_fun = self.get_prefix_exp().unwrap();
@@ -206,6 +211,23 @@ impl<'a> Parser<'a> {
                     ))
                 }
             },
+
+            Token::Ident { name } => {
+                // consumes ident
+
+                if let Some(data_type) = self.symbol_table.get(name) {
+                    let exp = Ok(Expression::IdentExp {
+                        name: name.clone(),
+                        data_type: data_type.clone(),
+                    });
+
+                    self.next(); // Consumes ident
+
+                    return exp;
+                } else {
+                    return Err(format!("There is no variable defined with name {}", name));
+                }
+            }
 
             Token::CurveOpenBracket => {
                 self.next(); // consume (

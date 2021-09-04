@@ -37,6 +37,11 @@ pub enum Expression {
         value: bool,
     },
 
+    IdentExp {
+        name: String,
+        data_type: DataType,
+    },
+
     UnaryExp {
         operator: UnaryOperator,
         argument: Box<Expression>,
@@ -55,6 +60,8 @@ impl Expression {
             Expression::FloatLiteralExp { name: _, value: _ } => return DataType::Float,
             Expression::StringLiteralExp { value: _ } => return DataType::String,
             Expression::BooleanLiteralExp { name: _, value: _ } => return DataType::Boolean,
+
+            Expression::IdentExp { name: _, data_type } => return data_type.clone(),
 
             Expression::UnaryExp {
                 operator,
