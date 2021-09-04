@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use llvm_sys::{
     core::{
         LLVMBuildAlloca, LLVMBuildFAdd, LLVMBuildFDiv, LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFSub,
-        LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore, LLVMDisposeBuilder,
+        LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore, LLVMBuildXor, LLVMDisposeBuilder,
         LLVMPositionBuilderAtEnd,
     },
     prelude::LLVMBuilderRef,
@@ -16,7 +16,7 @@ use crate::{
     values::{
         instruction_value::InstructionValue,
         ptr_value::PointerValue,
-        traits::{AsValueRef, BasicValueTrait, FloatMathValueTrait},
+        traits::{AsValueRef, BasicValueTrait, FloatMathValueTrait, IntMathValueTrait},
     },
 };
 
@@ -121,6 +121,20 @@ impl<'a> Builder<'a> {
 
         unsafe {
             let value = LLVMBuildFNeg(self.builder, value.as_value_ref(), c_name.as_ptr());
+            return T::new(value);
+        }
+    }
+
+    pub fn build_xor<T: IntMathValueTrait<'a>>(&self, lhs: T, rhs: T, name: &str) -> T {
+        let c_name = to_c_str(name);
+
+        unsafe {
+            let value = LLVMBuildXor(
+                self.builder,
+                lhs.as_value_ref(),
+                rhs.as_value_ref(),
+                c_name.as_ptr(),
+            );
             return T::new(value);
         }
     }

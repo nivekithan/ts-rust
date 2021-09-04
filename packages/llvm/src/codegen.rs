@@ -119,6 +119,20 @@ impl<'a> Codegen<'a> {
                         return BasicValueEnum::FloatValue(evaluated_float_value);
                     }
 
+                    BasicValueEnum::IntValue(value) => {
+                        let evaluated_int_value = match operator {
+                            UnaryOperator::Bang => builder.build_xor(
+                                value,
+                                context.i64_type().const_int(1, false),
+                                name,
+                            ),
+
+                            _ => todo!(),
+                        };
+
+                        return BasicValueEnum::IntValue(evaluated_int_value);
+                    }
+
                     _ => todo!(),
                 }
             }
@@ -157,7 +171,7 @@ impl<'a> Codegen<'a> {
                     todo!()
                 }
             }
-            
+
             _ => todo!(),
         }
     }

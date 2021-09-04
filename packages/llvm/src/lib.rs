@@ -33,11 +33,7 @@ mod test {
     #[test]
     fn testing_add() {
         let input = "
-        const  x =  1;
-        const s = 23 + 323 - 23324 * 23 / 333
-        const y = true
-        const santa = false 
-        const yyy = -123";
+        const x = !false";
 
         write_llvm_ir(convert_to_ast(convert_to_token(input)));
     }
