@@ -39,6 +39,7 @@ pub enum KeywordKind {
     Const,
     True,
     False,
+    Let,
 }
 
 #[derive(Debug, PartialEq, Clone)]

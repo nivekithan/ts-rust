@@ -93,11 +93,14 @@ fn test_keyword() {
 
     let input = "
     const
+    let 
+
     true
     false";
 
     let expected_output: Vec<Token> = vec![
         Keyword(KeywordKind::Const),
+        Keyword(KeywordKind::Let),
         Keyword(KeywordKind::True),
         Keyword(KeywordKind::False),
         Eof,

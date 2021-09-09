@@ -1,6 +1,6 @@
 use ast::{data_type::DataType, Ast};
-use lexer::{convert_to_token};
-use test_utils::{generate_expressions};
+use lexer::convert_to_token;
+use test_utils::generate_expressions;
 
 use crate::convert_to_ast;
 
@@ -58,6 +58,3 @@ fn boolean_type_declaration() {
         assert_eq!(expected_output, actual_output);
     }
 }
-
-
-
