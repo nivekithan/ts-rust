@@ -3,7 +3,7 @@ pub mod declaration;
 pub mod expression;
 
 use data_type::DataType;
-use declaration::Declaration;
+use declaration::{Declaration, VariableDeclarationKind};
 use expression::{BinaryOperator, Expression, UnaryOperator};
 
 #[derive(Debug, PartialEq, Clone)]
@@ -50,11 +50,15 @@ impl Ast {
             right,
         });
     }
-
-    pub fn new_const_variable_declaration(ident_name: &String, exp: Expression) -> Ast {
-        return Ast::Declaration(Declaration::ConstVariableDeclaration {
+    pub fn new_variable_declaration(
+        ident_name: &str,
+        exp: Expression,
+        kind: VariableDeclarationKind,
+    ) -> Ast {
+        return Ast::Declaration(Declaration::VariableDeclaration {
             ident_name: ident_name.to_string(),
             exp,
+            kind,
         });
     }
 }

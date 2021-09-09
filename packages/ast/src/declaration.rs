@@ -1,14 +1,28 @@
 use crate::{data_type::DataType, expression::Expression};
 
 #[derive(Debug, PartialEq, Clone)]
+pub enum VariableDeclarationKind {
+    Const,
+    Let,
+}
+
+#[derive(Debug, PartialEq, Clone)]
 pub enum Declaration {
-    ConstVariableDeclaration { ident_name: String, exp: Expression },
+    VariableDeclaration {
+        ident_name: String,
+        exp: Expression,
+        kind: VariableDeclarationKind,
+    },
 }
 
 impl Declaration {
     pub fn get_data_type_of_exp(&self) -> DataType {
         match self {
-            Declaration::ConstVariableDeclaration { ident_name: _, exp } => {
+            Declaration::VariableDeclaration {
+                ident_name: _,
+                exp,
+                kind: _,
+            } => {
                 return exp.get_data_type();
             }
         }

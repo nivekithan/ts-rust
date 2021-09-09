@@ -2,15 +2,18 @@ use std::collections::HashMap;
 
 use ast::{
     data_type::DataType,
+    declaration::VariableDeclarationKind,
     expression::{BinaryOperator, Expression, UnaryOperator},
     Ast,
 };
 use lexer::token::{KeywordKind, LiteralKind, Token};
 
+use crate::symbol_table::SymbolMeta;
+
 pub struct Parser<'a> {
     content: &'a Vec<Token>,
     cur_pos: Option<usize>,
-    symbol_table: HashMap<String, DataType>,
+    symbol_table: HashMap<String, SymbolMeta>,
 }
 
 impl<'a> Parser<'a> {
@@ -31,7 +34,21 @@ impl<'a> Parser<'a> {
 
         match first_token {
             Token::Keyword(keyword_kind) => match keyword_kind {
-                KeywordKind::Const => {
+                KeywordKind::Const | KeywordKind::Let => {
+                    let is_const = match keyword_kind {
+                        KeywordKind::Const => true,
+                        KeywordKind::Let => false,
+
+                        _ => unreachable!(),
+                    };
+
+                    let kind = match keyword_kind {
+                        KeywordKind::Const => VariableDeclarationKind::Const,
+                        KeywordKind::Let => VariableDeclarationKind::Let,
+
+                        _ => unreachable!(),
+                    };
+
                     let name = self.next().get_ident_name().unwrap().clone(); // consumes Const
 
                     self.next(); // consumes ident
@@ -62,10 +79,14 @@ impl<'a> Parser<'a> {
                         );
                     }
 
-                    self.symbol_table.insert(name.clone(), expression_data_type);
+                    let sym_meta = SymbolMeta {
+                        data_type: expression_data_type,
+                        is_const,
+                    };
+                    self.symbol_table.insert(name.clone(), sym_meta);
 
                     self.skip_semicolon();
-                    return Ast::new_const_variable_declaration(&name, expression);
+                    return Ast::new_variable_declaration(&name, expression, kind);
                 }
 
                 _ => panic!(
@@ -236,10 +257,10 @@ impl<'a> Parser<'a> {
             Token::Ident { name } => {
                 // consumes ident
 
-                if let Some(data_type) = self.symbol_table.get(name) {
+                if let Some(sym_meta) = self.symbol_table.get(name) {
                     let exp = Ok(Expression::IdentExp {
                         name: name.clone(),
-                        data_type: data_type.clone(),
+                        data_type: sym_meta.data_type.clone(),
                     });
 
                     self.next(); // Consumes ident

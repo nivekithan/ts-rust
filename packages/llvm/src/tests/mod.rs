@@ -4,7 +4,7 @@ use ast::{
 };
 use lexer::convert_to_token;
 use parser::convert_to_ast;
-use test_utils::{generate_expressions, ExpressionForm};
+use test_utils::expression_form::{generate_expressions, ExpressionForm};
 
 use crate::write_llvm_ir;
 

@@ -54,7 +54,11 @@ impl<'a> Codegen<'a> {
             if let Some(cur_ast) = self.get_cur() {
                 match cur_ast {
                     Ast::Declaration(dec) => match dec {
-                        Declaration::ConstVariableDeclaration { ident_name, exp } => {
+                        Declaration::VariableDeclaration {
+                            ident_name,
+                            exp,
+                            kind: _,
+                        } => {
                             let data_type = exp.get_data_type();
 
                             let pointer = match data_type {
@@ -62,7 +66,7 @@ impl<'a> Codegen<'a> {
                                     let pointer = builder
                                         .build_alloca(context.f64_type(), ident_name.as_str());
                                     let value_of_exp =
-                                        self.build_expresserion(context, builder, exp, None);
+                                        self.build_expression(context, builder, exp, None);
                                     builder.build_store(pointer.clone(), value_of_exp);
 
                                     pointer
@@ -72,7 +76,7 @@ impl<'a> Codegen<'a> {
                                     let pointer = builder
                                         .build_alloca(context.i64_type(), ident_name.as_str());
                                     let value_of_exp =
-                                        self.build_expresserion(context, builder, exp, None);
+                                        self.build_expression(context, builder, exp, None);
                                     builder.build_store(pointer.clone(), value_of_exp);
 
                                     pointer
@@ -96,7 +100,7 @@ impl<'a> Codegen<'a> {
         builder.build_return(None);
     }
 
-    fn build_expresserion(
+    fn build_expression(
         &mut self,
         context: &'a Context,
         builder: &'a Builder,
@@ -148,7 +152,7 @@ impl<'a> Codegen<'a> {
             }
 
             Expression::UnaryExp { operator, argument } => {
-                let arg_value = self.build_expresserion(context, builder, argument.as_ref(), None);
+                let arg_value = self.build_expression(context, builder, argument.as_ref(), None);
 
                 match arg_value {
                     BasicValueEnum::FloatValue(value) => {
@@ -185,8 +189,8 @@ impl<'a> Codegen<'a> {
                 left,
                 right,
             } => {
-                let left_value = self.build_expresserion(context, builder, left.as_ref(), None);
-                let right_value = self.build_expresserion(context, builder, right.as_ref(), None);
+                let left_value = self.build_expression(context, builder, left.as_ref(), None);
+                let right_value = self.build_expression(context, builder, right.as_ref(), None);
 
                 if let BasicValueEnum::FloatValue(lhs) = left_value {
                     if let BasicValueEnum::FloatValue(rhs) = right_value {
