@@ -87,6 +87,8 @@ impl<'a> Codegen<'a> {
 
                             self.symbol_table.insert(ident_name.to_owned(), pointer);
                         }
+
+                        _ => todo!(),
                     },
 
                     _ => todo!(),

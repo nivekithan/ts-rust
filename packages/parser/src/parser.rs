@@ -1,3 +1,4 @@
+use core::panic;
 use std::collections::HashMap;
 
 use ast::{
@@ -94,6 +95,39 @@ impl<'a> Parser<'a> {
                     keyword_kind
                 ),
             },
+
+            Token::Ident { name } => {
+                let name = name.clone();
+                if let Some(sym_meta) = self.symbol_table.get(&name) {
+                    if sym_meta.is_const {
+                        panic!("Cannot reassign a const variable");
+                    }
+
+                    let data_type = sym_meta.data_type.clone();
+
+                    self.next(); // consumes the ident
+
+                    self.assert_cur_token(&Token::Assign);
+
+                    self.next(); // consumes =
+
+                    let expression = self.parse_expression(1);
+
+                    if expression.get_data_type() != data_type {
+                        panic!(
+                            "Reassigning datatype {:?} to varible whose datatype is {:?}",
+                            expression.get_data_type(),
+                            data_type
+                        );
+                    }
+
+                    self.skip_semicolon();
+
+                    return Ast::new_reassignment(name.as_str(), expression);
+                } else {
+                    panic!("Unknown variable {}", name);
+                }
+            }
 
             tok => panic!("Update function next_ast\n unknown token, {:?}", tok),
         }

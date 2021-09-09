@@ -1,4 +1,5 @@
 mod explicit_type_declaration;
+mod reassignment;
 
 use crate::convert_to_ast;
 use ast::{

@@ -61,6 +61,13 @@ impl Ast {
             kind,
         });
     }
+
+    pub fn new_reassignment(ident_name: &str, exp: Expression) -> Ast {
+        return Ast::Declaration(Declaration::ReVariableAssignment {
+            ident_name: ident_name.to_string(),
+            exp,
+        });
+    }
 }
 
 impl Ast {

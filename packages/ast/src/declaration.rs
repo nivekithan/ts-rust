@@ -13,6 +13,11 @@ pub enum Declaration {
         exp: Expression,
         kind: VariableDeclarationKind,
     },
+
+    ReVariableAssignment {
+        ident_name: String,
+        exp: Expression,
+    },
 }
 
 impl Declaration {
@@ -25,6 +30,8 @@ impl Declaration {
             } => {
                 return exp.get_data_type();
             }
+
+            Declaration::ReVariableAssignment { exp, ident_name: _ } => return exp.get_data_type(),
         }
     }
 }
