@@ -4,6 +4,9 @@ use inkwell::context::Context;
 
 mod codegen;
 
+#[cfg(test)]
+mod tests;
+
 pub fn write_llvm_ir(content: Vec<Ast>) -> String {
     let mut codgen = Codegen::new(&content);
 
@@ -21,23 +24,4 @@ pub fn write_llvm_ir(content: Vec<Ast>) -> String {
 
     let content = module.print_to_string().to_string();
     return content;
-}
-
-#[cfg(test)]
-mod test {
-    use lexer::convert_to_token;
-    use parser::convert_to_ast;
-
-    use crate::write_llvm_ir;
-
-    #[test]
-    fn testing_some() {
-        let input = "
-        const y = 2
-        const x = y + 1  + 2324";
-
-        let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
-
-        insta::assert_snapshot!(output);
-    }
 }

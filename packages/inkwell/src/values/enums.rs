@@ -18,8 +18,6 @@ pub enum BasicValueEnum<'a> {
 
 impl<'a> BasicValueEnum<'a> {
     pub(crate) unsafe fn new(value: LLVMValueRef) -> Self {
-    
-
         match LLVMGetTypeKind(LLVMTypeOf(value)) {
             LLVMTypeKind::LLVMDoubleTypeKind => BasicValueEnum::FloatValue(FloatValue::new(value)),
             LLVMTypeKind::LLVMPointerTypeKind => {

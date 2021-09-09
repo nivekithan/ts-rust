@@ -1,7 +1,17 @@
 use std::collections::HashMap;
 
-use ast::{Ast, data_type::{DataType}, declaration::Declaration, expression::{BinaryOperator, Expression, UnaryOperator}};
-use inkwell::{builder::Builder, context::Context, types::traits::BasicTypeTrait, values::{enums::BasicValueEnum, ptr_value::PointerValue}};
+use ast::{
+    data_type::DataType,
+    declaration::Declaration,
+    expression::{BinaryOperator, Expression, UnaryOperator},
+    Ast,
+};
+use inkwell::{
+    builder::Builder,
+    context::Context,
+    types::traits::BasicTypeTrait,
+    values::{enums::BasicValueEnum, ptr_value::PointerValue},
+};
 
 #[derive(PartialEq, Eq)]
 pub enum CodegenPos {
@@ -99,7 +109,6 @@ impl<'a> Codegen<'a> {
         };
 
         let name = name.as_str();
-        println!("Created name {}", name);
 
         match expression {
             Expression::FloatLiteralExp { name: _, value } => {
@@ -112,13 +121,24 @@ impl<'a> Codegen<'a> {
                 return BasicValueEnum::IntValue(bool_as_int_value);
             }
 
-            Expression::IdentExp { name : variable_name, data_type } => {
+            Expression::IdentExp {
+                name: variable_name,
+                data_type,
+            } => {
                 if let Some(pointer) = self.symbol_table.get(variable_name) {
-                   let load_value =  match data_type {
-                        DataType::Float => builder.build_load(pointer.to_owned(), context.f64_type().as_basic_type_enum(), name),
-                        DataType::Boolean => builder.build_load(pointer.to_owned(),context.i64_type().as_basic_type_enum(), name),
+                    let load_value = match data_type {
+                        DataType::Float => builder.build_load(
+                            pointer.to_owned(),
+                            context.f64_type().as_basic_type_enum(),
+                            name,
+                        ),
+                        DataType::Boolean => builder.build_load(
+                            pointer.to_owned(),
+                            context.i64_type().as_basic_type_enum(),
+                            name,
+                        ),
 
-                        _ => todo!()
+                        _ => todo!(),
                     };
 
                     return load_value;
@@ -154,7 +174,7 @@ impl<'a> Codegen<'a> {
                         };
 
                         return BasicValueEnum::IntValue(evaluated_int_value);
-                    },
+                    }
 
                     _ => todo!(),
                 }

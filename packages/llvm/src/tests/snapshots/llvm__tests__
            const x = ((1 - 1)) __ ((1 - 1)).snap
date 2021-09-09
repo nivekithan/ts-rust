@@ -1,0 +1,15 @@
+---
+source: packages/llvm/src/tests/mod.rs
+expression: actual_output
+
+---
+; ModuleID = 'main'
+source_filename = "main"
+
+define void @main() {
+entry:
+  %x = alloca double, align 8
+  store double 0x7FF8000000000000, double* %x, align 8
+  ret void
+}
+
