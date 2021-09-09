@@ -1,24 +1,13 @@
 use std::marker::PhantomData;
 
-use llvm_sys::{
-    core::{
-        LLVMBuildAlloca, LLVMBuildFAdd, LLVMBuildFDiv, LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFSub,
-        LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore, LLVMBuildXor, LLVMDisposeBuilder,
-        LLVMPositionBuilderAtEnd,
-    },
-    prelude::LLVMBuilderRef,
-};
+use llvm_sys::{core::{LLVMBuildAlloca, LLVMBuildFAdd, LLVMBuildFDiv, LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFSub, LLVMBuildLoad, LLVMBuildLoad2, LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore, LLVMBuildXor, LLVMDisposeBuilder, LLVMPositionBuilderAtEnd}, prelude::LLVMBuilderRef};
 
-use crate::{
-    basic_block::BasicBlock,
-    types::traits::BasicTypeTrait,
-    utils::to_c_str,
-    values::{
+use crate::{basic_block::BasicBlock, types::{enums::BasicTypeEnum, traits::{AsTypeRef, BasicTypeTrait}}, utils::to_c_str, values::{
+        enums::BasicValueEnum,
         instruction_value::InstructionValue,
         ptr_value::PointerValue,
         traits::{AsValueRef, BasicValueTrait, FloatMathValueTrait, IntMathValueTrait},
-    },
-};
+    }};
 
 pub struct Builder<'a> {
     pub(crate) builder: LLVMBuilderRef,
@@ -57,6 +46,19 @@ impl<'a> Builder<'a> {
         unsafe {
             let value = LLVMBuildStore(self.builder, value.as_value_ref(), ptr.as_value_ref());
             return InstructionValue::new(value);
+        }
+    }
+
+    pub fn build_load(&self, ptr: PointerValue<'a>, ty : BasicTypeEnum, name: &str) -> BasicValueEnum<'a> {
+        unsafe {
+            let c_name = to_c_str(name);
+            let value = LLVMBuildLoad2(
+                self.builder,
+                ty.as_type_ref(),
+                ptr.as_value_ref(),
+                c_name.as_ptr(),
+            );
+            return BasicValueEnum::new(value);
         }
     }
 

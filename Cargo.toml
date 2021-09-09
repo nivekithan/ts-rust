@@ -6,3 +6,5 @@ version="0.0.0"
 members=["./packages/lexer", "./packages/ast", "./packages/parser", "./packages/llvm", "./packages/inkwell"
 #  "./packages/ast-to-llvm"
  ]
+
+

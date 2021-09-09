@@ -7,7 +7,6 @@ edition = "2018"
 
 [dependencies]
 ast = {path = "../ast"}
-# inkwell = { version="0.1.0-beta.3", features=["llvm12-0"] }
 inkwell = { path = "../inkwell"}
 
 
@@ -15,3 +14,4 @@ inkwell = { path = "../inkwell"}
 [dev-dependencies]
 parser = { path = "../parser"}
 lexer = {path = "../lexer"}
+insta = "1.7.2"

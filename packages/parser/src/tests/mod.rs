@@ -141,13 +141,10 @@ fn test_float_ident_exp() {
         ),
     ];
 
-
     let actual_output = convert_to_ast(convert_to_token(input));
 
     assert_eq!(expected_output, actual_output);
 }
-
-
 
 #[test]
 fn test_bool_ident_exp() {
@@ -172,12 +169,10 @@ fn test_bool_ident_exp() {
         ),
     ];
 
-
     let actual_output = convert_to_ast(convert_to_token(input));
 
     assert_eq!(expected_output, actual_output);
 }
-
 
 #[test]
 fn test_string_ident_exp() {
@@ -189,7 +184,7 @@ fn test_string_ident_exp() {
         Ast::new_const_variable_declaration(
             &"x".to_string(),
             Expression::StringLiteralExp {
-                value : "1".to_string(),
+                value: "1".to_string(),
             },
         ),
         Ast::new_const_variable_declaration(
@@ -200,7 +195,6 @@ fn test_string_ident_exp() {
             },
         ),
     ];
-
 
     let actual_output = convert_to_ast(convert_to_token(input));
 

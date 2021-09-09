@@ -1,10 +1,7 @@
-use ast::{
-    data_type::DataType,
-    declaration::Declaration,
-    expression::{BinaryOperator, Expression, UnaryOperator},
-    Ast,
-};
-use inkwell::{builder::Builder, context::Context, values::enums::BasicValueEnum};
+use std::collections::HashMap;
+
+use ast::{Ast, data_type::{DataType}, declaration::Declaration, expression::{BinaryOperator, Expression, UnaryOperator}};
+use inkwell::{builder::Builder, context::Context, types::traits::BasicTypeTrait, values::{enums::BasicValueEnum, ptr_value::PointerValue}};
 
 #[derive(PartialEq, Eq)]
 pub enum CodegenPos {
@@ -17,6 +14,8 @@ pub struct Codegen<'a> {
     content: &'a Vec<Ast>,
     cur_pos: CodegenPos,
     counter: usize,
+
+    symbol_table: HashMap<String, PointerValue<'a>>,
 }
 
 impl<'a> Codegen<'a> {
@@ -25,6 +24,8 @@ impl<'a> Codegen<'a> {
             content,
             cur_pos: CodegenPos::Start,
             counter: 0,
+
+            symbol_table: HashMap::new(),
         };
     }
 
@@ -46,13 +47,15 @@ impl<'a> Codegen<'a> {
                         Declaration::ConstVariableDeclaration { ident_name, exp } => {
                             let data_type = exp.get_data_type();
 
-                            match data_type {
+                            let pointer = match data_type {
                                 DataType::Float => {
                                     let pointer = builder
                                         .build_alloca(context.f64_type(), ident_name.as_str());
                                     let value_of_exp =
                                         self.build_expresserion(context, builder, exp, None);
-                                    builder.build_store(pointer, value_of_exp);
+                                    builder.build_store(pointer.clone(), value_of_exp);
+
+                                    pointer
                                 }
 
                                 DataType::Boolean => {
@@ -60,11 +63,15 @@ impl<'a> Codegen<'a> {
                                         .build_alloca(context.i64_type(), ident_name.as_str());
                                     let value_of_exp =
                                         self.build_expresserion(context, builder, exp, None);
-                                    builder.build_store(pointer, value_of_exp);
+                                    builder.build_store(pointer.clone(), value_of_exp);
+
+                                    pointer
                                 }
 
                                 _ => todo!(),
-                            }
+                            };
+
+                            self.symbol_table.insert(ident_name.to_owned(), pointer);
                         }
                     },
 
@@ -86,6 +93,14 @@ impl<'a> Codegen<'a> {
         expression: &Expression,
         name: Option<String>,
     ) -> BasicValueEnum<'a> {
+        let name = match name {
+            Some(name) => name,
+            None => self.get_temp_name(),
+        };
+
+        let name = name.as_str();
+        println!("Created name {}", name);
+
         match expression {
             Expression::FloatLiteralExp { name: _, value } => {
                 let double_value = context.f64_type().const_float(*value);
@@ -97,15 +112,23 @@ impl<'a> Codegen<'a> {
                 return BasicValueEnum::IntValue(bool_as_int_value);
             }
 
+            Expression::IdentExp { name : variable_name, data_type } => {
+                if let Some(pointer) = self.symbol_table.get(variable_name) {
+                   let load_value =  match data_type {
+                        DataType::Float => builder.build_load(pointer.to_owned(), context.f64_type().as_basic_type_enum(), name),
+                        DataType::Boolean => builder.build_load(pointer.to_owned(),context.i64_type().as_basic_type_enum(), name),
+
+                        _ => todo!()
+                    };
+
+                    return load_value;
+                } else {
+                    panic!("Unknown variable")
+                }
+            }
+
             Expression::UnaryExp { operator, argument } => {
                 let arg_value = self.build_expresserion(context, builder, argument.as_ref(), None);
-
-                let name = match name {
-                    Some(name) => name,
-                    None => self.get_temp_name(),
-                };
-
-                let name = name.as_str();
 
                 match arg_value {
                     BasicValueEnum::FloatValue(value) => {
@@ -131,7 +154,7 @@ impl<'a> Codegen<'a> {
                         };
 
                         return BasicValueEnum::IntValue(evaluated_int_value);
-                    }
+                    },
 
                     _ => todo!(),
                 }
@@ -147,13 +170,6 @@ impl<'a> Codegen<'a> {
 
                 if let BasicValueEnum::FloatValue(lhs) = left_value {
                     if let BasicValueEnum::FloatValue(rhs) = right_value {
-                        let name = match name {
-                            Some(name) => name,
-                            None => self.get_temp_name(),
-                        };
-
-                        let name = name.as_str();
-
                         let evaluated_float_value = match operator {
                             BinaryOperator::Plus => builder.build_float_add(lhs, rhs, name),
                             BinaryOperator::Minus => builder.build_float_sub(lhs, rhs, name),

@@ -1,5 +1,7 @@
 use llvm_sys::prelude::LLVMValueRef;
 
+use crate::types::ptr_type::PointerType;
+
 use super::{
     traits::{AsValueRef, BasicValueTrait},
     Value,
@@ -17,6 +19,12 @@ impl<'a> PointerValue<'a> {
         return PointerValue {
             ptr_value: Value::new(value),
         };
+    }
+
+    pub fn get_type(&self) -> PointerType<'a> {
+        unsafe {
+            return PointerType::new(self.ptr_value.get_type());
+        }
     }
 }
 

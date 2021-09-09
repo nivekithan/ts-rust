@@ -1,6 +1,9 @@
 use std::marker::PhantomData;
 
-use llvm_sys::prelude::LLVMValueRef;
+use llvm_sys::{
+    core::LLVMTypeOf,
+    prelude::{LLVMTypeRef, LLVMValueRef},
+};
 
 use self::traits::AsValueRef;
 
@@ -27,6 +30,12 @@ impl<'a> Value<'a> {
             value,
             _marker: PhantomData,
         };
+    }
+
+    pub(crate) fn get_type(&self) -> LLVMTypeRef {
+        unsafe {
+            return LLVMTypeOf(self.as_value_ref());
+        }
     }
 }
 

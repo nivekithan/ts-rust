@@ -4,7 +4,7 @@ use inkwell::context::Context;
 
 mod codegen;
 
-pub fn write_llvm_ir(content: Vec<Ast>) {
+pub fn write_llvm_ir(content: Vec<Ast>) -> String {
     let mut codgen = Codegen::new(&content);
 
     let context = Context::create();
@@ -19,8 +19,8 @@ pub fn write_llvm_ir(content: Vec<Ast>) {
 
     codgen.consume(&context, &builder);
 
-    let content = module.print_to_string();
-    println!("{}", content.to_string());
+    let content = module.print_to_string().to_string();
+    return content;
 }
 
 #[cfg(test)]
@@ -31,10 +31,13 @@ mod test {
     use crate::write_llvm_ir;
 
     #[test]
-    fn testing_add() {
+    fn testing_some() {
         let input = "
-        const x = !false";
+        const y = 2
+        const x = y + 1  + 2324";
 
-        write_llvm_ir(convert_to_ast(convert_to_token(input)));
+        let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+
+        println!("{}", output);
     }
 }
