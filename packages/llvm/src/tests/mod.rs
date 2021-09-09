@@ -203,8 +203,7 @@ fn test_binary_plus_float_exp() {
         }
 
         for exp_form_2 in expression_forms_2 {
-
-            if  is_working_in_progress(&exp_form_2) {
+            if is_working_in_progress(&exp_form_2) {
                 continue;
             }
 
@@ -259,8 +258,7 @@ fn test_binary_minus_exp() {
         }
 
         for exp_form_2 in expression_forms_2 {
-
-            if  is_working_in_progress(&exp_form_2) {
+            if is_working_in_progress(&exp_form_2) {
                 continue;
             }
 
@@ -289,8 +287,7 @@ fn test_binary_star_exp() {
         }
 
         for exp_form_2 in expression_forms_2 {
-
-            if  is_working_in_progress(&exp_form_2) {
+            if is_working_in_progress(&exp_form_2) {
                 continue;
             }
 
@@ -319,8 +316,7 @@ fn test_binary_slash_exp() {
         }
 
         for exp_form_2 in expression_forms_2 {
-
-            if  is_working_in_progress(&exp_form_2) {
+            if is_working_in_progress(&exp_form_2) {
                 continue;
             }
 
@@ -425,7 +421,7 @@ fn is_working_in_progress(exp_form: &ExpressionForm) -> bool {
             right: _,
         } => match operator {
             BinaryOperator::Ampersand | BinaryOperator::Caret | BinaryOperator::VerticalBar => true,
-            _ =>  false,
+            _ => false,
         },
 
         Expression::UnaryExp {

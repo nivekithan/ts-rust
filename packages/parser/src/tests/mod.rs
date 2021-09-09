@@ -1,3 +1,5 @@
+mod explicit_type_declaration;
+
 use crate::convert_to_ast;
 use ast::{
     data_type::DataType,
@@ -5,7 +7,6 @@ use ast::{
     Ast,
 };
 use lexer::convert_to_token;
-
 use test_utils::generate_expressions;
 
 #[test]

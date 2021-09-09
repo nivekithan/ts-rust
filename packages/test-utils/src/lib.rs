@@ -349,6 +349,13 @@ fn generate_binary_ampersand() -> ExpressionForm {
 }
 
 pub fn generate_expressions(datatype: &DataType, var_name: &str) -> Vec<ExpressionForm> {
+    return generate_expression_filter(|cur_data_type| cur_data_type == datatype, var_name);
+}
+
+pub fn generate_expression_filter<Filter>(filter: Filter, var_name: &str) -> Vec<ExpressionForm>
+where
+    Filter: Fn(&DataType) -> bool,
+{
     let every_0_arg_exp_form: Vec<fn() -> ExpressionForm> = vec![
         generate_float_literal,
         generate_string_literal,
@@ -379,7 +386,7 @@ pub fn generate_expressions(datatype: &DataType, var_name: &str) -> Vec<Expressi
     for generate_expression_form in every_0_arg_exp_form {
         let generated_expression_form = generate_expression_form();
 
-        if &generated_expression_form.get_data_type() == datatype {
+        if filter(&generated_expression_form.get_data_type()) {
             valid_expression_form.push(generated_expression_form);
         }
     }
@@ -387,7 +394,7 @@ pub fn generate_expressions(datatype: &DataType, var_name: &str) -> Vec<Expressi
     for generate_expression_form in every_1_arg_exp_form {
         let generated_expression_form = generate_expression_form(var_name);
 
-        if &generated_expression_form.get_data_type() == datatype {
+        if filter(&generated_expression_form.get_data_type()) {
             valid_expression_form.push(generated_expression_form);
         }
     }

@@ -34,13 +34,34 @@ impl<'a> Parser<'a> {
                 KeywordKind::Const => {
                     let name = self.next().get_ident_name().unwrap().clone(); // consumes Const
 
-                    self.assert_next_token(&Token::Assign); // consumes ident
+                    self.next(); // consumes ident
+
+                    let expected_data_type = match self.get_cur_token().unwrap() {
+                        Token::Colon => {
+                            self.next(); // consumes :
+                            self.parse_type_declaration()
+                        }
+
+                        _ => DataType::Unknown,
+                    };
+
+                    self.assert_cur_token(&Token::Assign);
 
                     self.next(); // consumes =
 
                     let expression = self.parse_expression(1);
 
                     let expression_data_type = expression.get_data_type();
+
+                    if expected_data_type != DataType::Unknown
+                        && expected_data_type != expression_data_type
+                    {
+                        panic!(
+                            "Expected data type {:?} but got {:?}",
+                            expected_data_type, expression_data_type
+                        );
+                    }
+
                     self.symbol_table.insert(name.clone(), expression_data_type);
 
                     self.skip_semicolon();
@@ -76,14 +97,14 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn assert_next_token(&mut self, token_type: &Token) {
-        let next_token = self.next();
+    fn assert_cur_token(&self, token_type: &Token) {
+        let cur_token = self.get_cur_token().unwrap();
 
-        if next_token != token_type {
+        if cur_token != token_type {
             panic!(
-                "Expected token type {0:?} but got {1:?}",
-                token_type, next_token
-            )
+                "Expected token type to be {:?} but got {:?}",
+                token_type, cur_token
+            );
         }
     }
 
@@ -374,5 +395,28 @@ impl<'a> Parser<'a> {
 
             _ => return 1,
         }
+    }
+
+    fn parse_type_declaration(&mut self) -> DataType {
+        let cur_tok = self.get_cur_token().unwrap();
+
+        let data_type = match cur_tok {
+            Token::Ident { name } => {
+                if name == "string" {
+                    DataType::String
+                } else if name == "boolean" {
+                    DataType::Boolean
+                } else if name == "number" {
+                    DataType::Float
+                } else {
+                    todo!()
+                }
+            }
+            _ => todo!(),
+        };
+
+        self.next(); // consumes ident;
+
+        return data_type;
     }
 }
