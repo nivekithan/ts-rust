@@ -38,6 +38,6 @@ mod test {
 
         let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
 
-        println!("{}", output);
+        insta::assert_snapshot!(output);
     }
 }

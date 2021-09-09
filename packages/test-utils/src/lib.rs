@@ -7,11 +7,11 @@ use ast::{
     Ast,
 };
 #[derive(Debug)]
-pub(crate) struct ExpressionForm {
-    pub(crate) top_string: Option<String>,
-    pub(crate) top_expression: Option<Vec<Ast>>,
-    pub(crate) main_string: String,
-    pub(crate) main_exp: Expression,
+pub struct ExpressionForm {
+    pub top_string: Option<String>,
+    pub top_expression: Option<Vec<Ast>>,
+    pub main_exp: Expression,
+    pub main_string: String,
 }
 
 impl ExpressionForm {
@@ -28,7 +28,7 @@ impl ExpressionForm {
         return self.main_exp.get_data_type();
     }
 
-    pub(crate) fn generate_input(&self, exp_str: String) -> String {
+    pub fn generate_input(&self, exp_str: String) -> String {
         if let Some(top_str) = &self.top_string {
             return format!("{}\n {}", top_str, exp_str);
         } else {
@@ -36,7 +36,7 @@ impl ExpressionForm {
         }
     }
 
-    pub(crate) fn generate_expected_output(&self, exp_output: Vec<Ast>) -> Vec<Ast> {
+    pub fn generate_expected_output(&self, exp_output: Vec<Ast>) -> Vec<Ast> {
         if let Some(top_exp) = &self.top_expression {
             let mut expected_output: Vec<Ast> = vec![];
 
@@ -348,7 +348,7 @@ fn generate_binary_ampersand() -> ExpressionForm {
     );
 }
 
-pub(crate) fn generate_expressions(datatype: &DataType, var_name: &str) -> Vec<ExpressionForm> {
+pub fn generate_expressions(datatype: &DataType, var_name: &str) -> Vec<ExpressionForm> {
     let every_0_arg_exp_form: Vec<fn() -> ExpressionForm> = vec![
         generate_float_literal,
         generate_string_literal,

@@ -1,5 +1,3 @@
-mod util;
-
 use crate::convert_to_ast;
 use ast::{
     data_type::DataType,
@@ -8,7 +6,7 @@ use ast::{
 };
 use lexer::convert_to_token;
 
-use self::util::generate_expressions;
+use test_utils::generate_expressions;
 
 #[test]
 fn test_convert_to_ast() {

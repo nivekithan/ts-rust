@@ -1,9 +1,6 @@
-[packages]
-name="tpm"
-version="0.0.0"
 
 [workspace]
-members=["./packages/lexer", "./packages/ast", "./packages/parser", "./packages/llvm", "./packages/inkwell"
+members=["./packages/lexer", "./packages/ast", "./packages/parser", "./packages/llvm", "./packages/inkwell", "./packages/test-utils"
 #  "./packages/ast-to-llvm"
  ]
 
