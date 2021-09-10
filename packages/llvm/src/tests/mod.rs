@@ -127,6 +127,18 @@ fn test_bool_ident_exp() {
     "###);
 }
 
+
+#[test]
+fn test_re_assignment() {
+    let input = "
+    let x = 1;
+    x = 2;";
+
+    let actual_output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+
+    insta::assert_snapshot!(input, actual_output);
+}
+
 // #[test]
 // fn test_string_ident_exp() {
 //     let input = "

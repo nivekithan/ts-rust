@@ -5,6 +5,7 @@ pub struct SwitchVarDec {
     pub name: String,
 }
 
+
 pub fn generate_switch_var_dec(kind: Option<&VariableDeclarationKind>) -> Vec<SwitchVarDec> {
     let const_switch_var_dec = SwitchVarDec {
         kind: VariableDeclarationKind::Const,

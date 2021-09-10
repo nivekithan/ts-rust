@@ -86,6 +86,15 @@ impl<'a> Codegen<'a> {
                             };
 
                             self.symbol_table.insert(ident_name.to_owned(), pointer);
+                        },
+
+
+                        // Does not do typechecking 
+                        Declaration::ReVariableAssignment { ident_name, exp } => { 
+                            let var_ptr = self.symbol_table.get(ident_name).unwrap().clone();
+                            let value = self.build_expression(context, builder, exp, None);
+                            
+                            builder.build_store(var_ptr, value);
                         }
 
                         _ => todo!(),
