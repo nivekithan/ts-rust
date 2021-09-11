@@ -31,6 +31,6 @@ pub enum VariableAssignmentOperator {
     Assign,
     PlusAssign,
     MinusAssign,
-    StartAssign,
+    StarAssign,
     SlashAssign,
 }

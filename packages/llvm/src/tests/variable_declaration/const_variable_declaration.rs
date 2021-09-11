@@ -18,9 +18,12 @@ fn test_all_const() {
             return input;
         }),
 
-        expressions_data_type: vec![(DatatypeOrFn::Fn(Box::new(|_| {
-            return true;
-        })), vec!["_x".to_string()])],
+        expressions_data_type: vec![(
+            DatatypeOrFn::Fn(Box::new(|_| {
+                return true;
+            })),
+            vec!["_x".to_string()],
+        )],
 
         test: Box::new(|_, _, input| {
             let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
@@ -45,7 +48,10 @@ fn explicit_float_type_const() {
             return input;
         }),
 
-        expressions_data_type: vec![(DatatypeOrFn::DataType(DataType::Float), vec!["_x".to_string()])],
+        expressions_data_type: vec![(
+            DatatypeOrFn::DataType(DataType::Float),
+            vec!["_x".to_string()],
+        )],
 
         test: Box::new(|_, _, input| {
             let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
@@ -70,7 +76,10 @@ fn explicit_boolean_type_const() {
             return input;
         }),
 
-        expressions_data_type: vec![(DatatypeOrFn::DataType(DataType::Boolean), vec!["_x".to_string()])],
+        expressions_data_type: vec![(
+            DatatypeOrFn::DataType(DataType::Boolean),
+            vec!["_x".to_string()],
+        )],
 
         test: Box::new(|_, _, input| {
             let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
@@ -97,7 +106,10 @@ fn test_const_unary_bang() {
             return input;
         }),
 
-        expressions_data_type: vec![(DatatypeOrFn::DataType(DataType::Boolean), vec!["_x".to_string()])],
+        expressions_data_type: vec![(
+            DatatypeOrFn::DataType(DataType::Boolean),
+            vec!["_x".to_string()],
+        )],
 
         test: Box::new(|_, _, input| {
             let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
@@ -122,7 +134,10 @@ fn unary_plus() {
             return input;
         }),
 
-        expressions_data_type: vec![(DatatypeOrFn::DataType(DataType::Float), vec!["_x".to_string()])],
+        expressions_data_type: vec![(
+            DatatypeOrFn::DataType(DataType::Float),
+            vec!["_x".to_string()],
+        )],
 
         test: Box::new(|_, _, input| {
             let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
@@ -147,7 +162,10 @@ fn unary_minus() {
             return input;
         }),
 
-        expressions_data_type: vec![(DatatypeOrFn::DataType(DataType::Float), vec!["_x".to_string()])],
+        expressions_data_type: vec![(
+            DatatypeOrFn::DataType(DataType::Float),
+            vec!["_x".to_string()],
+        )],
 
         test: Box::new(|_, _, input| {
             let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
@@ -173,8 +191,14 @@ fn binary_float_plus() {
         }),
 
         expressions_data_type: vec![
-            (DatatypeOrFn::DataType(DataType::Float), vec!["_x".to_string()]),
-            (DatatypeOrFn::DataType(DataType::Float), vec!["__y".to_string()]),
+            (
+                DatatypeOrFn::DataType(DataType::Float),
+                vec!["_x".to_string()],
+            ),
+            (
+                DatatypeOrFn::DataType(DataType::Float),
+                vec!["__y".to_string()],
+            ),
         ],
 
         test: Box::new(|_, _, input| {
@@ -201,8 +225,14 @@ fn binary_float_minus() {
         }),
 
         expressions_data_type: vec![
-            (DatatypeOrFn::DataType(DataType::Float), vec!["_x".to_string()]),
-            (DatatypeOrFn::DataType(DataType::Float), vec!["__y".to_string()]),
+            (
+                DatatypeOrFn::DataType(DataType::Float),
+                vec!["_x".to_string()],
+            ),
+            (
+                DatatypeOrFn::DataType(DataType::Float),
+                vec!["__y".to_string()],
+            ),
         ],
 
         test: Box::new(|_, _, input| {
@@ -229,8 +259,14 @@ fn binary_float_star() {
         }),
 
         expressions_data_type: vec![
-            (DatatypeOrFn::DataType(DataType::Float), vec!["_x".to_string()]),
-            (DatatypeOrFn::DataType(DataType::Float), vec!["__y".to_string()]),
+            (
+                DatatypeOrFn::DataType(DataType::Float),
+                vec!["_x".to_string()],
+            ),
+            (
+                DatatypeOrFn::DataType(DataType::Float),
+                vec!["__y".to_string()],
+            ),
         ],
 
         test: Box::new(|_, _, input| {
@@ -257,8 +293,14 @@ fn binary_float_slash() {
         }),
 
         expressions_data_type: vec![
-            (DatatypeOrFn::DataType(DataType::Float), vec!["_x".to_string()]),
-            (DatatypeOrFn::DataType(DataType::Float), vec!["__y".to_string()]),
+            (
+                DatatypeOrFn::DataType(DataType::Float),
+                vec!["_x".to_string()],
+            ),
+            (
+                DatatypeOrFn::DataType(DataType::Float),
+                vec!["__y".to_string()],
+            ),
         ],
 
         test: Box::new(|_, _, input| {

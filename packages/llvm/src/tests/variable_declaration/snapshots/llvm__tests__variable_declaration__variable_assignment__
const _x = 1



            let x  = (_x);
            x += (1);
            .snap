@@ -14,7 +14,7 @@ entry:
   %"1" = load double, double* %_x, align 8
   store double %"1", double* %x, align 8
   %"3" = load double, double* %x, align 8
-  %"4" = fadd double 1.000000e+00, %"3"
+  %"4" = fadd double %"3", 1.000000e+00
   store double %"4", double* %x, align 8
   ret void
 }

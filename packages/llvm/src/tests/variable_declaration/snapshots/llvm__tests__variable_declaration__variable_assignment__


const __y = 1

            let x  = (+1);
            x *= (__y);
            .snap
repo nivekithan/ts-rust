@@ -1,0 +1,21 @@
+---
+source: packages/llvm/src/tests/variable_declaration/variable_assignment.rs
+expression: output
+
+---
+; ModuleID = 'main'
+source_filename = "main"
+
+define void @main() {
+entry:
+  %__y = alloca double, align 8
+  store double 1.000000e+00, double* %__y, align 8
+  %x = alloca double, align 8
+  store double 1.000000e+00, double* %x, align 8
+  %"3" = load double, double* %__y, align 8
+  %"4" = load double, double* %x, align 8
+  %"5" = fmul double %"4", %"3"
+  store double %"5", double* %x, align 8
+  ret void
+}
+

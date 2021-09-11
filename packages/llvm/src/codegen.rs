@@ -13,7 +13,6 @@ use inkwell::{
     values::{enums::BasicValueEnum, ptr_value::PointerValue},
 };
 
-
 #[derive(PartialEq, Eq)]
 pub enum CodegenPos {
     Start,
@@ -101,20 +100,87 @@ impl<'a> Codegen<'a> {
                             match operator {
                                 VariableAssignmentOperator::Assign => {
                                     builder.build_store(var_ptr, value);
-                                },
-                                
+                                }
+
                                 VariableAssignmentOperator::PlusAssign => {
-                                    let load_value = builder.build_load(var_ptr, context.f64_type().as_basic_type_enum(), self.get_temp_name().as_str());
-                                    
-                                    if let BasicValueEnum::FloatValue(lhs) = value {
-                                        if let BasicValueEnum::FloatValue(rhs) = load_value {
-                                           let result_value =  builder.build_float_add(lhs, rhs,self.get_temp_name().as_str());
-                                           builder.build_store(var_ptr, result_value);
+                                    let load_value = builder.build_load(
+                                        var_ptr,
+                                        context.f64_type().as_basic_type_enum(),
+                                        self.get_temp_name().as_str(),
+                                    );
+
+                                    if let BasicValueEnum::FloatValue(lhs) = load_value {
+                                        if let BasicValueEnum::FloatValue(rhs) = value {
+                                            let result_value = builder.build_float_add(
+                                                lhs,
+                                                rhs,
+                                                self.get_temp_name().as_str(),
+                                            );
+                                            builder.build_store(var_ptr, result_value);
+                                        }
+                                    }
+                                },
+
+                                VariableAssignmentOperator::MinusAssign => {
+                                    let load_value = builder.build_load(
+                                        var_ptr,
+                                        context.f64_type().as_basic_type_enum(),
+                                        self.get_temp_name().as_str(),
+                                    );
+
+                                    if let BasicValueEnum::FloatValue(lhs) = load_value {
+                                        if let BasicValueEnum::FloatValue(rhs) = value {
+                                            let result_value = builder.build_float_sub(
+                                                lhs,
+                                                rhs,
+                                                self.get_temp_name().as_str(),
+                                            );
+                                            builder.build_store(var_ptr, result_value);
+                                        }
+                                    }
+                                },
+
+                                
+                                VariableAssignmentOperator::StarAssign => {
+                                    let load_value = builder.build_load(
+                                        var_ptr,
+                                        context.f64_type().as_basic_type_enum(),
+                                        self.get_temp_name().as_str(),
+                                    );
+
+                                    if let BasicValueEnum::FloatValue(lhs) = load_value {
+                                        if let BasicValueEnum::FloatValue(rhs) = value {
+                                            let result_value = builder.build_float_mul(
+                                                lhs,
+                                                rhs,
+                                                self.get_temp_name().as_str(),
+                                            );
+                                            builder.build_store(var_ptr, result_value);
+                                        }
+                                    }
+                                },
+
+                                
+                                VariableAssignmentOperator::SlashAssign => {
+                                    let load_value = builder.build_load(
+                                        var_ptr,
+                                        context.f64_type().as_basic_type_enum(),
+                                        self.get_temp_name().as_str(),
+                                    );
+
+                                    if let BasicValueEnum::FloatValue(lhs) = load_value {
+                                        if let BasicValueEnum::FloatValue(rhs) = value {
+                                            let result_value = builder.build_float_div(
+                                                lhs,
+                                                rhs,
+                                                self.get_temp_name().as_str(),
+                                            );
+                                            builder.build_store(var_ptr, result_value);
                                         }
                                     }
                                 }
 
-                                _ => todo!(),
+                                // _ => todo!(),
                             };
                         }
                         _ => todo!(),

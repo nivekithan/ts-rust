@@ -26,7 +26,9 @@ impl ExpressionTest {
         let t_exps: Vec<Vec<TExp>> = self
             .expressions_data_type
             .iter()
-            .map(|(datatype_or_fn, var_names)| return Self::get_t_exp(datatype_or_fn, var_names.clone()))
+            .map(|(datatype_or_fn, var_names)| {
+                return Self::get_t_exp(datatype_or_fn, var_names.clone());
+            })
             .collect();
 
         let clock_limiter: Vec<usize> = t_exps.iter().map(|t| return t.len()).collect();

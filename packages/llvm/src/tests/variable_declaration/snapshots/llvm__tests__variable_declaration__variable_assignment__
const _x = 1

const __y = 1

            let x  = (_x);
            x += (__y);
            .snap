@@ -17,7 +17,7 @@ entry:
   store double %"2", double* %x, align 8
   %"3" = load double, double* %__y, align 8
   %"4" = load double, double* %x, align 8
-  %"5" = fadd double %"3", %"4"
+  %"5" = fadd double %"4", %"3"
   store double %"5", double* %x, align 8
   ret void
 }

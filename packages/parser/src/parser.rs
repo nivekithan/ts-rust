@@ -111,7 +111,7 @@ impl<'a> Parser<'a> {
                         Token::Assign => VariableAssignmentOperator::Assign,
                         Token::PlusAssign => VariableAssignmentOperator::PlusAssign,
                         Token::MinusAssign => VariableAssignmentOperator::MinusAssign,
-                        Token::StarAssign => VariableAssignmentOperator::StartAssign,
+                        Token::StarAssign => VariableAssignmentOperator::StarAssign,
                         Token::SlashAssign => VariableAssignmentOperator::SlashAssign,
 
                         tok => panic!("Expected either one of the =, +=, -=, *=, /= assignment operators but got {:?}", tok),
@@ -131,11 +131,7 @@ impl<'a> Parser<'a> {
 
                     self.skip_semicolon();
 
-                    return Ast::new_variable_assignment(
-                        name.as_str(),
-                        operator,
-                        expression,
-                    );
+                    return Ast::new_variable_assignment(name.as_str(), operator, expression);
                 } else {
                     panic!("Unknown variable {}", name);
                 }

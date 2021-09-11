@@ -11,7 +11,7 @@ entry:
   %x = alloca double, align 8
   store double 2.000000e+00, double* %x, align 8
   %"6" = load double, double* %x, align 8
-  %"7" = fadd double 0.000000e+00, %"6"
+  %"7" = fadd double %"6", 0.000000e+00
   store double %"7", double* %x, align 8
   ret void
 }
