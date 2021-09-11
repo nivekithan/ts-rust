@@ -1,6 +1,13 @@
 #[derive(Debug, PartialEq, Clone)]
 pub enum Token {
+
+    // Assignment operators
     Assign, // =
+    PlusAssign, // +=
+    MinusAssign, // -=
+    StarAssign, // *=
+    SlashAssign, // /=
+    
 
     SemiColon, // ;
     Colon,     // :

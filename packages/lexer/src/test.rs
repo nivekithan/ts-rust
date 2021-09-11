@@ -10,6 +10,10 @@ fn test_operators() {
 
     let input = "
     =
+    +=
+    -=
+    *=
+    /=
     
     ;
     :
@@ -36,6 +40,10 @@ fn test_operators() {
 
     let expected_output: Vec<Token> = vec![
         Assign,
+        PlusAssign,
+        MinusAssign,
+        StarAssign,
+        SlashAssign,
         SemiColon,
         Colon,
         AngleOpenBracket,

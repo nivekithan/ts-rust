@@ -2,7 +2,7 @@ use crate::token::LiteralKind;
 
 use super::token::KeywordKind;
 use core::panic;
-use std::str::Chars;
+use std::{str::Chars};
 
 use super::token::Token;
 
@@ -64,15 +64,47 @@ impl<'a> Lexer<'a> {
                     return Bang;
                 } else if char == '+' {
                     self.next(); // consumes +
+
+                    if let Some(char) = self.cur_char {
+                        if char == '=' {
+                            self.next(); // consumes =
+                            return PlusAssign;
+                        }
+                    }
+
                     return Plus;
                 } else if char == '-' {
                     self.next(); // consumes -
+
+                    if let Some(char) = self.cur_char {
+                        if char == '=' {
+                            self.next(); // consumes =
+                            return MinusAssign;
+                        }
+                    }
+
                     return Minus;
                 } else if char == '*' {
                     self.next(); // consumes +
+
+
+                    if let Some(char) = self.cur_char {
+                        if char == '=' {
+                            self.next(); // consumes =
+                            return StarAssign;
+                        }
+                    }
+
                     return Star;
                 } else if char == '/' {
                     self.next(); // consumes /
+
+                    if let Some(char) = self.cur_char {
+                        if char == '=' {
+                            self.next(); // consumes =
+                            return SlashAssign;
+                        }
+                    }
                     return Slash;
                 } else if char == '|' {
                     self.next(); // consumes |
