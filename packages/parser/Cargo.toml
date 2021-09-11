@@ -9,6 +9,3 @@ edition = "2018"
 lexer = { path = "../lexer"}
 ast = {path = "../ast"}
 
-
-[dev-dependencies]
-test-utils = { path  = "../test-utils"}

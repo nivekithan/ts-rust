@@ -13,13 +13,12 @@
         "**/CVS": true,
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
-        "**/tests/snapshots" : true,
     },
 
     "search.exclude": {
         "**/node_modules": true,
         "**/bower_components": true,
         "**/*.code-search": true,
-        "**/tests/snapshots" : true,
+        "**/tests/**/snapshots" : true,
     }
 }

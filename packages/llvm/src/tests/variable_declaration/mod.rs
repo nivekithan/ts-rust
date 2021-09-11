@@ -1,0 +1,1 @@
+mod const_variable_declaration;

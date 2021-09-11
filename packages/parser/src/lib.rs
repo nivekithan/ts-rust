@@ -1,9 +1,6 @@
 mod parser;
 mod symbol_table;
 
-#[cfg(test)]
-mod tests;
-
 use crate::parser::Parser;
 use ast::Ast;
 use lexer::token::Token;
