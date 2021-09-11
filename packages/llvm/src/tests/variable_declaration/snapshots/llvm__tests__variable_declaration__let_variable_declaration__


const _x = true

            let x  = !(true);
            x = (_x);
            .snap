@@ -1,0 +1,19 @@
+---
+source: packages/llvm/src/tests/variable_declaration/let_variable_declaration.rs
+expression: output
+
+---
+; ModuleID = 'main'
+source_filename = "main"
+
+define void @main() {
+entry:
+  %_x = alloca i64, align 8
+  store i64 1, i64* %_x, align 4
+  %x = alloca i64, align 8
+  store i64 0, i64* %x, align 4
+  %"3" = load i64, i64* %_x, align 4
+  store i64 %"3", i64* %x, align 4
+  ret void
+}
+
