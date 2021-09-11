@@ -107,9 +107,17 @@ impl<'a> Parser<'a> {
 
                     self.next(); // consumes the ident
 
-                    self.assert_cur_token(&Token::Assign);
+                    let operator = match self.get_cur_token().unwrap() {
+                        Token::Assign => VariableAssignmentOperator::Assign,
+                        Token::PlusAssign => VariableAssignmentOperator::PlusAssign,
+                        Token::MinusAssign => VariableAssignmentOperator::MinusAssign,
+                        Token::StarAssign => VariableAssignmentOperator::StartAssign,
+                        Token::SlashAssign => VariableAssignmentOperator::SlashAssign,
 
-                    self.next(); // consumes =
+                        tok => panic!("Expected either one of the =, +=, -=, *=, /= assignment operators but got {:?}", tok),
+                    };
+
+                    self.next(); // consumes =`
 
                     let expression = self.parse_expression(1);
 
@@ -125,7 +133,7 @@ impl<'a> Parser<'a> {
 
                     return Ast::new_variable_assignment(
                         name.as_str(),
-                        VariableAssignmentOperator::Assign,
+                        operator,
                         expression,
                     );
                 } else {

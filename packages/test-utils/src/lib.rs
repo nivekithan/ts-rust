@@ -16,17 +16,17 @@ pub enum DatatypeOrFn {
 
 pub struct ExpressionTest {
     pub generate_input: Box<dyn Fn(Vec<String>, Vec<String>) -> String>, // Input we are testing
-    pub expressions_data_type: Vec<DatatypeOrFn>, // Can be used to choose what data_type of expression we have to provide
+    pub expressions_data_type: Vec<(DatatypeOrFn, Vec<String>)>, // Can be used to choose what data_type of expression we have to provide
 
     pub test: Box<dyn Fn(Vec<Expression>, Vec<Ast>, String) -> ()>, // This is where we can test
 }
 
 impl ExpressionTest {
-    pub fn test(&self, var_names: Vec<String>) {
+    pub fn test(&self) {
         let t_exps: Vec<Vec<TExp>> = self
             .expressions_data_type
             .iter()
-            .map(|datatype_or_fn| return Self::get_t_exp(datatype_or_fn, var_names.clone()))
+            .map(|(datatype_or_fn, var_names)| return Self::get_t_exp(datatype_or_fn, var_names.clone()))
             .collect();
 
         let clock_limiter: Vec<usize> = t_exps.iter().map(|t| return t.len()).collect();
