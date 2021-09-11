@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use ast::{
     data_type::DataType,
-    declaration::Declaration,
+    declaration::{Declaration, VariableAssignmentOperator},
     expression::{BinaryOperator, Expression, UnaryOperator},
     Ast,
 };
@@ -89,11 +89,21 @@ impl<'a> Codegen<'a> {
                         }
 
                         // Does not do typechecking
-                        Declaration::ReVariableAssignment { ident_name, exp } => {
+                        Declaration::VariableAssignment {
+                            ident_name,
+                            exp,
+                            operator,
+                        } => {
                             let var_ptr = self.symbol_table.get(ident_name).unwrap().clone();
                             let value = self.build_expression(context, builder, exp, None);
 
-                            builder.build_store(var_ptr, value);
+                            match operator {
+                                VariableAssignmentOperator::Assign => {
+                                    builder.build_store(var_ptr, value)
+                                }
+
+                                _ => todo!(),
+                            };
                         }
                         _ => todo!(),
                     },

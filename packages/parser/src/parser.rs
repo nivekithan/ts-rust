@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use ast::{
     data_type::DataType,
-    declaration::VariableDeclarationKind,
+    declaration::{VariableAssignmentOperator, VariableDeclarationKind},
     expression::{BinaryOperator, Expression, UnaryOperator},
     Ast,
 };
@@ -123,17 +123,19 @@ impl<'a> Parser<'a> {
 
                     self.skip_semicolon();
 
-                    return Ast::new_reassignment(name.as_str(), expression);
+                    return Ast::new_variable_assignment(
+                        name.as_str(),
+                        VariableAssignmentOperator::Assign,
+                        expression,
+                    );
                 } else {
                     panic!("Unknown variable {}", name);
                 }
-            },
+            }
 
             tok => panic!("Update function next_ast\n unknown token, {:?}", tok),
         }
     }
-
-
 
     // fn parser_if_block(&mut self) {
     //     let first_token  = self.get_cur_token().unwrap();
@@ -144,13 +146,13 @@ impl<'a> Parser<'a> {
 
     //             self.assert_cur_token(&Token::CurveOpenBracket);
     //             self.next(); // consumes (
-            
+
     //             let condition = self.parse_expression(1);
 
     //             self.assert_cur_token(&Token::CurveCloseBracket);
     //             self.next(); // consumes )
-            
-    //         },  
+
+    //         },
 
     //         _ => panic!("Expected parser_if_block to be called only when the cur_token is of Keyword if")
     //     }

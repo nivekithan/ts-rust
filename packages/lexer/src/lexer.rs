@@ -2,7 +2,7 @@ use crate::token::LiteralKind;
 
 use super::token::KeywordKind;
 use core::panic;
-use std::{str::Chars};
+use std::str::Chars;
 
 use super::token::Token;
 
@@ -86,7 +86,6 @@ impl<'a> Lexer<'a> {
                     return Minus;
                 } else if char == '*' {
                     self.next(); // consumes +
-
 
                     if let Some(char) = self.cur_char {
                         if char == '=' {

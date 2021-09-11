@@ -3,7 +3,7 @@ pub mod declaration;
 pub mod expression;
 
 use data_type::DataType;
-use declaration::{Declaration, VariableDeclarationKind};
+use declaration::{Declaration, VariableAssignmentOperator, VariableDeclarationKind};
 use expression::{BinaryOperator, Expression, UnaryOperator};
 
 #[derive(Debug, PartialEq, Clone)]
@@ -62,8 +62,13 @@ impl Ast {
         });
     }
 
-    pub fn new_reassignment(ident_name: &str, exp: Expression) -> Ast {
-        return Ast::Declaration(Declaration::ReVariableAssignment {
+    pub fn new_variable_assignment(
+        ident_name: &str,
+        operator: VariableAssignmentOperator,
+        exp: Expression,
+    ) -> Ast {
+        return Ast::Declaration(Declaration::VariableAssignment {
+            operator,
             ident_name: ident_name.to_string(),
             exp,
         });

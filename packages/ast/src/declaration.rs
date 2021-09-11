@@ -14,8 +14,9 @@ pub enum Declaration {
         kind: VariableDeclarationKind,
     },
 
-    ReVariableAssignment {
+    VariableAssignment {
         ident_name: String,
+        operator: VariableAssignmentOperator,
         exp: Expression,
     },
 
@@ -23,4 +24,13 @@ pub enum Declaration {
         condition: Expression,
         block: Box<Vec<Ast>>,
     },
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum VariableAssignmentOperator {
+    Assign,
+    PlusAssign,
+    MinusAssign,
+    StartAssign,
+    SlashAssign,
 }
