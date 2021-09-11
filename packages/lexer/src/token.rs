@@ -37,9 +37,12 @@ pub enum Token {
 #[derive(Debug, PartialEq, Clone)]
 pub enum KeywordKind {
     Const,
+    Let,
+    
     True,
     False,
-    Let,
+
+    If
 }
 
 #[derive(Debug, PartialEq, Clone)]

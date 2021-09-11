@@ -96,13 +96,16 @@ fn test_keyword() {
     let 
 
     true
-    false";
+    false
+    
+    if";
 
     let expected_output: Vec<Token> = vec![
         Keyword(KeywordKind::Const),
         Keyword(KeywordKind::Let),
         Keyword(KeywordKind::True),
         Keyword(KeywordKind::False),
+        Keyword(KeywordKind::If),
         Eof,
     ];
 

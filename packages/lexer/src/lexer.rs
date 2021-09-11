@@ -264,6 +264,8 @@ fn is_keyword(word: &String) -> IsKeyword {
         return IsKeyword::Yes(KeywordKind::False);
     } else if word == "let" {
         return IsKeyword::Yes(KeywordKind::Let);
+    } else if word == "if" {
+        return IsKeyword::Yes(KeywordKind::If)
     } else {
         return IsKeyword::No;
     }
