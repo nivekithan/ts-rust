@@ -127,11 +127,34 @@ impl<'a> Parser<'a> {
                 } else {
                     panic!("Unknown variable {}", name);
                 }
-            }
+            },
 
             tok => panic!("Update function next_ast\n unknown token, {:?}", tok),
         }
     }
+
+
+
+    // fn parser_if_block(&mut self) {
+    //     let first_token  = self.get_cur_token().unwrap();
+
+    //     match first_token {
+    //         Token::Keyword(KeywordKind::If)  => {
+    //             self.next(); // consumes if
+
+    //             self.assert_cur_token(&Token::CurveOpenBracket);
+    //             self.next(); // consumes (
+            
+    //             let condition = self.parse_expression(1);
+
+    //             self.assert_cur_token(&Token::CurveCloseBracket);
+    //             self.next(); // consumes )
+            
+    //         },  
+
+    //         _ => panic!("Expected parser_if_block to be called only when the cur_token is of Keyword if")
+    //     }
+    // }
 
     fn next(&mut self) -> &Token {
         match self.cur_pos {
