@@ -5,15 +5,11 @@ use test_utils::{DatatypeOrFn, ExpressionTest};
 
 use crate::write_llvm_ir;
 
-
-
-
 #[test]
 fn test_all_const() {
     let exp_test = ExpressionTest {
         generate_input: Box::new(|ast_strings, main_strings| {
-        
-            let ast_input = "\n".to_string() +  ast_strings.join("\n").as_str();
+            let ast_input = "\n".to_string() + ast_strings.join("\n").as_str();
 
             let main_input = format!("const x  = {}", main_strings[0]);
 
@@ -40,8 +36,7 @@ fn test_all_const() {
 fn explicit_float_type_const() {
     let exp_test = ExpressionTest {
         generate_input: Box::new(|ast_strings, main_strings| {
-        
-            let ast_input = "\n".to_string() +  ast_strings.join("\n").as_str();
+            let ast_input = "\n".to_string() + ast_strings.join("\n").as_str();
 
             let main_input = format!("const x : number = {}", main_strings[0]);
 
@@ -62,14 +57,11 @@ fn explicit_float_type_const() {
     exp_test.test(vec!["_x".to_string()]);
 }
 
-
-
 #[test]
 fn explicit_boolean_type_const() {
     let exp_test = ExpressionTest {
         generate_input: Box::new(|ast_strings, main_strings| {
-        
-            let ast_input = "\n".to_string() +  ast_strings.join("\n").as_str();
+            let ast_input = "\n".to_string() + ast_strings.join("\n").as_str();
 
             let main_input = format!("const x : boolean = {}", main_strings[0]);
 
@@ -94,7 +86,7 @@ fn explicit_boolean_type_const() {
 fn test_const_unary_bang() {
     let exp_test = ExpressionTest {
         generate_input: Box::new(|ast_strings, main_strings| {
-            let ast_input = "\n".to_string() +  ast_strings.join("\n").as_str();
+            let ast_input = "\n".to_string() + ast_strings.join("\n").as_str();
 
             let main_input = format!("const x  = !({})", main_strings[0]);
 
@@ -117,15 +109,11 @@ fn test_const_unary_bang() {
     exp_test.test(vec!["_x".to_string()]);
 }
 
-
-
-
 #[test]
 fn unary_plus() {
     let exp_test = ExpressionTest {
         generate_input: Box::new(|ast_strings, main_strings| {
-        
-            let ast_input = "\n".to_string() +  ast_strings.join("\n").as_str();
+            let ast_input = "\n".to_string() + ast_strings.join("\n").as_str();
 
             let main_input = format!("const x  = +({})", main_strings[0]);
 
@@ -146,13 +134,11 @@ fn unary_plus() {
     exp_test.test(vec!["_x".to_string()]);
 }
 
-
 #[test]
 fn unary_minus() {
     let exp_test = ExpressionTest {
         generate_input: Box::new(|ast_strings, main_strings| {
-        
-            let ast_input = "\n".to_string() +  ast_strings.join("\n").as_str();
+            let ast_input = "\n".to_string() + ast_strings.join("\n").as_str();
 
             let main_input = format!("const x  = -({})", main_strings[0]);
 
@@ -173,15 +159,11 @@ fn unary_minus() {
     exp_test.test(vec!["_x".to_string()]);
 }
 
-
-
-
 #[test]
 fn binary_float_plus() {
     let exp_test = ExpressionTest {
         generate_input: Box::new(|ast_strings, main_strings| {
-        
-            let ast_input = "\n".to_string() +  ast_strings.join("\n").as_str();
+            let ast_input = "\n".to_string() + ast_strings.join("\n").as_str();
 
             let main_input = format!("const x  = ({}) + ({})", main_strings[0], main_strings[1]);
 
@@ -190,7 +172,10 @@ fn binary_float_plus() {
             return input;
         }),
 
-        expressions_data_type: vec![DatatypeOrFn::DataType(DataType::Float), DatatypeOrFn::DataType(DataType::Float)],
+        expressions_data_type: vec![
+            DatatypeOrFn::DataType(DataType::Float),
+            DatatypeOrFn::DataType(DataType::Float),
+        ],
 
         test: Box::new(|_, _, input| {
             let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
@@ -202,14 +187,11 @@ fn binary_float_plus() {
     exp_test.test(vec!["_x".to_string()]);
 }
 
-
-
 #[test]
 fn binary_float_minus() {
     let exp_test = ExpressionTest {
         generate_input: Box::new(|ast_strings, main_strings| {
-        
-            let ast_input = "\n".to_string() +  ast_strings.join("\n").as_str();
+            let ast_input = "\n".to_string() + ast_strings.join("\n").as_str();
 
             let main_input = format!("const x  = ({}) - ({})", main_strings[0], main_strings[1]);
 
@@ -218,7 +200,10 @@ fn binary_float_minus() {
             return input;
         }),
 
-        expressions_data_type: vec![DatatypeOrFn::DataType(DataType::Float), DatatypeOrFn::DataType(DataType::Float)],
+        expressions_data_type: vec![
+            DatatypeOrFn::DataType(DataType::Float),
+            DatatypeOrFn::DataType(DataType::Float),
+        ],
 
         test: Box::new(|_, _, input| {
             let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
@@ -230,14 +215,11 @@ fn binary_float_minus() {
     exp_test.test(vec!["_x".to_string()]);
 }
 
-
-
 #[test]
 fn binary_float_star() {
     let exp_test = ExpressionTest {
         generate_input: Box::new(|ast_strings, main_strings| {
-        
-            let ast_input = "\n".to_string() +  ast_strings.join("\n").as_str();
+            let ast_input = "\n".to_string() + ast_strings.join("\n").as_str();
 
             let main_input = format!("const x  = ({}) * ({})", main_strings[0], main_strings[1]);
 
@@ -246,7 +228,10 @@ fn binary_float_star() {
             return input;
         }),
 
-        expressions_data_type: vec![DatatypeOrFn::DataType(DataType::Float), DatatypeOrFn::DataType(DataType::Float)],
+        expressions_data_type: vec![
+            DatatypeOrFn::DataType(DataType::Float),
+            DatatypeOrFn::DataType(DataType::Float),
+        ],
 
         test: Box::new(|_, _, input| {
             let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
@@ -258,15 +243,11 @@ fn binary_float_star() {
     exp_test.test(vec!["_x".to_string()]);
 }
 
-
-
-
 #[test]
 fn binary_float_slash() {
     let exp_test = ExpressionTest {
         generate_input: Box::new(|ast_strings, main_strings| {
-        
-            let ast_input = "\n".to_string() +  ast_strings.join("\n").as_str();
+            let ast_input = "\n".to_string() + ast_strings.join("\n").as_str();
 
             let main_input = format!("const x  = ({}) / ({})", main_strings[0], main_strings[1]);
 
@@ -275,7 +256,10 @@ fn binary_float_slash() {
             return input;
         }),
 
-        expressions_data_type: vec![DatatypeOrFn::DataType(DataType::Float), DatatypeOrFn::DataType(DataType::Float)],
+        expressions_data_type: vec![
+            DatatypeOrFn::DataType(DataType::Float),
+            DatatypeOrFn::DataType(DataType::Float),
+        ],
 
         test: Box::new(|_, _, input| {
             let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));

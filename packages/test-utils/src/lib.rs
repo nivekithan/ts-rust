@@ -1,6 +1,11 @@
 mod clock;
 
-use ast::{Ast, data_type::DataType, declaration::VariableDeclarationKind, expression::{BinaryOperator, Expression, UnaryOperator}};
+use ast::{
+    data_type::DataType,
+    declaration::VariableDeclarationKind,
+    expression::{BinaryOperator, Expression, UnaryOperator},
+    Ast,
+};
 
 use self::clock::Clock;
 
@@ -17,7 +22,7 @@ pub struct ExpressionTest {
 }
 
 impl ExpressionTest {
-    pub fn test(&self, var_names : Vec<String>) {
+    pub fn test(&self, var_names: Vec<String>) {
         let t_exps: Vec<Vec<TExp>> = self
             .expressions_data_type
             .iter()
@@ -64,7 +69,7 @@ impl ExpressionTest {
         }
     }
 
-    fn get_t_exp(datatype_or_fn: &DatatypeOrFn, var_names : Vec<String>) -> Vec<TExp> {
+    fn get_t_exp(datatype_or_fn: &DatatypeOrFn, var_names: Vec<String>) -> Vec<TExp> {
         let every_0_arg_gen = [
             generate_float_literal,
             generate_boolean_true_literal,
@@ -75,13 +80,10 @@ impl ExpressionTest {
             generate_binary_float_plus,
             generate_binary_float_minus,
             generate_binary_float_star,
-            generate_binary_float_slash
+            generate_binary_float_slash,
         ];
 
-        let every_1_arg_gen = [
-            generate_boolean_ident,
-            generate_float_ident
-        ];
+        let every_1_arg_gen = [generate_boolean_ident, generate_float_ident];
 
         let mut valid_t_exp: Vec<TExp> = vec![];
 
@@ -200,8 +202,6 @@ fn generate_unary_bang() -> TExp {
     };
 }
 
-
-
 fn generate_float_literal() -> TExp {
     let exp_str = "(1)".to_string();
 
@@ -218,7 +218,7 @@ fn generate_float_literal() -> TExp {
     };
 }
 
-fn generate_float_ident(var_name : &str) -> TExp {
+fn generate_float_ident(var_name: &str) -> TExp {
     let exp_str = format!("({})", var_name);
 
     let exp = Expression::IdentExp {
@@ -249,8 +249,11 @@ fn generate_unary_plus() -> TExp {
     let exp_str = "(+1)".to_string();
 
     let exp = Expression::UnaryExp {
-        operator : UnaryOperator::Plus,
-        argument : Box::new(Expression::FloatLiteralExp{name : "1".to_string(), value : 1.0})
+        operator: UnaryOperator::Plus,
+        argument: Box::new(Expression::FloatLiteralExp {
+            name: "1".to_string(),
+            value: 1.0,
+        }),
     };
 
     return TExp {
@@ -261,13 +264,15 @@ fn generate_unary_plus() -> TExp {
     };
 }
 
-
 fn generate_unary_minus() -> TExp {
     let exp_str = "(-1)".to_string();
 
     let exp = Expression::UnaryExp {
-        operator : UnaryOperator::Minus,
-        argument : Box::new(Expression::FloatLiteralExp{name : "1".to_string(), value : 1.0})
+        operator: UnaryOperator::Minus,
+        argument: Box::new(Expression::FloatLiteralExp {
+            name: "1".to_string(),
+            value: 1.0,
+        }),
     };
 
     return TExp {
@@ -282,9 +287,15 @@ fn generate_binary_float_plus() -> TExp {
     let exp_str = "(1 + 1)".to_string();
 
     let exp = Expression::BinaryExp {
-        operator : BinaryOperator::Plus,
-        left : Box::new(Expression::FloatLiteralExp{name : "1".to_string(), value : 1.0}),
-        right : Box::new(Expression::FloatLiteralExp{name : "1".to_string(), value : 1.0})
+        operator: BinaryOperator::Plus,
+        left: Box::new(Expression::FloatLiteralExp {
+            name: "1".to_string(),
+            value: 1.0,
+        }),
+        right: Box::new(Expression::FloatLiteralExp {
+            name: "1".to_string(),
+            value: 1.0,
+        }),
     };
 
     return TExp {
@@ -299,9 +310,15 @@ fn generate_binary_float_minus() -> TExp {
     let exp_str = "(1 - 1)".to_string();
 
     let exp = Expression::BinaryExp {
-        operator : BinaryOperator::Minus,
-        left : Box::new(Expression::FloatLiteralExp{name : "1".to_string(), value : 1.0}),
-        right : Box::new(Expression::FloatLiteralExp{name : "1".to_string(), value : 1.0})
+        operator: BinaryOperator::Minus,
+        left: Box::new(Expression::FloatLiteralExp {
+            name: "1".to_string(),
+            value: 1.0,
+        }),
+        right: Box::new(Expression::FloatLiteralExp {
+            name: "1".to_string(),
+            value: 1.0,
+        }),
     };
 
     return TExp {
@@ -309,16 +326,22 @@ fn generate_binary_float_minus() -> TExp {
         exp_str,
         ast_str: "\n".to_string(),
         asts: vec![],
-    };   
+    };
 }
 
 fn generate_binary_float_star() -> TExp {
     let exp_str = "(1 * 1)".to_string();
 
     let exp = Expression::BinaryExp {
-        operator : BinaryOperator::Star,
-        left : Box::new(Expression::FloatLiteralExp{name : "1".to_string(), value : 1.0}),
-        right : Box::new(Expression::FloatLiteralExp{name : "1".to_string(), value : 1.0})
+        operator: BinaryOperator::Star,
+        left: Box::new(Expression::FloatLiteralExp {
+            name: "1".to_string(),
+            value: 1.0,
+        }),
+        right: Box::new(Expression::FloatLiteralExp {
+            name: "1".to_string(),
+            value: 1.0,
+        }),
     };
 
     return TExp {
@@ -326,17 +349,22 @@ fn generate_binary_float_star() -> TExp {
         exp_str,
         ast_str: "\n".to_string(),
         asts: vec![],
-    };  
+    };
 }
-
 
 fn generate_binary_float_slash() -> TExp {
     let exp_str = "(1 / 1)".to_string();
 
     let exp = Expression::BinaryExp {
-        operator : BinaryOperator::Slash,
-        left : Box::new(Expression::FloatLiteralExp{name : "1".to_string(), value : 1.0}),
-        right : Box::new(Expression::FloatLiteralExp{name : "1".to_string(), value : 1.0})
+        operator: BinaryOperator::Slash,
+        left: Box::new(Expression::FloatLiteralExp {
+            name: "1".to_string(),
+            value: 1.0,
+        }),
+        right: Box::new(Expression::FloatLiteralExp {
+            name: "1".to_string(),
+            value: 1.0,
+        }),
     };
 
     return TExp {
@@ -344,5 +372,5 @@ fn generate_binary_float_slash() -> TExp {
         exp_str,
         ast_str: "\n".to_string(),
         asts: vec![],
-    };  
+    };
 }

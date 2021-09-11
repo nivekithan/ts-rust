@@ -94,7 +94,8 @@ impl<'a> Codegen<'a> {
                             let value = self.build_expression(context, builder, exp, None);
 
                             builder.build_store(var_ptr, value);
-                        } // _ => todo!(),
+                        }
+                        _ => todo!(),
                     },
 
                     _ => todo!(),

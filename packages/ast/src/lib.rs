@@ -68,16 +68,26 @@ impl Ast {
             exp,
         });
     }
+
+    pub fn new_if_block(condition: Expression, blocks: Vec<Ast>) -> Ast {
+        return Ast::Declaration(Declaration::IfBlockDeclaration {
+            condition,
+            block: Box::new(blocks),
+        });
+    }
 }
 
 impl Ast {
-    pub fn get_data_type(&self) -> DataType {
+    pub fn get_data_type(&self) -> Result<DataType, String> {
         match self {
             Ast::Expression(exp) => {
-                return exp.get_data_type();
+                return Ok(exp.get_data_type());
             }
             Ast::Declaration(dec) => {
-                return dec.get_data_type_of_exp();
+                return Err(format!(
+                    "There is no datatype associated with declaration {:?}",
+                    dec
+                ));
             }
         }
     }
