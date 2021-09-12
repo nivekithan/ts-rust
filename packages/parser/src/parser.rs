@@ -1,5 +1,4 @@
 use core::panic;
-use std::collections::HashMap;
 
 use ast::{
     data_type::DataType,
@@ -9,12 +8,12 @@ use ast::{
 };
 use lexer::token::{KeywordKind, LiteralKind, Token};
 
-use crate::symbol_table::SymbolMeta;
+use crate::symbol_table::{SymbolContext, SymbolMetaInsert};
 
 pub struct Parser<'a> {
     content: &'a Vec<Token>,
     cur_pos: Option<usize>,
-    symbol_table: HashMap<String, SymbolMeta>,
+    global_context: SymbolContext<'a>,
 }
 
 impl<'a> Parser<'a> {
@@ -22,7 +21,7 @@ impl<'a> Parser<'a> {
         let mut parser = Parser {
             content,
             cur_pos: None,
-            symbol_table: HashMap::new(),
+            global_context: SymbolContext::new_global(),
         };
 
         parser.next();
@@ -80,11 +79,14 @@ impl<'a> Parser<'a> {
                         );
                     }
 
-                    let sym_meta = SymbolMeta {
-                        data_type: expression_data_type,
-                        is_const,
-                    };
-                    self.symbol_table.insert(name.clone(), sym_meta);
+                    let sym_meta = SymbolMetaInsert::create(expression_data_type, is_const);
+
+                    if let Err(_) = self.global_context.insert(name.as_str(), sym_meta) {
+                        panic!(
+                            "You cannot declare variable {} which is already declared",
+                            name
+                        );
+                    }
 
                     self.skip_semicolon();
                     return Ast::new_variable_declaration(&name, expression, kind);
@@ -98,7 +100,7 @@ impl<'a> Parser<'a> {
 
             Token::Ident { name } => {
                 let name = name.clone();
-                if let Some(sym_meta) = self.symbol_table.get(&name) {
+                if let Some(sym_meta) = self.global_context.get(&name) {
                     if sym_meta.is_const {
                         panic!("Cannot reassign a const variable");
                     }
@@ -320,7 +322,7 @@ impl<'a> Parser<'a> {
             Token::Ident { name } => {
                 // consumes ident
 
-                if let Some(sym_meta) = self.symbol_table.get(name) {
+                if let Some(sym_meta) = self.global_context.get(name) {
                     let exp = Ok(Expression::IdentExp {
                         name: name.clone(),
                         data_type: sym_meta.data_type.clone(),

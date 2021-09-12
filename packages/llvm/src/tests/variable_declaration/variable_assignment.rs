@@ -165,8 +165,6 @@ fn test_minus_assign() {
     exp_test.test();
 }
 
-
-
 #[test]
 fn test_star_assign() {
     let exp_test = ExpressionTest {
@@ -206,8 +204,6 @@ fn test_star_assign() {
 
     exp_test.test();
 }
-
-
 
 #[test]
 fn test_slash_assign() {

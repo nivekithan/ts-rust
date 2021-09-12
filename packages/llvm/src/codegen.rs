@@ -119,7 +119,7 @@ impl<'a> Codegen<'a> {
                                             builder.build_store(var_ptr, result_value);
                                         }
                                     }
-                                },
+                                }
 
                                 VariableAssignmentOperator::MinusAssign => {
                                     let load_value = builder.build_load(
@@ -138,9 +138,8 @@ impl<'a> Codegen<'a> {
                                             builder.build_store(var_ptr, result_value);
                                         }
                                     }
-                                },
+                                }
 
-                                
                                 VariableAssignmentOperator::StarAssign => {
                                     let load_value = builder.build_load(
                                         var_ptr,
@@ -158,9 +157,8 @@ impl<'a> Codegen<'a> {
                                             builder.build_store(var_ptr, result_value);
                                         }
                                     }
-                                },
+                                }
 
-                                
                                 VariableAssignmentOperator::SlashAssign => {
                                     let load_value = builder.build_load(
                                         var_ptr,
@@ -178,9 +176,7 @@ impl<'a> Codegen<'a> {
                                             builder.build_store(var_ptr, result_value);
                                         }
                                     }
-                                }
-
-                                // _ => todo!(),
+                                } // _ => todo!(),
                             };
                         }
                         _ => todo!(),
