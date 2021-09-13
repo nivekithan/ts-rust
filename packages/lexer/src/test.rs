@@ -14,7 +14,9 @@ fn test_operators() {
     -=
     *=
     /=
-    
+
+    ==
+
     ;
     :
 
@@ -44,6 +46,9 @@ fn test_operators() {
         MinusAssign,
         StarAssign,
         SlashAssign,
+
+        Equality,
+
         SemiColon,
         Colon,
         AngleOpenBracket,

@@ -43,6 +43,16 @@ impl<'a> Lexer<'a> {
                     return Colon;
                 } else if char == '=' {
                     self.next(); // consumes =
+
+
+                    if let Some(char) = self.cur_char {
+                        if char == '=' {
+                            self.next(); // consumes =
+                            return Equality;
+                        }
+                    }
+
+
                     return Assign;
                 } else if char == '{' {
                     self.next(); // consumes {

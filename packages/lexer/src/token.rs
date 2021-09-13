@@ -7,6 +7,9 @@ pub enum Token {
     StarAssign,  // *=
     SlashAssign, // /=
 
+    // Comparison operators
+    Equality, // ==
+
     SemiColon, // ;
     Colon,     // :
 
