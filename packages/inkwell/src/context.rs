@@ -1,4 +1,11 @@
-use llvm_sys::{core::{LLVMAppendBasicBlockInContext, LLVMContextCreate, LLVMContextDispose, LLVMCreateBuilderInContext, LLVMDoubleTypeInContext, LLVMInt1TypeInContext, LLVMInt64TypeInContext, LLVMModuleCreateWithNameInContext, LLVMVoidTypeInContext}, prelude::LLVMContextRef};
+use llvm_sys::{
+    core::{
+        LLVMAppendBasicBlockInContext, LLVMContextCreate, LLVMContextDispose,
+        LLVMCreateBuilderInContext, LLVMDoubleTypeInContext, LLVMInt1TypeInContext,
+        LLVMInt64TypeInContext, LLVMModuleCreateWithNameInContext, LLVMVoidTypeInContext,
+    },
+    prelude::LLVMContextRef,
+};
 
 use crate::{
     basic_block::BasicBlock,

@@ -2,9 +2,9 @@ use std::marker::PhantomData;
 
 use llvm_sys::{
     core::{
-        LLVMBuildAlloca, LLVMBuildFAdd, LLVMBuildFDiv, LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFSub,
-        LLVMBuildLoad2, LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore, LLVMBuildXor,
-        LLVMDisposeBuilder, LLVMPositionBuilderAtEnd,
+        LLVMBuildAlloca, LLVMBuildBr, LLVMBuildCondBr, LLVMBuildFAdd, LLVMBuildFDiv, LLVMBuildFMul,
+        LLVMBuildFNeg, LLVMBuildFSub, LLVMBuildLoad2, LLVMBuildRet, LLVMBuildRetVoid,
+        LLVMBuildStore, LLVMBuildXor, LLVMDisposeBuilder, LLVMPositionBuilderAtEnd,
     },
     prelude::LLVMBuilderRef,
 };
@@ -19,6 +19,7 @@ use crate::{
     values::{
         enums::BasicValueEnum,
         instruction_value::InstructionValue,
+        int_value::IntValue,
         ptr_value::PointerValue,
         traits::{AsValueRef, BasicValueTrait, FloatMathValueTrait, IntMathValueTrait},
     },
@@ -168,6 +169,33 @@ impl<'a> Builder<'a> {
                 |value| LLVMBuildRet(self.builder, value.as_value_ref()),
             );
 
+            return InstructionValue::new(value);
+        }
+    }
+
+    pub fn build_unconditional_branch(
+        &self,
+        destination_block: BasicBlock<'a>,
+    ) -> InstructionValue<'a> {
+        unsafe {
+            let value = LLVMBuildBr(self.builder, destination_block.basic_block);
+            return InstructionValue::new(value);
+        }
+    }
+
+    pub fn build_conditional_branch(
+        &self,
+        condition: IntValue<'a>,
+        if_block: BasicBlock<'a>,
+        else_block: BasicBlock<'a>,
+    ) -> InstructionValue<'a> {
+        unsafe {
+            let value = LLVMBuildCondBr(
+                self.builder,
+                condition.as_value_ref(),
+                if_block.basic_block,
+                else_block.basic_block,
+            );
             return InstructionValue::new(value);
         }
     }
