@@ -63,7 +63,7 @@ impl Context {
         unsafe { return VoidType::new(LLVMVoidTypeInContext(self.context)) }
     }
 
-    pub fn append_basic_block(&self, function: FunctionValue, name: &str) -> BasicBlock {
+    pub fn append_basic_block(&self, function: &FunctionValue, name: &str) -> BasicBlock {
         let c_name = to_c_str(name);
 
         unsafe {

@@ -75,11 +75,18 @@ impl Ast {
     }
 
     pub fn new_if_block(condition: Expression, blocks: Vec<Ast>) -> Ast {
-        return Ast::Declaration(Declaration::IfBlockDeclaration {
-            condition,
-            block: Box::new(blocks),
-        });
-    }
+
+        if let DataType::Boolean = condition.get_data_type() {
+
+            
+            return Ast::Declaration(Declaration::IfBlockDeclaration {
+                condition,
+                block: Box::new(blocks),
+            });
+        }else {
+            panic!("Condition can only be expression whose datatype is boolean")
+        }
+    } 
 }
 
 impl Ast {

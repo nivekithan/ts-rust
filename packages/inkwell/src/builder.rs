@@ -175,7 +175,7 @@ impl<'a> Builder<'a> {
 
     pub fn build_unconditional_branch(
         &self,
-        destination_block: BasicBlock<'a>,
+        destination_block: &BasicBlock<'a>,
     ) -> InstructionValue<'a> {
         unsafe {
             let value = LLVMBuildBr(self.builder, destination_block.basic_block);
@@ -186,8 +186,8 @@ impl<'a> Builder<'a> {
     pub fn build_conditional_branch(
         &self,
         condition: IntValue<'a>,
-        if_block: BasicBlock<'a>,
-        else_block: BasicBlock<'a>,
+        if_block: &BasicBlock<'a>,
+        else_block: &BasicBlock<'a>,
     ) -> InstructionValue<'a> {
         unsafe {
             let value = LLVMBuildCondBr(

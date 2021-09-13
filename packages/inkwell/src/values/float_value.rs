@@ -7,6 +7,7 @@ use super::{
     Value,
 };
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct FloatValue<'a> {
     pub(crate) float_value: Value<'a>,
 }

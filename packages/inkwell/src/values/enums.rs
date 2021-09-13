@@ -10,6 +10,7 @@ use llvm_sys::{
     LLVMTypeKind,
 };
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum BasicValueEnum<'a> {
     FloatValue(FloatValue<'a>),
     PointerValue(PointerValue<'a>),
