@@ -50,6 +50,8 @@ impl<'a> Parser<'a> {
 
     fn next_ast_in_context(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
         let first_token = self.get_cur_token()?;
+        let suffix = &context.suffix;
+
 
         match first_token {
             Token::Keyword(keyword_kind) => match keyword_kind {
@@ -67,8 +69,8 @@ impl<'a> Parser<'a> {
 
                         _ => unreachable!(),
                     };
-
-                    let name = self.next().get_ident_name()?.clone(); // consumes Const
+                    
+                    let  name = format!("{}{}", self.next().get_ident_name()?.clone(), suffix); // consumes Const
 
                     self.next(); // consumes ident
 
@@ -112,8 +114,8 @@ impl<'a> Parser<'a> {
                 }
 
                 KeywordKind::If => {
-                    let mut child_context = context.create_child_context();
-                    let ast = self.parser_if_block(&mut child_context)?;
+                    // let mut child_context = context.create_child_context();
+                    let ast = self.parser_if_block(context)?;
                     return Ok(ast);
                 }
 
@@ -126,7 +128,8 @@ impl<'a> Parser<'a> {
             },
 
             Token::Ident { name } => {
-                let name = name.clone();
+                let name = format!("{}{}",name.clone(), suffix);
+
                 if let Some(sym_meta) = context.get(&name) {
                     if sym_meta.is_const {
                         return Err(format!("Cannot reassign a const variable"));
@@ -174,7 +177,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parser_if_block(&mut self, context: &SymbolContext) -> Result<Ast, String> {
+    fn parser_if_block(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
         let first_token = self.get_cur_token().unwrap();
 
         match first_token {
@@ -192,7 +195,11 @@ impl<'a> Parser<'a> {
                 self.assert_cur_token(&Token::AngleOpenBracket)?;
                 self.next(); // consumes {
 
-                let mut child_context = context.create_child_context();
+                let cur_value = context.counter;
+                let suffix = format!("{}{}", context.suffix, cur_value);
+                context.counter += 1;
+
+                let mut child_context = context.create_child_context(suffix);
 
                 let (asts, err) = self.consume_ast_in_context(&mut child_context);
 
@@ -383,9 +390,10 @@ impl<'a> Parser<'a> {
             },
 
             Token::Ident { name } => {
-                // consumes ident
 
-                if let Some(sym_meta) = context.get(name) {
+                let name = format!("{}{}", name, context.suffix);
+
+                if let Some(sym_meta) = context.get(&name) {
                     let exp = Ok(Expression::IdentExp {
                         name: name.clone(),
                         data_type: sym_meta.data_type.clone(),

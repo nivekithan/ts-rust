@@ -39,7 +39,7 @@ mod test {
 
         let expected_output: Vec<Ast> = vec![
             Ast::Declaration(Declaration::VariableDeclaration {
-                ident_name: "x".to_string(),
+                ident_name: "x_".to_string(),
                 exp: Expression::StringLiteralExp {
                     value: "1".to_string(),
                 },
@@ -51,7 +51,7 @@ mod test {
                     value: true,
                 },
                 block: Box::new(vec![Ast::Declaration(Declaration::VariableDeclaration {
-                    ident_name: "x".to_string(),
+                    ident_name: "x_0".to_string(),
                     exp: Expression::FloatLiteralExp {
                         value: 1.0,
                         name: "1".to_string(),

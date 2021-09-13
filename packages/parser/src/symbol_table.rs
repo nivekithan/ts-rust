@@ -25,6 +25,9 @@ impl SymbolMetaInsert {
 pub struct SymbolContext<'a> {
     symbols: HashMap<String, SymbolMetaInsert>,
     parent: Option<Box<&'a SymbolContext<'a>>>,
+
+    pub suffix : String,
+    pub counter : usize,
 }
 
 impl<'a> SymbolContext<'a> {
@@ -32,6 +35,9 @@ impl<'a> SymbolContext<'a> {
         return SymbolContext {
             symbols: HashMap::new(),
             parent: None,
+
+             suffix : String::from("_"),
+             counter : 0
         };
     }
 
@@ -80,10 +86,12 @@ impl<'a> SymbolContext<'a> {
         }
     }
 
-    pub fn create_child_context(&'a self) -> Self {
+    pub fn create_child_context(&'a self, suffix : String) -> SymbolContext<'a> {
         let new_context = SymbolContext {
             symbols: HashMap::new(),
             parent: Some(Box::new(self)),
+            suffix,
+            counter : 0
         };
         return new_context;
     }
