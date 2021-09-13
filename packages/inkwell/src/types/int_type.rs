@@ -1,4 +1,7 @@
-use llvm_sys::{core::LLVMConstInt, prelude::LLVMTypeRef};
+use llvm_sys::{
+    core::{LLVMConstInt, LLVMGetIntTypeWidth},
+    prelude::LLVMTypeRef,
+};
 
 use crate::values::int_value::IntValue;
 
@@ -28,6 +31,12 @@ impl<'a> IntType<'a> {
                 value,
                 sign_extended as i32,
             ));
+        }
+    }
+
+    pub fn get_bit_width(self) -> u32 {
+        unsafe {
+            return LLVMGetIntTypeWidth(self.as_type_ref());
         }
     }
 }

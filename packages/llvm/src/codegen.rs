@@ -214,7 +214,7 @@ impl<'a> Codegen<'a> {
             }
 
             Expression::BooleanLiteralExp { name: _, value } => {
-                let bool_as_int_value = context.i64_type().const_int(*value as u64, false);
+                let bool_as_int_value = context.i1_type().const_int(*value as u64, false);
                 return BasicValueEnum::IntValue(bool_as_int_value);
             }
 
