@@ -50,8 +50,7 @@ impl<'a> Parser<'a> {
 
     fn next_ast_in_context(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
         let first_token = self.get_cur_token()?;
-        let suffix = &context.suffix;
-
+        let suffix = &context.suffix.clone();
 
         match first_token {
             Token::Keyword(keyword_kind) => match keyword_kind {
@@ -69,8 +68,9 @@ impl<'a> Parser<'a> {
 
                         _ => unreachable!(),
                     };
-                    
-                    let  name = format!("{}{}", self.next().get_ident_name()?.clone(), suffix); // consumes Const
+
+                    // let  name = format!("{}{}", self.next().get_ident_name()?.clone(), suffix); // consumes Const
+                    let name = self.next().get_ident_name()?.clone(); // consumes const
 
                     self.next(); // consumes ident
 
@@ -110,7 +110,13 @@ impl<'a> Parser<'a> {
                     }
 
                     self.skip_semicolon()?;
-                    return Ok(Ast::new_variable_declaration(&name, expression, kind));
+
+                    let name_with_suffix = format!("{}{}", name, suffix);
+                    return Ok(Ast::new_variable_declaration(
+                        name_with_suffix.as_str(),
+                        expression,
+                        kind,
+                    ));
                 }
 
                 KeywordKind::If => {
@@ -128,7 +134,8 @@ impl<'a> Parser<'a> {
             },
 
             Token::Ident { name } => {
-                let name = format!("{}{}",name.clone(), suffix);
+                // let name = format!("{}{}",name.clone(), suffix);
+                let name = name.clone();
 
                 if let Some(sym_meta) = context.get(&name) {
                     if sym_meta.is_const {
@@ -149,7 +156,7 @@ impl<'a> Parser<'a> {
                         tok => return Err(format!("Expected either one of the =, +=, -=, *=, /= assignment operators but got {:?}", tok)),
                     };
 
-                    self.next(); // consumes =`
+                    self.next(); // consumes =
 
                     let expression = self.parse_expression(1, context)?;
 
@@ -163,8 +170,10 @@ impl<'a> Parser<'a> {
 
                     self.skip_semicolon()?;
 
+                    let suffix_name = format!("{}{}", name, sym_meta.suffix);
+
                     return Ok(Ast::new_variable_assignment(
-                        name.as_str(),
+                        suffix_name.as_str(),
                         operator,
                         expression,
                     ));
@@ -390,12 +399,13 @@ impl<'a> Parser<'a> {
             },
 
             Token::Ident { name } => {
-
-                let name = format!("{}{}", name, context.suffix);
+                // let name = format!("{}{}", name, context.suffix);
 
                 if let Some(sym_meta) = context.get(&name) {
+                    let suffix_name = format!("{}{}", name, context.suffix);
+
                     let exp = Ok(Expression::IdentExp {
-                        name: name.clone(),
+                        name: suffix_name,
                         data_type: sym_meta.data_type.clone(),
                     });
 

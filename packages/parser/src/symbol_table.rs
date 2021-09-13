@@ -6,6 +6,7 @@ pub struct SymbolMeta {
     pub data_type: DataType,
     pub is_const: bool,
     pub is_override_available: bool,
+    pub suffix: String,
 }
 
 pub struct SymbolMetaInsert {
@@ -26,8 +27,8 @@ pub struct SymbolContext<'a> {
     symbols: HashMap<String, SymbolMetaInsert>,
     parent: Option<Box<&'a SymbolContext<'a>>>,
 
-    pub suffix : String,
-    pub counter : usize,
+    pub suffix: String,
+    pub counter: usize,
 }
 
 impl<'a> SymbolContext<'a> {
@@ -36,8 +37,8 @@ impl<'a> SymbolContext<'a> {
             symbols: HashMap::new(),
             parent: None,
 
-             suffix : String::from("_"),
-             counter : 0
+            suffix: String::from("_"),
+            counter: 0,
         };
     }
 
@@ -48,6 +49,7 @@ impl<'a> SymbolContext<'a> {
         while !matches!(cur_context, None) {
             if let Some(context) = cur_context {
                 let sym_meta = context.symbols.get(&name.to_string());
+                let suffix = context.suffix.clone();
 
                 match sym_meta {
                     Some(meta) => {
@@ -55,6 +57,7 @@ impl<'a> SymbolContext<'a> {
                             data_type: meta.data_type.clone(),
                             is_const: meta.is_const,
                             is_override_available: is_override,
+                            suffix,
                         })
                     }
 
@@ -86,12 +89,12 @@ impl<'a> SymbolContext<'a> {
         }
     }
 
-    pub fn create_child_context(&'a self, suffix : String) -> SymbolContext<'a> {
+    pub fn create_child_context(&'a self, suffix: String) -> SymbolContext<'a> {
         let new_context = SymbolContext {
             symbols: HashMap::new(),
             parent: Some(Box::new(self)),
             suffix,
-            counter : 0
+            counter: 0,
         };
         return new_context;
     }

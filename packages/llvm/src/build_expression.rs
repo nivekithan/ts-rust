@@ -1,10 +1,24 @@
 use std::collections::HashMap;
 
-use ast::{data_type::DataType, expression::{BinaryOperator, Expression, UnaryOperator}};
-use inkwell::{builder::Builder, context::Context, types::traits::BasicTypeTrait, values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue}};
+use ast::{
+    data_type::DataType,
+    expression::{BinaryOperator, Expression, UnaryOperator},
+};
+use inkwell::{
+    builder::Builder,
+    context::Context,
+    types::traits::BasicTypeTrait,
+    values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
+};
 
-
-pub(crate) fn build_expression<'a>(expression : &Expression, context : &'a Context, builder : &'a Builder, function_value : &mut FunctionValue, symbol_table : &mut HashMap<String, PointerValue<'a>>, name : Option<String>) -> BasicValueEnum<'a> {
+pub(crate) fn build_expression<'a>(
+    expression: &Expression,
+    context: &'a Context,
+    builder: &'a Builder,
+    function_value: &mut FunctionValue,
+    symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    name: Option<String>,
+) -> BasicValueEnum<'a> {
     let name = match name {
         Some(name) => name,
         None => function_value.get_unique_reg_name(),
@@ -50,7 +64,14 @@ pub(crate) fn build_expression<'a>(expression : &Expression, context : &'a Conte
         }
 
         Expression::UnaryExp { operator, argument } => {
-            let arg_value = build_expression(argument.as_ref(),context, builder, function_value, symbol_table, None);
+            let arg_value = build_expression(
+                argument.as_ref(),
+                context,
+                builder,
+                function_value,
+                symbol_table,
+                None,
+            );
 
             match arg_value {
                 BasicValueEnum::FloatValue(value) => {
@@ -66,11 +87,9 @@ pub(crate) fn build_expression<'a>(expression : &Expression, context : &'a Conte
 
                 BasicValueEnum::IntValue(value) => {
                     let evaluated_int_value = match operator {
-                        UnaryOperator::Bang => builder.build_xor(
-                            value,
-                            context.i64_type().const_int(1, false),
-                            name,
-                        ),
+                        UnaryOperator::Bang => {
+                            builder.build_xor(value, context.i64_type().const_int(1, false), name)
+                        }
 
                         _ => todo!(),
                     };
@@ -87,8 +106,22 @@ pub(crate) fn build_expression<'a>(expression : &Expression, context : &'a Conte
             left,
             right,
         } => {
-            let left_value = build_expression(left.as_ref(), context, builder, function_value, symbol_table , None);
-            let right_value = build_expression(right.as_ref(), context, builder, function_value, symbol_table, None);
+            let left_value = build_expression(
+                left.as_ref(),
+                context,
+                builder,
+                function_value,
+                symbol_table,
+                None,
+            );
+            let right_value = build_expression(
+                right.as_ref(),
+                context,
+                builder,
+                function_value,
+                symbol_table,
+                None,
+            );
 
             if let BasicValueEnum::FloatValue(lhs) = left_value {
                 if let BasicValueEnum::FloatValue(rhs) = right_value {

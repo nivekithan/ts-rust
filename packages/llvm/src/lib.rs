@@ -2,9 +2,9 @@ use ast::Ast;
 use codegen::Codegen;
 use inkwell::context::Context;
 
+mod build_expression;
 mod codegen;
 mod consume_ast;
-mod build_expression;
 
 #[cfg(test)]
 mod tests;
@@ -28,7 +28,6 @@ pub fn write_llvm_ir(content: Vec<Ast>) -> String {
     return content;
 }
 
-
 #[cfg(test)]
 mod test_1 {
     use lexer::convert_to_token;
@@ -50,7 +49,7 @@ mod test_1 {
         ";
 
         let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
-        
+
         println!("{}", output);
     }
 }

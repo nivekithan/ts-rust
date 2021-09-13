@@ -6,9 +6,9 @@ use super::{traits::AsValueRef, Value};
 
 pub struct FunctionValue<'a> {
     pub(crate) fn_value: Value<'a>,
-    
-    reg_counter : usize,
-    block_counter : usize,
+
+    reg_counter: usize,
+    block_counter: usize,
 }
 
 impl<'a> FunctionValue<'a> {
@@ -19,8 +19,8 @@ impl<'a> FunctionValue<'a> {
 
         return FunctionValue {
             fn_value: Value::new(value),
-            reg_counter : 0,
-            block_counter : 0
+            reg_counter: 0,
+            block_counter: 0,
         };
     }
 
@@ -33,7 +33,7 @@ impl<'a> FunctionValue<'a> {
     }
 
     pub fn get_unique_block_name(&mut self) -> String {
-        let block_counter = self.block_counter; 
+        let block_counter = self.block_counter;
         let block_name = format!("Block_{}", block_counter);
         self.block_counter += 1;
 

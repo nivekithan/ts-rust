@@ -21,7 +21,7 @@ pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
 #[cfg(test)]
 mod test {
     use ast::{
-        declaration::{Declaration, VariableDeclarationKind},
+        declaration::{Declaration, VariableAssignmentOperator, VariableDeclarationKind},
         expression::Expression,
         Ast,
     };
@@ -32,32 +32,53 @@ mod test {
     #[test]
     fn test_hello() {
         let input = "
-        const x = \"1\";
+        let x = 1;
         if (true) {
-            const x = 1;
+             x = 10;
+             let x = true;
+             x = false;
         }";
 
         let expected_output: Vec<Ast> = vec![
             Ast::Declaration(Declaration::VariableDeclaration {
                 ident_name: "x_".to_string(),
-                exp: Expression::StringLiteralExp {
-                    value: "1".to_string(),
+                exp: Expression::FloatLiteralExp {
+                    value: 1.0,
+                    name: "1".to_string(),
                 },
-                kind: VariableDeclarationKind::Const,
+                kind: VariableDeclarationKind::Let,
             }),
             Ast::Declaration(Declaration::IfBlockDeclaration {
                 condition: Expression::BooleanLiteralExp {
                     name: "true".to_string(),
                     value: true,
                 },
-                block: Box::new(vec![Ast::Declaration(Declaration::VariableDeclaration {
-                    ident_name: "x_0".to_string(),
-                    exp: Expression::FloatLiteralExp {
-                        value: 1.0,
-                        name: "1".to_string(),
-                    },
-                    kind: VariableDeclarationKind::Const,
-                })]),
+                block: Box::new(vec![
+                    Ast::Declaration(Declaration::VariableAssignment {
+                        ident_name: "x_".to_string(),
+                        exp: Expression::FloatLiteralExp {
+                            value: 10.0,
+                            name: "10".to_string(),
+                        },
+                        operator: VariableAssignmentOperator::Assign,
+                    }),
+                    Ast::Declaration(Declaration::VariableDeclaration {
+                        ident_name: "x_0".to_string(),
+                        exp: Expression::BooleanLiteralExp {
+                            name: "true".to_string(),
+                            value: true,
+                        },
+                        kind: VariableDeclarationKind::Let,
+                    }),
+                    Ast::Declaration(Declaration::VariableAssignment {
+                        ident_name: "x_0".to_string(),
+                        exp: Expression::BooleanLiteralExp {
+                            name: "false".to_string(),
+                            value: false,
+                        },
+                        operator: VariableAssignmentOperator::Assign,
+                    }),
+                ]),
             }),
         ];
 

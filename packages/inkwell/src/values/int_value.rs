@@ -1,4 +1,4 @@
-use llvm_sys::prelude::{LLVMValueRef};
+use llvm_sys::prelude::LLVMValueRef;
 
 use crate::types::int_type::IntType;
 
@@ -26,9 +26,6 @@ impl<'a> IntValue<'a> {
             return IntType::new(self.int_value.get_type());
         }
     }
-
-
-
 }
 
 impl<'a> AsValueRef for IntValue<'a> {
