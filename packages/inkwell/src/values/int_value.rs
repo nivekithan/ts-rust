@@ -1,4 +1,4 @@
-use llvm_sys::prelude::{LLVMTypeRef, LLVMValueRef};
+use llvm_sys::prelude::{LLVMValueRef};
 
 use crate::types::int_type::IntType;
 

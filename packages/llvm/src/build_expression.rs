@@ -36,7 +36,7 @@ pub(crate) fn build_expression<'a>(expression : &Expression, context : &'a Conte
                     ),
                     DataType::Boolean => builder.build_load(
                         pointer.to_owned(),
-                        context.i64_type().as_basic_type_enum(),
+                        context.i1_type().as_basic_type_enum(),
                         name,
                     ),
 

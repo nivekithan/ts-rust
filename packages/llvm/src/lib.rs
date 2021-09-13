@@ -39,11 +39,15 @@ mod test_1 {
     #[test]
     fn test_some() {
         let input = "
-        const x = 1;
+        let x = 1;
+        let value = true;
         
-        if (true) {
+        if (value) {
             const x = 2;
-        }";
+        }
+        
+       x = 3;
+        ";
 
         let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
         

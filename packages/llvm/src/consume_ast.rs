@@ -34,7 +34,7 @@ pub(crate) fn consume_ast<'a>(asts : &Vec<Ast>, context : &'a Context, builder :
 
                         DataType::Boolean => {
                             let pointer = builder
-                                .build_alloca(context.i64_type(), ident_name.as_str());
+                                .build_alloca(context.i1_type(), ident_name.as_str());
                             let value_of_exp =
                                 build_expression(exp, context, builder, function_value, symbol_table, None);
                             builder.build_store(pointer.clone(), value_of_exp);
