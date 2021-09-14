@@ -381,8 +381,6 @@ fn binary_strict_equality_float() {
     exp_test.test();
 }
 
-
-
 #[test]
 fn binary_strict_not_equal_bool() {
     let exp_test = ExpressionTest {
@@ -416,7 +414,6 @@ fn binary_strict_not_equal_bool() {
 
     exp_test.test();
 }
-
 
 #[test]
 fn binary_strict_not_equal_float() {

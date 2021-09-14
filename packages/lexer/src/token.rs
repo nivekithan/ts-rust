@@ -14,6 +14,12 @@ pub enum Token {
     NotEqual,       // !=
     StrictNotEqual, // !==
 
+    LessThan,        // <
+    LessThanOrEqual, // <=
+
+    GreaterThan,        // >
+    GreaterThanOrEqual, // >=
+
     SemiColon, // ;
     Colon,     // :
 

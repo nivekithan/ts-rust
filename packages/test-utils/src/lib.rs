@@ -254,7 +254,6 @@ fn generate_binary_strict_equality_float() -> TExp {
     };
 }
 
-
 fn generate_binary_strict_not_equal_bool() -> TExp {
     let exp_str = "(true !== true)".to_string();
 
@@ -278,8 +277,6 @@ fn generate_binary_strict_not_equal_bool() -> TExp {
     };
 }
 
-
-
 fn generate_binary_strict_not_equal_float() -> TExp {
     let exp_str = "(1 !== 2)".to_string();
 
@@ -302,7 +299,6 @@ fn generate_binary_strict_not_equal_float() -> TExp {
         asts: vec![],
     };
 }
-
 
 fn generate_float_literal() -> TExp {
     let exp_str = "(1)".to_string();

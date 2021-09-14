@@ -137,6 +137,28 @@ impl<'a> Lexer<'a> {
                         }
                     }
                     return Slash;
+                } else if char == '<' {
+                    self.next(); // consumes <
+
+                    if let Some(char) = self.cur_char {
+                        if char == '=' {
+                            self.next(); // consumes =
+                            return LessThanOrEqual;
+                        }
+                    }
+
+                    return LessThan;
+                } else if char == '>' {
+                    self.next(); // consumes <
+
+                    if let Some(char) = self.cur_char {
+                        if char == '=' {
+                            self.next(); // consumes =
+                            return GreaterThanOrEqual;
+                        }
+                    }
+
+                    return GreaterThan;
                 } else if char == '|' {
                     self.next(); // consumes |
                     return VerticalBar;

@@ -21,6 +21,12 @@ fn test_operators() {
     !==
     !=
 
+    <
+    <=
+
+    >
+    >=
+
     ;
     :
 
@@ -54,6 +60,10 @@ fn test_operators() {
         Equality,
         StrictNotEqual,
         NotEqual,
+        LessThan,
+        LessThanOrEqual,
+        GreaterThan,
+        GreaterThanOrEqual,
         SemiColon,
         Colon,
         AngleOpenBracket,
