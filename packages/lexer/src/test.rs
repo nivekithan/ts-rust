@@ -18,6 +18,9 @@ fn test_operators() {
     ===
     ==
 
+    !==
+    !=
+
     ;
     :
 
@@ -49,6 +52,8 @@ fn test_operators() {
         SlashAssign,
         StrictEquality,
         Equality,
+        StrictNotEqual,
+        NotEqual,
         SemiColon,
         Colon,
         AngleOpenBracket,

@@ -313,8 +313,6 @@ fn binary_float_slash() {
     exp_test.test();
 }
 
-
-
 #[test]
 fn binary_strict_equality_bool() {
     let exp_test = ExpressionTest {
@@ -348,9 +346,6 @@ fn binary_strict_equality_bool() {
 
     exp_test.test();
 }
-
-
-
 
 #[test]
 fn binary_strict_equality_float() {

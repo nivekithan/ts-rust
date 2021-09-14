@@ -22,6 +22,7 @@ pub enum BinaryOperator {
     Ampersand,   // &
 
     StrictEquality, // ===
+    StrictNotEqual, // !==
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -96,7 +97,9 @@ impl Expression {
                     }
                 }
 
-                BinaryOperator::StrictEquality => return DataType::Boolean,
+                BinaryOperator::StrictEquality | BinaryOperator::StrictNotEqual => {
+                    return DataType::Boolean
+                }
             },
         }
     }
@@ -137,6 +140,7 @@ pub fn convert_binary_op_to_token(op: &BinaryOperator) -> Token {
         BinaryOperator::Ampersand => return Token::Ampersand,
 
         BinaryOperator::StrictEquality => return Token::StrictEquality,
+        BinaryOperator::StrictNotEqual => return Token::StrictNotEqual,
     }
 }
 
@@ -152,6 +156,7 @@ pub fn convert_token_to_binary_op(op: Token) -> Result<BinaryOperator, String> {
         Token::Ampersand => return Ok(BinaryOperator::Ampersand),
 
         Token::StrictEquality => return Ok(BinaryOperator::StrictEquality),
+        Token::StrictNotEqual => return Ok(BinaryOperator::StrictNotEqual),
 
         tok => {
             return Err(format!(

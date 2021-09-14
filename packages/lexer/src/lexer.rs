@@ -77,6 +77,22 @@ impl<'a> Lexer<'a> {
                     return Comma;
                 } else if char == '!' {
                     self.next(); // consumes !
+
+                    if let Some(char) = self.cur_char {
+                        if char == '=' {
+                            self.next(); // consumes =
+
+                            if let Some(char) = self.cur_char {
+                                if char == '=' {
+                                    self.next(); // consumes =
+                                    return StrictNotEqual;
+                                }
+                            }
+
+                            return NotEqual;
+                        }
+                    }
+
                     return Bang;
                 } else if char == '+' {
                     self.next(); // consumes +

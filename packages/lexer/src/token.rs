@@ -8,8 +8,11 @@ pub enum Token {
     SlashAssign, // /=
 
     // Comparison operators
-    Equality, // ==
+    Equality,       // ==
     StrictEquality, // ===
+
+    NotEqual,       // !=
+    StrictNotEqual, // !==
 
     SemiColon, // ;
     Colon,     // :
