@@ -566,7 +566,61 @@ impl<'a> Parser<'a> {
                     left: Box::new(left),
                     right: right_exp,
                 }));
-            }
+            },
+
+            Token::LessThan => {
+                let precedence = Parser::get_non_prefix_precedence(&Token::LessThan);
+
+                self.next(); // consumes !==
+
+                let right_exp = Box::new(self.parse_expression(precedence, context)?);
+                return Ok(Ok(Expression::BinaryExp {
+                    operator: BinaryOperator::LessThan,
+                    left: Box::new(left),
+                    right: right_exp,
+                }));
+            },
+            
+            
+            Token::LessThanOrEqual => {
+                let precedence = Parser::get_non_prefix_precedence(&Token::LessThanOrEqual);
+
+                self.next(); // consumes !==
+
+                let right_exp = Box::new(self.parse_expression(precedence, context)?);
+                return Ok(Ok(Expression::BinaryExp {
+                    operator: BinaryOperator::LessThanOrEqual,
+                    left: Box::new(left),
+                    right: right_exp,
+                }));
+            },
+            
+            Token::GreaterThan => {
+                let precedence = Parser::get_non_prefix_precedence(&Token::GreaterThan);
+
+                self.next(); // consumes !==
+
+                let right_exp = Box::new(self.parse_expression(precedence, context)?);
+                return Ok(Ok(Expression::BinaryExp {
+                    operator: BinaryOperator::GreaterThan,
+                    left: Box::new(left),
+                    right: right_exp,
+                }));
+            },
+
+            Token::GreaterThanOrEqual => {
+                let precedence = Parser::get_non_prefix_precedence(&Token::GreaterThanOrEqual);
+
+                self.next(); // consumes !==
+
+                let right_exp = Box::new(self.parse_expression(precedence, context)?);
+                return Ok(Ok(Expression::BinaryExp {
+                    operator: BinaryOperator::GreaterThanOrEqual,
+                    left: Box::new(left),
+                    right: right_exp,
+                }));
+            },
+
 
             _ => return Ok(Err(left)),
         }
@@ -585,6 +639,11 @@ impl<'a> Parser<'a> {
             Token::Star | Token::Slash => return 15,
 
             Token::Plus | Token::Minus => return 14,
+
+            Token::LessThan
+            | Token::LessThanOrEqual
+            | Token::GreaterThan
+            | Token::GreaterThanOrEqual => return 12,
 
             Token::StrictEquality | Token::StrictNotEqual => return 11,
             Token::Ampersand => return 10,

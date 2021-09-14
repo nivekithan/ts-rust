@@ -90,12 +90,12 @@ mod test {
     #[test]
     fn test_2() {
         let input = "
-        const x = 1 !== 1";
+        const x = 1 <= 1";
 
         let expected_output: Vec<Ast> = vec![Ast::new_variable_declaration(
             "x_",
             Expression::BinaryExp {
-                operator: BinaryOperator::StrictNotEqual,
+                operator: BinaryOperator::LessThanOrEqual,
                 left: Box::new(Expression::FloatLiteralExp {
                     name: "1".to_string(),
                     value: 1.0,
