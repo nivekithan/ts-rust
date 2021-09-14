@@ -1,0 +1,19 @@
+---
+source: packages/llvm/src/tests/variable_declaration/const_variable_declaration.rs
+expression: output
+
+---
+; ModuleID = 'main'
+source_filename = "main"
+
+define void @main() {
+entry:
+  %__y_ = alloca i1, align 1
+  store i1 true, i1* %__y_, align 1
+  %x_ = alloca i1, align 1
+  %"4" = load i1, i1* %__y_, align 1
+  %"1" = icmp ne i1 false, %"4"
+  store i1 %"1", i1* %x_, align 1
+  ret void
+}
+

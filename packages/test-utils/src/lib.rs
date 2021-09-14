@@ -85,6 +85,8 @@ impl ExpressionTest {
             generate_binary_float_slash,
             generate_binary_strict_equality_bool,
             generate_binary_strict_equality_float,
+            generate_binary_strict_not_equal_bool,
+            generate_binary_strict_not_equal_float,
         ];
 
         let every_1_arg_gen = [generate_boolean_ident, generate_float_ident];
@@ -251,6 +253,56 @@ fn generate_binary_strict_equality_float() -> TExp {
         asts: vec![],
     };
 }
+
+
+fn generate_binary_strict_not_equal_bool() -> TExp {
+    let exp_str = "(true !== true)".to_string();
+
+    let exp = Expression::BinaryExp {
+        operator: BinaryOperator::StrictNotEqual,
+        left: Box::new(Expression::BooleanLiteralExp {
+            name: "true".to_string(),
+            value: true,
+        }),
+        right: Box::new(Expression::BooleanLiteralExp {
+            name: "true".to_string(),
+            value: true,
+        }),
+    };
+
+    return TExp {
+        exp,
+        exp_str,
+        ast_str: "\n".to_string(),
+        asts: vec![],
+    };
+}
+
+
+
+fn generate_binary_strict_not_equal_float() -> TExp {
+    let exp_str = "(1 !== 2)".to_string();
+
+    let exp = Expression::BinaryExp {
+        operator: BinaryOperator::StrictNotEqual,
+        left: Box::new(Expression::FloatLiteralExp {
+            name: "1".to_string(),
+            value: 1.0,
+        }),
+        right: Box::new(Expression::FloatLiteralExp {
+            name: "2".to_string(),
+            value: 2.0,
+        }),
+    };
+
+    return TExp {
+        exp,
+        exp_str,
+        ast_str: "\n".to_string(),
+        asts: vec![],
+    };
+}
+
 
 fn generate_float_literal() -> TExp {
     let exp_str = "(1)".to_string();

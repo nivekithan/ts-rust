@@ -132,10 +132,17 @@ pub(crate) fn build_expression<'a>(
                         BinaryOperator::Star => builder.build_float_mul(lhs, rhs, name),
                         BinaryOperator::Slash => builder.build_float_div(lhs, rhs, name),
 
-                        BinaryOperator::StrictEquality => {
+                        BinaryOperator::StrictEquality | BinaryOperator::StrictNotEqual => {
                             let int_value = match operator {
                                 BinaryOperator::StrictEquality => builder.build_float_compare(
                                     RealCompareOperator::Equal,
+                                    lhs,
+                                    rhs,
+                                    name,
+                                ),
+
+                                BinaryOperator::StrictNotEqual => builder.build_float_compare(
+                                    RealCompareOperator::NotEqual,
                                     lhs,
                                     rhs,
                                     name,
@@ -161,6 +168,12 @@ pub(crate) fn build_expression<'a>(
                             BinaryOperator::StrictEquality => {
                                 builder.build_int_compare(IntCompareOperator::Equal, lhs, rhs, name)
                             }
+                            BinaryOperator::StrictNotEqual => builder.build_int_compare(
+                                IntCompareOperator::NotEqual,
+                                lhs,
+                                rhs,
+                                name,
+                            ),
 
                             _ => todo!(),
                         };
