@@ -9,6 +9,7 @@ pub enum Token {
 
     // Comparison operators
     Equality, // ==
+    StrictEquality, // ===
 
     SemiColon, // ;
     Colon,     // :

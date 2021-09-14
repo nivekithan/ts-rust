@@ -44,14 +44,20 @@ impl<'a> Lexer<'a> {
                 } else if char == '=' {
                     self.next(); // consumes =
 
-
                     if let Some(char) = self.cur_char {
                         if char == '=' {
                             self.next(); // consumes =
+
+                            if let Some(char) = self.cur_char {
+                                if char == '=' {
+                                    self.next(); // consumes =
+                                    return StrictEquality;
+                                }
+                            }
+
                             return Equality;
                         }
                     }
-
 
                     return Assign;
                 } else if char == '{' {

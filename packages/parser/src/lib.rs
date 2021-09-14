@@ -22,7 +22,7 @@ pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
 mod test {
     use ast::{
         declaration::{Declaration, VariableAssignmentOperator, VariableDeclarationKind},
-        expression::Expression,
+        expression::{BinaryOperator, Expression},
         Ast,
     };
     use lexer::convert_to_token;
@@ -81,6 +81,32 @@ mod test {
                 ]),
             }),
         ];
+
+        let actual_output = convert_to_ast(convert_to_token(input));
+
+        assert_eq!(expected_output, actual_output);
+    }
+
+    #[test]
+    fn test_2() {
+        let input = "
+        const x = 1 === 1";
+
+        let expected_output: Vec<Ast> = vec![Ast::new_variable_declaration(
+            "x_",
+            Expression::BinaryExp {
+                operator: BinaryOperator::StrictEquality,
+                left: Box::new(Expression::FloatLiteralExp {
+                    name: "1".to_string(),
+                    value: 1.0,
+                }),
+                right: Box::new(Expression::FloatLiteralExp {
+                    name: "1".to_string(),
+                    value: 1.0,
+                }),
+            },
+            VariableDeclarationKind::Const,
+        )];
 
         let actual_output = convert_to_ast(convert_to_token(input));
 

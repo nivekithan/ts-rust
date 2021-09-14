@@ -2,15 +2,17 @@ use std::marker::PhantomData;
 
 use llvm_sys::{
     core::{
-        LLVMBuildAlloca, LLVMBuildBr, LLVMBuildCondBr, LLVMBuildFAdd, LLVMBuildFDiv, LLVMBuildFMul,
-        LLVMBuildFNeg, LLVMBuildFSub, LLVMBuildLoad2, LLVMBuildRet, LLVMBuildRetVoid,
-        LLVMBuildStore, LLVMBuildXor, LLVMDisposeBuilder, LLVMPositionBuilderAtEnd,
+        LLVMBuildAlloca, LLVMBuildBr, LLVMBuildCondBr, LLVMBuildFAdd, LLVMBuildFCmp, LLVMBuildFDiv,
+        LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFSub, LLVMBuildICmp, LLVMBuildLoad2, LLVMBuildRet,
+        LLVMBuildRetVoid, LLVMBuildStore, LLVMBuildXor, LLVMDisposeBuilder,
+        LLVMPositionBuilderAtEnd,
     },
     prelude::LLVMBuilderRef,
 };
 
 use crate::{
     basic_block::BasicBlock,
+    enums::{IntCompareOperator, RealCompareOperator},
     types::{
         enums::BasicTypeEnum,
         traits::{AsTypeRef, BasicTypeTrait},
@@ -159,6 +161,47 @@ impl<'a> Builder<'a> {
                 c_name.as_ptr(),
             );
             return T::new(value);
+        }
+    }
+
+    pub fn build_int_compare<T: IntMathValueTrait<'a>>(
+        &self,
+        operator: IntCompareOperator,
+        lhs: T,
+        rhs: T,
+        name: &str,
+    ) -> IntValue {
+        let c_name = to_c_str(name);
+
+        unsafe {
+            let value = LLVMBuildICmp(
+                self.builder,
+                operator.convert_llvm_int_predicate(),
+                lhs.as_value_ref(),
+                rhs.as_value_ref(),
+                c_name.as_ptr(),
+            );
+            return IntValue::new(value);
+        }
+    }
+    pub fn build_float_compare<T: FloatMathValueTrait<'a>>(
+        &self,
+        operator: RealCompareOperator,
+        lhs: T,
+        rhs: T,
+        name: &str,
+    ) -> IntValue {
+        let c_name = to_c_str(name);
+
+        unsafe {
+            let value = LLVMBuildFCmp(
+                self.builder,
+                operator.convert_to_llvm_real_predicate(),
+                lhs.as_value_ref(),
+                rhs.as_value_ref(),
+                c_name.as_ptr(),
+            );
+            return IntValue::new(value);
         }
     }
 

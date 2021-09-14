@@ -7,6 +7,7 @@ use ast::{
 use inkwell::{
     builder::Builder,
     context::Context,
+    enums::{IntCompareOperator, RealCompareOperator},
     types::traits::BasicTypeTrait,
     values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
@@ -131,6 +132,21 @@ pub(crate) fn build_expression<'a>(
                         BinaryOperator::Star => builder.build_float_mul(lhs, rhs, name),
                         BinaryOperator::Slash => builder.build_float_div(lhs, rhs, name),
 
+                        BinaryOperator::StrictEquality => {
+                            let int_value = match operator {
+                                BinaryOperator::StrictEquality => builder.build_float_compare(
+                                    RealCompareOperator::Equal,
+                                    lhs,
+                                    rhs,
+                                    name,
+                                ),
+
+                                _ => unreachable!(),
+                            };
+
+                            return BasicValueEnum::IntValue(int_value);
+                        }
+
                         _ => todo!(),
                     };
 
@@ -139,7 +155,23 @@ pub(crate) fn build_expression<'a>(
                     todo!()
                 }
             } else {
-                todo!()
+                if let BasicValueEnum::IntValue(lhs) = left_value {
+                    if let BasicValueEnum::IntValue(rhs) = right_value {
+                        let evaluated_int_value = match operator {
+                            BinaryOperator::StrictEquality => {
+                                builder.build_int_compare(IntCompareOperator::Equal, lhs, rhs, name)
+                            }
+
+                            _ => todo!(),
+                        };
+
+                        return BasicValueEnum::IntValue(evaluated_int_value);
+                    } else {
+                        todo!()
+                    }
+                } else {
+                    todo!()
+                }
             }
         }
 

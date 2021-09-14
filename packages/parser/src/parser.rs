@@ -542,6 +542,19 @@ impl<'a> Parser<'a> {
                 }));
             }
 
+            Token::StrictEquality => {
+                let precedence = Parser::get_non_prefix_precedence(&Token::StrictEquality);
+
+                self.next(); // consumes ===
+
+                let right_exp = Box::new(self.parse_expression(precedence, context)?);
+                return Ok(Ok(Expression::BinaryExp {
+                    operator: BinaryOperator::StrictEquality,
+                    left: Box::new(left),
+                    right: right_exp,
+                }));
+            }
+
             _ => return Ok(Err(left)),
         }
     }
@@ -560,6 +573,7 @@ impl<'a> Parser<'a> {
 
             Token::Plus | Token::Minus => return 14,
 
+            Token::StrictEquality => return 11,
             Token::Ampersand => return 10,
             Token::Caret => return 9,
             Token::VerticalBar => return 8,

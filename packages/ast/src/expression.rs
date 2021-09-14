@@ -20,6 +20,8 @@ pub enum BinaryOperator {
     VerticalBar, // |
     Caret,       // ^
     Ampersand,   // &
+
+    StrictEquality, // ===
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -93,6 +95,8 @@ impl Expression {
                         return DataType::Float;
                     }
                 }
+
+                BinaryOperator::StrictEquality => return DataType::Boolean,
             },
         }
     }
@@ -131,6 +135,8 @@ pub fn convert_binary_op_to_token(op: &BinaryOperator) -> Token {
         BinaryOperator::VerticalBar => return Token::VerticalBar,
         BinaryOperator::Caret => return Token::Caret,
         BinaryOperator::Ampersand => return Token::Ampersand,
+
+        BinaryOperator::StrictEquality => return Token::StrictEquality,
     }
 }
 
@@ -144,6 +150,8 @@ pub fn convert_token_to_binary_op(op: Token) -> Result<BinaryOperator, String> {
         Token::VerticalBar => return Ok(BinaryOperator::VerticalBar),
         Token::Caret => return Ok(BinaryOperator::Caret),
         Token::Ampersand => return Ok(BinaryOperator::Ampersand),
+
+        Token::StrictEquality => return Ok(BinaryOperator::StrictEquality),
 
         tok => {
             return Err(format!(
