@@ -132,7 +132,8 @@ pub(crate) fn build_expression<'a>(
                         BinaryOperator::Star => builder.build_float_mul(lhs, rhs, name),
                         BinaryOperator::Slash => builder.build_float_div(lhs, rhs, name),
 
-                        BinaryOperator::StrictEquality | BinaryOperator::StrictNotEqual => {
+                        BinaryOperator::StrictEquality | BinaryOperator::StrictNotEqual | BinaryOperator::LessThan 
+                        | BinaryOperator::LessThanOrEqual | BinaryOperator::GreaterThan | BinaryOperator::GreaterThanOrEqual => {
                             let int_value = match operator {
                                 BinaryOperator::StrictEquality => builder.build_float_compare(
                                     RealCompareOperator::Equal,
@@ -148,6 +149,33 @@ pub(crate) fn build_expression<'a>(
                                     name,
                                 ),
 
+                                BinaryOperator::LessThan => builder.build_float_compare(
+                                    RealCompareOperator::LessThan,
+                                    lhs,
+                                    rhs,
+                                    name,
+                                ),
+
+                                BinaryOperator::LessThanOrEqual => builder.build_float_compare(
+                                    RealCompareOperator::LessThanOrEqual,
+                                    lhs,
+                                    rhs,
+                                    name,
+                                ),
+
+                                BinaryOperator::GreaterThan => builder.build_float_compare(
+                                    RealCompareOperator::GreaterThan,
+                                    lhs,
+                                    rhs,
+                                    name,
+                                ),
+
+                                BinaryOperator::GreaterThanOrEqual => builder.build_float_compare(
+                                    RealCompareOperator::GreaterThanOrEqual,
+                                    lhs,
+                                    rhs,
+                                    name,
+                                ),
                                 _ => unreachable!(),
                             };
 
