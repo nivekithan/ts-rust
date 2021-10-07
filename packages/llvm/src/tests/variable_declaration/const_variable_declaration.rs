@@ -449,8 +449,6 @@ fn binary_strict_not_equal_float() {
     exp_test.test();
 }
 
-
-
 #[test]
 fn binary_less_than() {
     let exp_test = ExpressionTest {
@@ -484,7 +482,6 @@ fn binary_less_than() {
 
     exp_test.test();
 }
-
 
 #[test]
 fn binary_less_than_or_equal() {
@@ -520,7 +517,6 @@ fn binary_less_than_or_equal() {
     exp_test.test();
 }
 
-
 #[test]
 fn binary_greater_than() {
     let exp_test = ExpressionTest {
@@ -555,7 +551,6 @@ fn binary_greater_than() {
     exp_test.test();
 }
 
-
 #[test]
 fn binary_greater_than_or_equal() {
     let exp_test = ExpressionTest {
@@ -589,4 +584,3 @@ fn binary_greater_than_or_equal() {
 
     exp_test.test();
 }
-

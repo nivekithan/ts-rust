@@ -31,22 +31,6 @@ impl<'a> Parser<'a> {
         return self.next_ast_in_context(global_context).unwrap();
     }
 
-    fn consume_ast_in_context(
-        &mut self,
-        context: &mut SymbolContext,
-    ) -> (Vec<Ast>, Option<String>) {
-        let mut asts: Vec<Ast> = vec![];
-
-        while self.get_cur_token().unwrap() != &Token::Eof {
-            let next_ast = self.next_ast_in_context(context);
-            match next_ast {
-                Ok(ast) => asts.push(ast),
-                Err(st) => return (asts, Some(st)),
-            }
-        }
-
-        return (asts, None);
-    }
 
     fn next_ast_in_context(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
         let first_token = self.get_cur_token()?;
@@ -210,23 +194,17 @@ impl<'a> Parser<'a> {
 
                 let mut child_context = context.create_child_context(suffix);
 
-                let (asts, err) = self.consume_ast_in_context(&mut child_context);
+                let mut if_block_ast : Vec<Ast> = vec![];
 
-                if let Some(err_st) = err {
-                    if err_st == "Unknown token: AngleCloseBracket".to_string() {
-                        self.assert_cur_token(&Token::AngleCloseBracket)?;
-                        self.next(); // consumes }
-                        return Ok(Ast::new_if_block(condition, asts));
-                    } else {
-                        if let Ok(_) = self.assert_cur_token(&Token::AngleCloseBracket) {
-                            unreachable!()
-                        } else {
-                            return Err(err_st);
-                        }
-                    }
+                while self.get_cur_token().unwrap() != &Token::AngleCloseBracket {
+                    let ast = self.next_ast_in_context(&mut child_context)?;
+                    if_block_ast.push(ast);
                 }
 
-                unreachable!();
+                self.next(); // consumes }
+
+                return Ok(Ast::new_if_block(condition, if_block_ast));
+
             }
 
             _ => panic!(
@@ -566,7 +544,7 @@ impl<'a> Parser<'a> {
                     left: Box::new(left),
                     right: right_exp,
                 }));
-            },
+            }
 
             Token::LessThan => {
                 let precedence = Parser::get_non_prefix_precedence(&Token::LessThan);
@@ -579,9 +557,8 @@ impl<'a> Parser<'a> {
                     left: Box::new(left),
                     right: right_exp,
                 }));
-            },
-            
-            
+            }
+
             Token::LessThanOrEqual => {
                 let precedence = Parser::get_non_prefix_precedence(&Token::LessThanOrEqual);
 
@@ -593,8 +570,8 @@ impl<'a> Parser<'a> {
                     left: Box::new(left),
                     right: right_exp,
                 }));
-            },
-            
+            }
+
             Token::GreaterThan => {
                 let precedence = Parser::get_non_prefix_precedence(&Token::GreaterThan);
 
@@ -606,7 +583,7 @@ impl<'a> Parser<'a> {
                     left: Box::new(left),
                     right: right_exp,
                 }));
-            },
+            }
 
             Token::GreaterThanOrEqual => {
                 let precedence = Parser::get_non_prefix_precedence(&Token::GreaterThanOrEqual);
@@ -619,8 +596,7 @@ impl<'a> Parser<'a> {
                     left: Box::new(left),
                     right: right_exp,
                 }));
-            },
-
+            }
 
             _ => return Ok(Err(left)),
         }

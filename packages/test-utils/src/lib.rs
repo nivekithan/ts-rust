@@ -91,7 +91,6 @@ impl ExpressionTest {
             generate_binary_less_than_or_equal,
             generate_binary_greater_than,
             generate_binary_greater_than_or_equal,
-
         ];
 
         let every_1_arg_gen = [generate_boolean_ident, generate_float_ident];
@@ -305,7 +304,6 @@ fn generate_binary_strict_not_equal_float() -> TExp {
     };
 }
 
-
 fn generate_binary_less_than() -> TExp {
     let exp_str = "(1 < 2)".to_string();
 
@@ -397,8 +395,6 @@ fn generate_binary_greater_than_or_equal() -> TExp {
         asts: vec![],
     };
 }
-
-
 
 fn generate_float_literal() -> TExp {
     let exp_str = "(1)".to_string();

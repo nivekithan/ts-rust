@@ -1,5 +1,6 @@
 mod parser;
 mod symbol_table;
+mod utils;
 
 use crate::{parser::Parser, symbol_table::SymbolContext};
 use ast::Ast;
