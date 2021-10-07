@@ -3,19 +3,15 @@ use core::panic;
 use ast::{
     data_type::DataType,
     declaration::{VariableAssignmentOperator, VariableDeclarationKind},
-    expression::{BinaryOperator, Expression, UnaryOperator},
     Ast,
 };
-use lexer::token::{KeywordKind, LiteralKind, Token};
+use lexer::token::{KeywordKind, Token};
 
-use crate::{
-    symbol_table::{SymbolContext, SymbolMetaInsert},
-    utils::{convert_token_to_binary_operator, convert_token_to_unary_operator},
-};
+use crate::symbol_table::{SymbolContext, SymbolMetaInsert};
 
 pub struct Parser<'a> {
-    content: &'a Vec<Token>,
-    cur_pos: Option<usize>,
+    pub(crate) content: &'a Vec<Token>,
+    pub(crate) cur_pos: Option<usize>,
 }
 
 impl<'a> Parser<'a> {
@@ -34,7 +30,10 @@ impl<'a> Parser<'a> {
         return self.next_ast_in_context(global_context).unwrap();
     }
 
-    fn next_ast_in_context(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
+    pub(crate) fn next_ast_in_context(
+        &mut self,
+        context: &mut SymbolContext,
+    ) -> Result<Ast, String> {
         let first_token = self.get_cur_token()?;
         let suffix = &context.suffix.clone();
 
@@ -172,7 +171,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parser_if_block(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
+    pub(crate) fn parser_if_block(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
         let first_token = self.get_cur_token().unwrap();
 
         match first_token {
@@ -214,7 +213,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn next(&mut self) -> &Token {
+    pub(crate) fn next(&mut self) -> &Token {
         match self.cur_pos {
             None => {
                 self.cur_pos = Some(0);
@@ -233,7 +232,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn assert_cur_token(&self, token_type: &Token) -> Result<(), String> {
+    pub(crate) fn assert_cur_token(&self, token_type: &Token) -> Result<(), String> {
         let cur_token = self.get_cur_token()?;
 
         if cur_token != token_type {
@@ -246,7 +245,7 @@ impl<'a> Parser<'a> {
         return Ok(());
     }
 
-    fn skip_semicolon(&mut self) -> Result<(), String> {
+    pub(crate) fn skip_semicolon(&mut self) -> Result<(), String> {
         let cur_token = self.get_cur_token()?;
 
         if let &Token::SemiColon = cur_token {
@@ -256,7 +255,7 @@ impl<'a> Parser<'a> {
         return Ok(());
     }
 
-    pub fn get_cur_token(&self) -> Result<&Token, String> {
+    pub(crate) fn get_cur_token(&self) -> Result<&Token, String> {
         if let Some(size) = self.cur_pos {
             return Ok(&self.content[size]);
         } else {
@@ -267,225 +266,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_expression(
-        &mut self,
-        precedence: usize,
-        context: &SymbolContext,
-    ) -> Result<Expression, String> {
-        let mut prefix_fun = self.get_prefix_exp(context)?;
-        let next_token = self.get_cur_token()?.clone();
-
-        while next_token != Token::SemiColon
-            && precedence < Parser::get_non_prefix_precedence(&next_token)
-        {
-            let infix_fun = self.get_non_prefix_exp(prefix_fun, context)?;
-
-            match infix_fun {
-                Ok(exp) => {
-                    prefix_fun = exp;
-                }
-                Err(exp) => {
-                    prefix_fun = exp;
-                    break;
-                }
-            }
-        }
-
-        return Ok(prefix_fun);
-    }
-
-    fn get_prefix_exp(&mut self, context: &SymbolContext) -> Result<Expression, String> {
-        let cur_token = self.get_cur_token()?;
-
-        match cur_token {
-            Token::Plus | Token::Minus | Token::Bang => {
-                return self.parse_genric_unary_expression(context);
-            }
-
-            Token::Literal(literal_kind) => match literal_kind {
-                LiteralKind::Float { name, value } => {
-                    let name = name.to_string();
-                    let value = *value;
-
-                    self.next(); // consumes Float
-
-                    return Ok(Expression::FloatLiteralExp { name, value });
-                }
-
-                LiteralKind::String { name } => {
-                    let name = name.to_string();
-
-                    self.next(); // consumes string
-
-                    return Ok(Expression::StringLiteralExp { value: name });
-                }
-            },
-
-            Token::Keyword(keyword_kind) => match keyword_kind {
-                KeywordKind::True => {
-                    self.next(); // consumes true
-
-                    return Ok(Expression::BooleanLiteralExp {
-                        name: "true".to_string(),
-                        value: true,
-                    });
-                }
-
-                KeywordKind::False => {
-                    self.next(); // consumes false
-
-                    return Ok(Expression::BooleanLiteralExp {
-                        name: "false".to_string(),
-                        value: false,
-                    });
-                }
-
-                _ => {
-                    return Err(format!(
-                        "Given keyword does not have a prefix function {:?}",
-                        keyword_kind
-                    ))
-                }
-            },
-
-            Token::Ident { name } => {
-                // let name = format!("{}{}", name, context.suffix);
-
-                if let Some(sym_meta) = context.get(&name) {
-                    let suffix_name = format!("{}{}", name, context.suffix);
-
-                    let exp = Ok(Expression::IdentExp {
-                        name: suffix_name,
-                        data_type: sym_meta.data_type.clone(),
-                    });
-
-                    self.next(); // Consumes ident
-
-                    return exp;
-                } else {
-                    return Err(format!("There is no variable defined with name {}", name));
-                }
-            }
-
-            Token::CurveOpenBracket => {
-                self.next(); // consume (
-
-                let grouped_exp = self.parse_expression(1, context)?;
-
-                let cur_tok = self.get_cur_token().unwrap();
-
-                if cur_tok == &Token::Eof {
-                    println!("Contents : {:?}", self.content);
-                }
-
-                assert_eq!(cur_tok, &Token::CurveCloseBracket);
-                self.next(); // consumes )
-
-                return Ok(grouped_exp);
-            }
-
-            tok => {
-                return Err(format!(
-                    "Given token {:?} does not have not a prefix function",
-                    tok
-                ))
-            }
-        }
-    }
-
-    fn parse_genric_unary_expression(
-        &mut self,
-        context: &SymbolContext,
-    ) -> Result<Expression, String> {
-        let cur_token = self.get_cur_token()?.clone();
-        let precedence = Parser::get_prefix_precedence(&cur_token);
-
-        self.next(); // consumes cur_token
-
-        let arg_exp = self.parse_expression(precedence, context)?;
-        return Ok(Expression::UnaryExp {
-            operator: convert_token_to_unary_operator(&cur_token),
-            argument: Box::new(arg_exp),
-        });
-    }
-
-    fn get_non_prefix_exp(
-        &mut self,
-        left: Expression,
-        context: &SymbolContext,
-    ) -> Result<Result<Expression, Expression>, String> {
-        let non_prefix_token = self.get_cur_token().unwrap();
-
-        match non_prefix_token {
-            Token::Plus
-            | Token::Minus
-            | Token::Star
-            | Token::Slash
-            | Token::VerticalBar
-            | Token::Caret
-            | Token::Ampersand
-            | Token::StrictEquality
-            | Token::StrictNotEqual
-            | Token::LessThan
-            | Token::LessThanOrEqual
-            | Token::GreaterThan
-            | Token::GreaterThanOrEqual => {
-                let exp = self.parse_generic_binary_expression(left, context)?;
-                return Ok(Ok(exp));
-            }
-
-            _ => return Ok(Err(left)),
-        }
-    }
-
-    fn parse_generic_binary_expression(
-        &mut self,
-        left: Expression,
-        context: &SymbolContext,
-    ) -> Result<Expression, String> {
-        let cur_tok = self.get_cur_token()?.clone();
-
-        let precedence = Parser::get_non_prefix_precedence(&cur_tok);
-
-        self.next(); // consumes cur_tok which is binary_tok
-
-        let right_exp = Box::new(self.parse_expression(precedence, context)?);
-        return Ok(Expression::BinaryExp {
-            operator: convert_token_to_binary_operator(&cur_tok),
-            left: Box::new(left),
-            right: right_exp,
-        });
-    }
-
-    fn get_prefix_precedence(token: &Token) -> usize {
-        match token {
-            Token::Plus | Token::Minus | Token::Bang => return 17,
-
-            _ => return 1,
-        }
-    }
-
-    fn get_non_prefix_precedence(token: &Token) -> usize {
-        match token {
-            Token::Star | Token::Slash => return 15,
-
-            Token::Plus | Token::Minus => return 14,
-
-            Token::LessThan
-            | Token::LessThanOrEqual
-            | Token::GreaterThan
-            | Token::GreaterThanOrEqual => return 12,
-
-            Token::StrictEquality | Token::StrictNotEqual => return 11,
-            Token::Ampersand => return 10,
-            Token::Caret => return 9,
-            Token::VerticalBar => return 8,
-
-            _ => return 1,
-        }
-    }
-
-    fn parse_type_declaration(&mut self) -> DataType {
+    pub(crate) fn parse_type_declaration(&mut self) -> DataType {
         let cur_tok = self.get_cur_token().unwrap();
 
         let data_type = match cur_tok {

@@ -1,3 +1,4 @@
+mod parse_expression;
 mod parser;
 mod symbol_table;
 mod utils;
