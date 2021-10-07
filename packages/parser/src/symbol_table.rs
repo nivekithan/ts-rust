@@ -43,39 +43,23 @@ impl<'a> SymbolContext<'a> {
     }
 
     pub fn get(&self, name: &str) -> Option<SymbolMeta> {
-        let mut cur_context: Option<&SymbolContext> = Some(self);
-        let mut is_override = false;
+        let context_available = self.get_context_for_name(name);
 
-        while !matches!(cur_context, None) {
-            if let Some(context) = cur_context {
-                let sym_meta = context.symbols.get(&name.to_string());
-                let suffix = context.suffix.clone();
+        match context_available {
+            None => return None,
+            Some(context) => {
+                let is_override = context.suffix != self.suffix;
+                let meta_insert = context.symbols.get(&name.to_string()).unwrap();
+                let meta = SymbolMeta {
+                    data_type: meta_insert.data_type.clone(),
+                    is_const: meta_insert.is_const,
+                    is_override_available: is_override,
+                    suffix: self.get_suffix(name),
+                };
 
-                match sym_meta {
-                    Some(meta) => {
-                        return Some(SymbolMeta {
-                            data_type: meta.data_type.clone(),
-                            is_const: meta.is_const,
-                            is_override_available: is_override,
-                            suffix,
-                        })
-                    }
-
-                    None => {
-                        if let Some(context) = &context.parent {
-                            is_override = true;
-                            cur_context = Some(context.as_ref());
-                        } else {
-                            cur_context = None;
-                        }
-                    }
-                }
-            } else {
-                unreachable!();
+                return Some(meta);
             }
         }
-
-        return None;
     }
 
     pub fn insert(&mut self, name: &str, sym_meta: SymbolMetaInsert) -> Result<(), String> {
@@ -97,5 +81,30 @@ impl<'a> SymbolContext<'a> {
             counter: 0,
         };
         return new_context;
+    }
+
+    pub fn get_suffix(&self, name: &str) -> String {
+        let context_available = self.get_context_for_name(name).unwrap();
+        return context_available.suffix.clone();
+    }
+
+    fn get_context_for_name(&'a self, name: &str) -> Option<&'a SymbolContext<'a>> {
+        let mut cur_context = &Some(Box::new(self));
+
+        loop {
+            match cur_context {
+                None => return None,
+
+                Some(context) => {
+                    let is_present = context.symbols.contains_key(&name.to_string());
+
+                    if is_present {
+                        return Some(context.as_ref());
+                    } else {
+                        cur_context = &context.parent;
+                    }
+                }
+            }
+        }
     }
 }

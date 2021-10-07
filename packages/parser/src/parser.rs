@@ -8,7 +8,10 @@ use ast::{
 };
 use lexer::token::{KeywordKind, LiteralKind, Token};
 
-use crate::symbol_table::{SymbolContext, SymbolMetaInsert};
+use crate::{
+    symbol_table::{SymbolContext, SymbolMetaInsert},
+    utils::{convert_token_to_binary_operator, convert_token_to_unary_operator},
+};
 
 pub struct Parser<'a> {
     content: &'a Vec<Token>,
@@ -30,7 +33,6 @@ impl<'a> Parser<'a> {
     pub fn next_ast(&mut self, global_context: &mut SymbolContext) -> Ast {
         return self.next_ast_in_context(global_context).unwrap();
     }
-
 
     fn next_ast_in_context(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
         let first_token = self.get_cur_token()?;
@@ -194,7 +196,7 @@ impl<'a> Parser<'a> {
 
                 let mut child_context = context.create_child_context(suffix);
 
-                let mut if_block_ast : Vec<Ast> = vec![];
+                let mut if_block_ast: Vec<Ast> = vec![];
 
                 while self.get_cur_token().unwrap() != &Token::AngleCloseBracket {
                     let ast = self.next_ast_in_context(&mut child_context)?;
@@ -204,7 +206,6 @@ impl<'a> Parser<'a> {
                 self.next(); // consumes }
 
                 return Ok(Ast::new_if_block(condition, if_block_ast));
-
             }
 
             _ => panic!(
@@ -294,40 +295,11 @@ impl<'a> Parser<'a> {
     }
 
     fn get_prefix_exp(&mut self, context: &SymbolContext) -> Result<Expression, String> {
-        let cur_token = self.get_cur_token().unwrap();
+        let cur_token = self.get_cur_token()?;
 
         match cur_token {
-            Token::Plus => {
-                let precedence = Parser::get_prefix_precedence(&Token::Plus);
-
-                self.next(); // consumes +
-                let arg_exp = self.parse_expression(precedence, context)?;
-                return Ok(Expression::UnaryExp {
-                    operator: UnaryOperator::Plus,
-                    argument: Box::new(arg_exp),
-                });
-            }
-
-            Token::Minus => {
-                let precedence = Parser::get_prefix_precedence(&Token::Minus);
-
-                self.next(); // consumes -
-                let arg_exp = self.parse_expression(precedence, context)?;
-                return Ok(Expression::UnaryExp {
-                    operator: UnaryOperator::Minus,
-                    argument: Box::new(arg_exp),
-                });
-            }
-
-            Token::Bang => {
-                let precedence = Parser::get_prefix_precedence(&Token::Bang);
-
-                self.next(); //  consumes !
-                let arg_exp = self.parse_expression(precedence, context)?;
-                return Ok(Expression::UnaryExp {
-                    operator: UnaryOperator::Bang,
-                    argument: Box::new(arg_exp),
-                });
+            Token::Plus | Token::Minus | Token::Bang => {
+                return self.parse_genric_unary_expression(context);
             }
 
             Token::Literal(literal_kind) => match literal_kind {
@@ -421,6 +393,22 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn parse_genric_unary_expression(
+        &mut self,
+        context: &SymbolContext,
+    ) -> Result<Expression, String> {
+        let cur_token = self.get_cur_token()?.clone();
+        let precedence = Parser::get_prefix_precedence(&cur_token);
+
+        self.next(); // consumes cur_token
+
+        let arg_exp = self.parse_expression(precedence, context)?;
+        return Ok(Expression::UnaryExp {
+            operator: convert_token_to_unary_operator(&cur_token),
+            argument: Box::new(arg_exp),
+        });
+    }
+
     fn get_non_prefix_exp(
         &mut self,
         left: Expression,
@@ -429,177 +417,44 @@ impl<'a> Parser<'a> {
         let non_prefix_token = self.get_cur_token().unwrap();
 
         match non_prefix_token {
-            Token::Plus => {
-                let precedence = Parser::get_non_prefix_precedence(&Token::Plus);
-
-                self.next(); // consumes +
-
-                let right_exp = Box::new(self.parse_expression(precedence, context)?);
-                return Ok(Ok(Expression::BinaryExp {
-                    operator: BinaryOperator::Plus,
-                    left: Box::new(left),
-                    right: right_exp,
-                }));
-            }
-
-            Token::Minus => {
-                let precedence = Parser::get_non_prefix_precedence(&Token::Minus);
-
-                self.next(); // consumes -
-
-                let right_exp = Box::new(self.parse_expression(precedence, context)?);
-                return Ok(Ok(Expression::BinaryExp {
-                    operator: BinaryOperator::Minus,
-                    left: Box::new(left),
-                    right: right_exp,
-                }));
-            }
-
-            Token::Star => {
-                let precedence = Parser::get_non_prefix_precedence(&Token::Star);
-
-                self.next(); // consumes *
-
-                let right_exp = Box::new(self.parse_expression(precedence, context)?);
-                return Ok(Ok(Expression::BinaryExp {
-                    operator: BinaryOperator::Star,
-                    left: Box::new(left),
-                    right: right_exp,
-                }));
-            }
-
-            Token::Slash => {
-                let precedence = Parser::get_non_prefix_precedence(&Token::Slash);
-
-                self.next(); // consumes /
-
-                let right_exp = Box::new(self.parse_expression(precedence, context)?);
-                return Ok(Ok(Expression::BinaryExp {
-                    operator: BinaryOperator::Slash,
-                    left: Box::new(left),
-                    right: right_exp,
-                }));
-            }
-
-            Token::VerticalBar => {
-                let precedence = Parser::get_non_prefix_precedence(&Token::VerticalBar);
-
-                self.next(); // consumes |
-
-                let right_exp = Box::new(self.parse_expression(precedence, context)?);
-                return Ok(Ok(Expression::BinaryExp {
-                    operator: BinaryOperator::VerticalBar,
-                    left: Box::new(left),
-                    right: right_exp,
-                }));
-            }
-
-            Token::Caret => {
-                let precedence = Parser::get_non_prefix_precedence(&Token::Caret);
-
-                self.next(); // consumes ^
-
-                let right_exp = Box::new(self.parse_expression(precedence, context)?);
-                return Ok(Ok(Expression::BinaryExp {
-                    operator: BinaryOperator::Caret,
-                    left: Box::new(left),
-                    right: right_exp,
-                }));
-            }
-
-            Token::Ampersand => {
-                let precedence = Parser::get_non_prefix_precedence(&Token::Ampersand);
-
-                self.next(); // consumes &
-
-                let right_exp = Box::new(self.parse_expression(precedence, context)?);
-                return Ok(Ok(Expression::BinaryExp {
-                    operator: BinaryOperator::Ampersand,
-                    left: Box::new(left),
-                    right: right_exp,
-                }));
-            }
-
-            Token::StrictEquality => {
-                let precedence = Parser::get_non_prefix_precedence(&Token::StrictEquality);
-
-                self.next(); // consumes ===
-
-                let right_exp = Box::new(self.parse_expression(precedence, context)?);
-                return Ok(Ok(Expression::BinaryExp {
-                    operator: BinaryOperator::StrictEquality,
-                    left: Box::new(left),
-                    right: right_exp,
-                }));
-            }
-
-            Token::StrictNotEqual => {
-                let precedence = Parser::get_non_prefix_precedence(&Token::StrictNotEqual);
-
-                self.next(); // consumes !==
-
-                let right_exp = Box::new(self.parse_expression(precedence, context)?);
-                return Ok(Ok(Expression::BinaryExp {
-                    operator: BinaryOperator::StrictNotEqual,
-                    left: Box::new(left),
-                    right: right_exp,
-                }));
-            }
-
-            Token::LessThan => {
-                let precedence = Parser::get_non_prefix_precedence(&Token::LessThan);
-
-                self.next(); // consumes !==
-
-                let right_exp = Box::new(self.parse_expression(precedence, context)?);
-                return Ok(Ok(Expression::BinaryExp {
-                    operator: BinaryOperator::LessThan,
-                    left: Box::new(left),
-                    right: right_exp,
-                }));
-            }
-
-            Token::LessThanOrEqual => {
-                let precedence = Parser::get_non_prefix_precedence(&Token::LessThanOrEqual);
-
-                self.next(); // consumes !==
-
-                let right_exp = Box::new(self.parse_expression(precedence, context)?);
-                return Ok(Ok(Expression::BinaryExp {
-                    operator: BinaryOperator::LessThanOrEqual,
-                    left: Box::new(left),
-                    right: right_exp,
-                }));
-            }
-
-            Token::GreaterThan => {
-                let precedence = Parser::get_non_prefix_precedence(&Token::GreaterThan);
-
-                self.next(); // consumes !==
-
-                let right_exp = Box::new(self.parse_expression(precedence, context)?);
-                return Ok(Ok(Expression::BinaryExp {
-                    operator: BinaryOperator::GreaterThan,
-                    left: Box::new(left),
-                    right: right_exp,
-                }));
-            }
-
-            Token::GreaterThanOrEqual => {
-                let precedence = Parser::get_non_prefix_precedence(&Token::GreaterThanOrEqual);
-
-                self.next(); // consumes !==
-
-                let right_exp = Box::new(self.parse_expression(precedence, context)?);
-                return Ok(Ok(Expression::BinaryExp {
-                    operator: BinaryOperator::GreaterThanOrEqual,
-                    left: Box::new(left),
-                    right: right_exp,
-                }));
+            Token::Plus
+            | Token::Minus
+            | Token::Star
+            | Token::Slash
+            | Token::VerticalBar
+            | Token::Caret
+            | Token::Ampersand
+            | Token::StrictEquality
+            | Token::StrictNotEqual
+            | Token::LessThan
+            | Token::LessThanOrEqual
+            | Token::GreaterThan
+            | Token::GreaterThanOrEqual => {
+                let exp = self.parse_generic_binary_expression(left, context)?;
+                return Ok(Ok(exp));
             }
 
             _ => return Ok(Err(left)),
         }
+    }
+
+    fn parse_generic_binary_expression(
+        &mut self,
+        left: Expression,
+        context: &SymbolContext,
+    ) -> Result<Expression, String> {
+        let cur_tok = self.get_cur_token()?.clone();
+
+        let precedence = Parser::get_non_prefix_precedence(&cur_tok);
+
+        self.next(); // consumes cur_tok which is binary_tok
+
+        let right_exp = Box::new(self.parse_expression(precedence, context)?);
+        return Ok(Expression::BinaryExp {
+            operator: convert_token_to_binary_operator(&cur_tok),
+            left: Box::new(left),
+            right: right_exp,
+        });
     }
 
     fn get_prefix_precedence(token: &Token) -> usize {
