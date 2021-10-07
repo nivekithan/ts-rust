@@ -57,49 +57,8 @@ impl<'a> Parser<'a> {
             },
 
             Token::Ident { name } => {
-                // let name = format!("{}{}",name.clone(), suffix);
-                let name = name.clone();
-
-                if let Some(sym_meta) = context.get(&name) {
-                    if sym_meta.is_const {
-                        return Err(format!("Cannot reassign a const variable"));
-                    }
-
-                    let data_type = sym_meta.data_type.clone();
-
-                    self.next(); // consumes the ident
-
-                    let operator = match self.get_cur_token()? {
-                        Token::Assign => VariableAssignmentOperator::Assign,
-                        Token::PlusAssign => VariableAssignmentOperator::PlusAssign,
-                        Token::MinusAssign => VariableAssignmentOperator::MinusAssign,
-                        Token::StarAssign => VariableAssignmentOperator::StarAssign,
-                        Token::SlashAssign => VariableAssignmentOperator::SlashAssign,
-
-                        tok => return Err(format!("Expected either one of the =, +=, -=, *=, /= assignment operators but got {:?}", tok)),
-                    };
-
-                    self.next(); // consumes =
-
-                    let expression = self.parse_expression(1, context)?;
-
-                    if expression.get_data_type() != data_type {
-                        return Err(format!(
-                            "Reassigning datatype {:?} to variable whose datatype is {:?}",
-                            expression.get_data_type(),
-                            data_type
-                        ));
-                    }
-
-                    self.skip_semicolon()?;
-
-                    let suffix_name = format!("{}{}", name, sym_meta.suffix);
-
-                    return Ok(Ast::new_variable_assignment(
-                        suffix_name.as_str(),
-                        operator,
-                        expression,
-                    ));
+                if let Some(_) = context.get(name) {
+                    return self.parse_variable_assignment(context);
                 } else {
                     return Err(format!("Unknown variable {}", name));
                 }
@@ -151,7 +110,10 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub(crate) fn parse_variable_declaration(&mut self, context : &mut SymbolContext) -> Result<Ast, String> {
+    pub(crate) fn parse_variable_declaration(
+        &mut self,
+        context: &mut SymbolContext,
+    ) -> Result<Ast, String> {
         let cur_tok = self.get_cur_token()?;
         let suffix = &context.suffix.clone();
 
@@ -162,39 +124,39 @@ impl<'a> Parser<'a> {
                         let is_const = match keyword_kind {
                             KeywordKind::Const => true,
                             KeywordKind::Let => false,
-    
+
                             _ => unreachable!(),
-                        };  
-    
+                        };
+
                         let kind = match keyword_kind {
                             KeywordKind::Const => VariableDeclarationKind::Const,
                             KeywordKind::Let => VariableDeclarationKind::Let,
-    
+
                             _ => unreachable!(),
                         };
-    
+
                         // let  name = format!("{}{}", self.next().get_ident_name()?.clone(), suffix); // consumes Const
                         let name = self.next().get_ident_name()?.clone(); // consumes const
-    
+
                         self.next(); // consumes ident
-    
+
                         let expected_data_type = match self.get_cur_token()? {
                             Token::Colon => {
                                 self.next(); // consumes :
                                 self.parse_type_declaration()
                             }
-    
+
                             _ => DataType::Unknown,
                         };
-    
+
                         self.assert_cur_token(&Token::Assign)?;
-    
+
                         self.next(); // consumes =
-    
+
                         let expression = self.parse_expression(1, context)?;
-    
+
                         let expression_data_type = expression.get_data_type();
-    
+
                         if expected_data_type != DataType::Unknown
                             && expected_data_type != expression_data_type
                         {
@@ -203,31 +165,93 @@ impl<'a> Parser<'a> {
                                 expected_data_type, expression_data_type
                             ));
                         }
-    
+
                         let sym_meta = SymbolMetaInsert::create(expression_data_type, is_const);
-    
+
                         if let Err(_) = context.insert(name.as_str(), sym_meta) {
                             return Err(format!(
                                 "You cannot declare variable {} which is already declared",
                                 name
                             ));
                         }
-    
+
                         self.skip_semicolon()?;
-    
+
                         let name_with_suffix = format!("{}{}", name, suffix);
                         return Ok(Ast::new_variable_declaration(
                             name_with_suffix.as_str(),
                             expression,
                             kind,
                         ));
-                    },
+                    }
 
-                    k => return Err(format!("Expected to be token keyword Const or keyword true but got keyword {:?}", k))
+                    k => return Err(format!(
+                        "Expected to be token keyword Const or keyword true but got keyword {:?}",
+                        k
+                    )),
                 }
-            },
+            }
 
-            tok => return Err(format!("Expected to be token keyword const or keyword true but got token {:?}", tok))
+            tok => {
+                return Err(format!(
+                    "Expected to be token keyword const or keyword true but got token {:?}",
+                    tok
+                ))
+            }
+        }
+    }
+
+    pub(crate) fn parse_variable_assignment(
+        &mut self,
+        context: &SymbolContext,
+    ) -> Result<Ast, String> {
+        let cur_tok = &self.get_cur_token()?.clone();
+
+        match cur_tok {
+            Token::Ident { name } => {
+                let sym_meta = context.get(name).unwrap();
+                if sym_meta.is_const {
+                    return Err(format!("Cannot reassign a const variable"));
+                }
+
+                let data_type = sym_meta.data_type.clone();
+
+                self.next(); // consumes the ident
+
+                let operator = match self.get_cur_token()? {
+                    Token::Assign => VariableAssignmentOperator::Assign,
+                    Token::PlusAssign => VariableAssignmentOperator::PlusAssign,
+                    Token::MinusAssign => VariableAssignmentOperator::MinusAssign,
+                    Token::StarAssign => VariableAssignmentOperator::StarAssign,
+                    Token::SlashAssign => VariableAssignmentOperator::SlashAssign,
+
+                    tok => return Err(format!("Expected either one of the =, +=, -=, *=, /= assignment operators but got {:?}", tok)),
+                };
+
+                self.next(); // consumes =
+
+                let expression = self.parse_expression(1, context)?;
+
+                if expression.get_data_type() != data_type {
+                    return Err(format!(
+                        "Reassigning datatype {:?} to variable whose datatype is {:?}",
+                        expression.get_data_type(),
+                        data_type
+                    ));
+                }
+
+                self.skip_semicolon()?;
+
+                let suffix_name = format!("{}{}", name, sym_meta.suffix);
+
+                return Ok(Ast::new_variable_assignment(
+                    suffix_name.as_str(),
+                    operator,
+                    expression,
+                ));
+            }
+
+            tok => return Err(format!("Expected tok to be of ident but got {:?}", tok)),
         }
     }
 
