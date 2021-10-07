@@ -35,73 +35,11 @@ impl<'a> Parser<'a> {
         context: &mut SymbolContext,
     ) -> Result<Ast, String> {
         let first_token = self.get_cur_token()?;
-        let suffix = &context.suffix.clone();
 
         match first_token {
             Token::Keyword(keyword_kind) => match keyword_kind {
                 KeywordKind::Const | KeywordKind::Let => {
-                    let is_const = match keyword_kind {
-                        KeywordKind::Const => true,
-                        KeywordKind::Let => false,
-
-                        _ => unreachable!(),
-                    };
-
-                    let kind = match keyword_kind {
-                        KeywordKind::Const => VariableDeclarationKind::Const,
-                        KeywordKind::Let => VariableDeclarationKind::Let,
-
-                        _ => unreachable!(),
-                    };
-
-                    // let  name = format!("{}{}", self.next().get_ident_name()?.clone(), suffix); // consumes Const
-                    let name = self.next().get_ident_name()?.clone(); // consumes const
-
-                    self.next(); // consumes ident
-
-                    let expected_data_type = match self.get_cur_token()? {
-                        Token::Colon => {
-                            self.next(); // consumes :
-                            self.parse_type_declaration()
-                        }
-
-                        _ => DataType::Unknown,
-                    };
-
-                    self.assert_cur_token(&Token::Assign)?;
-
-                    self.next(); // consumes =
-
-                    let expression = self.parse_expression(1, context)?;
-
-                    let expression_data_type = expression.get_data_type();
-
-                    if expected_data_type != DataType::Unknown
-                        && expected_data_type != expression_data_type
-                    {
-                        return Err(format!(
-                            "Expected data type {:?} but got {:?}",
-                            expected_data_type, expression_data_type
-                        ));
-                    }
-
-                    let sym_meta = SymbolMetaInsert::create(expression_data_type, is_const);
-
-                    if let Err(_) = context.insert(name.as_str(), sym_meta) {
-                        return Err(format!(
-                            "You cannot declare variable {} which is already declared",
-                            name
-                        ));
-                    }
-
-                    self.skip_semicolon()?;
-
-                    let name_with_suffix = format!("{}{}", name, suffix);
-                    return Ok(Ast::new_variable_declaration(
-                        name_with_suffix.as_str(),
-                        expression,
-                        kind,
-                    ));
+                    return self.parse_variable_declaration(context);
                 }
 
                 KeywordKind::If => {
@@ -210,6 +148,86 @@ impl<'a> Parser<'a> {
             _ => panic!(
                 "Expected parser_if_block to be called only when the cur_token is of Keyword if"
             ),
+        }
+    }
+
+    pub(crate) fn parse_variable_declaration(&mut self, context : &mut SymbolContext) -> Result<Ast, String> {
+        let cur_tok = self.get_cur_token()?;
+        let suffix = &context.suffix.clone();
+
+        match cur_tok {
+            Token::Keyword(keyword_kind) => {
+                match keyword_kind {
+                    KeywordKind::Const | KeywordKind::Let => {
+                        let is_const = match keyword_kind {
+                            KeywordKind::Const => true,
+                            KeywordKind::Let => false,
+    
+                            _ => unreachable!(),
+                        };  
+    
+                        let kind = match keyword_kind {
+                            KeywordKind::Const => VariableDeclarationKind::Const,
+                            KeywordKind::Let => VariableDeclarationKind::Let,
+    
+                            _ => unreachable!(),
+                        };
+    
+                        // let  name = format!("{}{}", self.next().get_ident_name()?.clone(), suffix); // consumes Const
+                        let name = self.next().get_ident_name()?.clone(); // consumes const
+    
+                        self.next(); // consumes ident
+    
+                        let expected_data_type = match self.get_cur_token()? {
+                            Token::Colon => {
+                                self.next(); // consumes :
+                                self.parse_type_declaration()
+                            }
+    
+                            _ => DataType::Unknown,
+                        };
+    
+                        self.assert_cur_token(&Token::Assign)?;
+    
+                        self.next(); // consumes =
+    
+                        let expression = self.parse_expression(1, context)?;
+    
+                        let expression_data_type = expression.get_data_type();
+    
+                        if expected_data_type != DataType::Unknown
+                            && expected_data_type != expression_data_type
+                        {
+                            return Err(format!(
+                                "Expected data type {:?} but got {:?}",
+                                expected_data_type, expression_data_type
+                            ));
+                        }
+    
+                        let sym_meta = SymbolMetaInsert::create(expression_data_type, is_const);
+    
+                        if let Err(_) = context.insert(name.as_str(), sym_meta) {
+                            return Err(format!(
+                                "You cannot declare variable {} which is already declared",
+                                name
+                            ));
+                        }
+    
+                        self.skip_semicolon()?;
+    
+                        let name_with_suffix = format!("{}{}", name, suffix);
+                        return Ok(Ast::new_variable_declaration(
+                            name_with_suffix.as_str(),
+                            expression,
+                            kind,
+                        ));
+                    },
+
+                    k => return Err(format!("Expected to be token keyword Const or keyword true but got keyword {:?}", k))
+                }
+            },
+
+            tok => return Err(format!("Expected to be token keyword const or keyword true but got token {:?}", tok))
         }
     }
 
