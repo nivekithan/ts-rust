@@ -185,10 +185,12 @@ impl<'a> Parser<'a> {
                         ));
                     }
 
-                    k => return Err(format!(
+                    k => {
+                        return Err(format!(
                         "Expected to be token keyword Const or keyword true but got keyword {:?}",
                         k
-                    )),
+                    ))
+                    }
                 }
             }
 

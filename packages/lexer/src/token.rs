@@ -61,6 +61,7 @@ pub enum KeywordKind {
     False,
 
     If,
+    Else,
 }
 
 #[derive(Debug, PartialEq, Clone)]
