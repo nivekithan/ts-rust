@@ -24,6 +24,12 @@ pub enum Declaration {
         condition: Expression,
         block: Box<Vec<Ast>>,
     },
+
+    NewIfBlockDeclaration {
+        if_block: BlockWithCondition,
+        else_if_block: Vec<BlockWithCondition>,
+        else_block: Option<Box<Vec<Ast>>>,
+    },
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -33,4 +39,19 @@ pub enum VariableAssignmentOperator {
     MinusAssign,
     StarAssign,
     SlashAssign,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct BlockWithCondition {
+    pub condition: Expression,
+    pub block: Box<Vec<Ast>>,
+}
+
+impl BlockWithCondition {
+    pub fn new(condition: Expression, block: Vec<Ast>) -> Self {
+        return BlockWithCondition {
+            condition,
+            block: Box::new(block),
+        };
+    }
 }

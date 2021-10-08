@@ -3,7 +3,9 @@ pub mod declaration;
 pub mod expression;
 
 use data_type::DataType;
-use declaration::{Declaration, VariableAssignmentOperator, VariableDeclarationKind};
+use declaration::{
+    BlockWithCondition, Declaration, VariableAssignmentOperator, VariableDeclarationKind,
+};
 use expression::{BinaryOperator, Expression, UnaryOperator};
 
 #[derive(Debug, PartialEq, Clone)]
@@ -83,6 +85,18 @@ impl Ast {
         } else {
             panic!("Condition can only be expression whose datatype is boolean")
         }
+    }
+
+    pub fn new_if_block_new(
+        if_block: BlockWithCondition,
+        else_if_block: Vec<BlockWithCondition>,
+        else_block: Option<Box<Vec<Ast>>>,
+    ) -> Ast {
+        return Ast::Declaration(Declaration::NewIfBlockDeclaration {
+            if_block,
+            else_block,
+            else_if_block,
+        });
     }
 }
 

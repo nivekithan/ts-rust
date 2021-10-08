@@ -211,7 +211,8 @@ pub(crate) fn consume_ast<'a>(
                             condition_value
                         );
                     }
-                } // _ => todo!(),
+                }
+                _ => todo!(),
             },
 
             _ => todo!(),
