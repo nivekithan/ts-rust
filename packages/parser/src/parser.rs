@@ -44,7 +44,7 @@ impl<'a> Parser<'a> {
 
                 KeywordKind::If => {
                     // let mut child_context = context.create_child_context();
-                    let ast = self.parser_if_block(context)?;
+                    let ast = self.parse_if_block(context)?;
                     return Ok(ast);
                 }
 
@@ -68,28 +68,6 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub(crate) fn parser_if_block(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
-        let first_token = self.get_cur_token().unwrap();
-
-        match first_token {
-            Token::Keyword(KeywordKind::If) => {
-                self.next(); // consumes if
-
-                self.assert_cur_token(&Token::CurveOpenBracket)?;
-                let block_with_condition = self.parse_block_with_condition(context)?;
-
-                return Ok(Ast::new_if_block(
-                    block_with_condition.condition.clone(),
-                    block_with_condition.block.as_ref().to_owned(),
-                ));
-            }
-
-            _ => panic!(
-                "Expected parser_if_block to be called only when the cur_token is of Keyword if"
-            ),
-        }
-    }
-
     /*
      * Assumes the current token to be 'keyword if' in
      *
@@ -98,7 +76,7 @@ impl<'a> Parser<'a> {
      *   } .....
      *
      * */
-    pub(crate) fn parse_if_block_new(
+    pub(crate) fn parse_if_block(
         &mut self,
         context: &mut SymbolContext,
     ) -> Result<Ast, String> {
@@ -133,7 +111,7 @@ impl<'a> Parser<'a> {
                                 Token::AngleOpenBracket => {
                                     let ast_block = self.parse_block(context)?;
                                     else_block = Some(Box::new(ast_block));
-                                    return Ok(Ast::new_if_block_new(if_block, else_if_block, else_block));
+                                    return Ok(Ast::new_if_block(if_block, else_if_block, else_block));
 
                                 },
 
@@ -141,7 +119,7 @@ impl<'a> Parser<'a> {
                             }
                         }
 
-                        _ => return Ok(Ast::new_if_block_new(if_block, else_if_block, else_block)),
+                        _ => return Ok(Ast::new_if_block(if_block, else_if_block, else_block)),
                     }
                 }
             }
@@ -204,6 +182,7 @@ impl<'a> Parser<'a> {
      * */
     pub(crate) fn parse_block(&mut self, context: &mut SymbolContext) -> Result<Vec<Ast>, String> {
         self.assert_cur_token(&Token::AngleOpenBracket)?;
+        self.next(); // consumes {
 
         let cur_value = context.counter;
         let suffix = format!("{}{}", context.suffix, cur_value);

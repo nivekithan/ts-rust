@@ -20,11 +20,6 @@ pub enum Declaration {
         exp: Expression,
     },
 
-    IfBlockDeclaration {
-        condition: Expression,
-        block: Box<Vec<Ast>>,
-    },
-
     NewIfBlockDeclaration {
         if_block: BlockWithCondition,
         else_if_block: Vec<BlockWithCondition>,

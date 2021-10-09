@@ -5,6 +5,7 @@ use inkwell::context::Context;
 mod build_expression;
 mod codegen;
 mod consume_ast;
+mod enums;
 
 #[cfg(test)]
 mod tests;
@@ -20,7 +21,7 @@ pub fn write_llvm_ir(content: Vec<Ast>) -> String {
     let mut main_fn = module.add_function("main", main_fn_type, None);
 
     let entry = context.append_basic_block(&main_fn, "entry");
-    builder.position_at_end(entry);
+    builder.position_at_end(&entry);
 
     codgen.consume(&context, &builder, &mut main_fn);
 
@@ -39,13 +40,19 @@ mod test_1 {
     fn test_some() {
         let input = "
         let x = 1;
-        let value = true;
+        const value = 2;
         
-        if (value) {
-            const x = 2;
+        if (value === 1) {
+             x = 1;
+        } else if (value === 2) {
+            x = 2
+        } else if (value === 3) {
+            x = 3
+        } else {
+            x = 10
         }
         
-       x = 3;
+       x = 30;
         ";
 
         let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));

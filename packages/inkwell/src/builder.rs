@@ -42,7 +42,7 @@ impl<'a> Builder<'a> {
         };
     }
 
-    pub fn position_at_end(&self, basic_block: BasicBlock<'a>) {
+    pub fn position_at_end(&self, basic_block: &BasicBlock<'a>) {
         unsafe {
             return LLVMPositionBuilderAtEnd(self.builder, basic_block.basic_block);
         }

@@ -1,0 +1,27 @@
+---
+source: packages/llvm/src/tests/control_flow/if_block.rs
+expression: output
+
+---
+; ModuleID = 'main'
+source_filename = "main"
+
+define void @main() {
+entry:
+  %x_ = alloca double, align 8
+  store double 1.000000e+00, double* %x_, align 8
+  %value_ = alloca double, align 8
+  store double 2.000000e+00, double* %value_, align 8
+  %"3" = load double, double* %value_, align 8
+  %"2" = fcmp oeq double %"3", 1.000000e+00
+  br i1 %"2", label %Block_0, label %Block_1
+
+Block_0:                                          ; preds = %entry
+  store double 1.000000e+00, double* %x_, align 8
+  br label %Block_1
+
+Block_1:                                          ; preds = %Block_0, %entry
+  store double 3.000000e+01, double* %x_, align 8
+  ret void
+}
+
