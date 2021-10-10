@@ -129,7 +129,8 @@ fn test_keyword() {
     if
     else
     
-    while";
+    while
+    do";
 
     let expected_output: Vec<Token> = vec![
         Keyword(KeywordKind::Const),
@@ -139,6 +140,7 @@ fn test_keyword() {
         Keyword(KeywordKind::If),
         Keyword(KeywordKind::Else),
         Keyword(KeywordKind::While),
+        Keyword(KeywordKind::Do),
         Eof,
     ];
 
