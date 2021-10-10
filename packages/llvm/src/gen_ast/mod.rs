@@ -1,6 +1,7 @@
 mod consume_if_block;
 mod consume_variable_assignment;
 mod consume_variable_declaration;
+mod consume_while_block;
 
 use std::collections::HashMap;
 
@@ -14,6 +15,7 @@ use inkwell::{
 use crate::gen_ast::{
     consume_if_block::consume_if_block, consume_variable_assignment::consume_variable_assignment,
     consume_variable_declaration::consume_variable_declaration,
+    consume_while_block::consume_while_block,
 };
 
 pub(crate) fn consume_ast<'a>(
@@ -74,7 +76,16 @@ pub(crate) fn consume_ast<'a>(
                     );
                 }
 
-                _ => todo!(),
+                Declaration::WhileLoopDeclaration { block, condition } => {
+                    consume_while_block(
+                        block,
+                        condition,
+                        context,
+                        builder,
+                        function_value,
+                        symbol_table,
+                    );
+                } // _ => todo!(),
             },
 
             _ => todo!(),
