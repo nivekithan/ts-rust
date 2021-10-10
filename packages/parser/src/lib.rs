@@ -1,3 +1,4 @@
+mod parse_block;
 mod parse_expression;
 mod parser;
 mod symbol_table;
@@ -23,8 +24,8 @@ pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
 #[cfg(test)]
 mod test {
     use ast::{
-        declaration::VariableDeclarationKind,
-        expression::{BinaryOperator, Expression},
+        declaration::{BlockWithCondition, VariableDeclarationKind},
+        expression::Expression,
         Ast,
     };
     use lexer::convert_to_token;
@@ -34,23 +35,25 @@ mod test {
     #[test]
     fn test_2() {
         let input = "
-        const x = 1 <= 1";
+        while (true) {
+            const x = 1;
+        
+        }";
 
-        let expected_output: Vec<Ast> = vec![Ast::new_variable_declaration(
-            "x_",
-            Expression::BinaryExp {
-                operator: BinaryOperator::LessThanOrEqual,
-                left: Box::new(Expression::FloatLiteralExp {
-                    name: "1".to_string(),
-                    value: 1.0,
-                }),
-                right: Box::new(Expression::FloatLiteralExp {
-                    name: "1".to_string(),
-                    value: 1.0,
-                }),
+        let expected_output: Vec<Ast> = vec![Ast::new_while_loop(BlockWithCondition {
+            condition: Expression::BooleanLiteralExp {
+                name: "true".to_string(),
+                value: true,
             },
-            VariableDeclarationKind::Const,
-        )];
+            block: Box::new(vec![Ast::new_variable_declaration(
+                "x_0",
+                Expression::FloatLiteralExp {
+                    name: "1".to_string(),
+                    value: 1.0,
+                },
+                VariableDeclarationKind::Const,
+            )]),
+        })];
 
         let actual_output = convert_to_ast(convert_to_token(input));
 

@@ -87,6 +87,13 @@ impl Ast {
             else_if_block,
         });
     }
+
+    pub fn new_while_loop(while_loop: BlockWithCondition) -> Ast {
+        return Ast::Declaration(Declaration::WhileLoopDeclaration {
+            condition: while_loop.condition,
+            block: while_loop.block,
+        });
+    }
 }
 
 impl Ast {

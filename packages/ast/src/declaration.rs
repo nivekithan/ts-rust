@@ -25,6 +25,11 @@ pub enum Declaration {
         else_if_block: Vec<BlockWithCondition>,
         else_block: Option<Box<Vec<Ast>>>,
     },
+
+    WhileLoopDeclaration {
+        condition: Expression,
+        block: Box<Vec<Ast>>,
+    },
 }
 
 #[derive(Debug, PartialEq, Clone)]

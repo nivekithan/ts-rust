@@ -435,6 +435,8 @@ pub(crate) fn consume_ast<'a>(
                         }
                     }
                 }
+
+                _ => todo!(),
             },
 
             _ => todo!(),
