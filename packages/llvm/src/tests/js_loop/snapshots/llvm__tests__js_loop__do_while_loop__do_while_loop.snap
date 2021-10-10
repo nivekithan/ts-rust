@@ -1,0 +1,29 @@
+---
+source: packages/llvm/src/tests/js_loop/do_while_loop.rs
+expression: output
+
+---
+; ModuleID = 'main'
+source_filename = "main"
+
+define void @main() {
+entry:
+  %x_ = alloca double, align 8
+  store double 1.000000e+01, double* %x_, align 8
+  br label %Block_0
+
+Block_0:                                          ; preds = %Block_1, %entry
+  %"2" = load double, double* %x_, align 8
+  %"3" = fsub double %"2", 1.000000e+00
+  store double %"3", double* %x_, align 8
+  br label %Block_1
+
+Block_1:                                          ; preds = %Block_0
+  %"5" = load double, double* %x_, align 8
+  %"4" = fcmp one double %"5", 0.000000e+00
+  br i1 %"4", label %Block_0, label %Block_2
+
+Block_2:                                          ; preds = %Block_1
+  ret void
+}
+

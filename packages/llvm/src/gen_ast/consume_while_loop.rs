@@ -11,7 +11,7 @@ use crate::build_expression::build_expression;
 
 use super::consume_ast;
 
-pub(crate) fn consume_while_block<'a>(
+pub(crate) fn consume_while_loop<'a>(
     block: &Box<Vec<Ast>>,
     condition: &Expression,
     context: &'a Context,
