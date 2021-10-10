@@ -7,7 +7,7 @@ use inkwell::{
     values::{fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
-use crate::consume_ast::consume_ast;
+use crate::gen_ast::consume_ast;
 
 pub struct Codegen<'a> {
     content: &'a Vec<Ast>,

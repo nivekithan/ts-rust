@@ -4,8 +4,8 @@ use inkwell::context::Context;
 
 mod build_expression;
 mod codegen;
-mod consume_ast;
 mod enums;
+mod gen_ast;
 
 #[cfg(test)]
 mod tests;
