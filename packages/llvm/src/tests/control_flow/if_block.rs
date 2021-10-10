@@ -3,9 +3,6 @@ use parser::convert_to_ast;
 
 use crate::write_llvm_ir;
 
-
-
-
 #[test]
 fn test_if_block() {
     let input = "
@@ -20,7 +17,7 @@ fn test_if_block() {
     ";
 
     let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
-    
+
     insta::assert_snapshot!(input, output);
 }
 
@@ -40,7 +37,7 @@ fn test_if_else_block() {
     ";
 
     let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
-    
+
     insta::assert_snapshot!(input, output);
 }
 
@@ -62,7 +59,7 @@ fn test_if_else_if_block() {
     ";
 
     let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
-    
+
     insta::assert_snapshot!(input, output);
 }
 
@@ -86,6 +83,6 @@ fn test_if_else_if_else_block() {
     ";
 
     let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
-    
+
     insta::assert_snapshot!(output);
 }

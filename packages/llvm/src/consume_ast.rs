@@ -165,7 +165,7 @@ pub(crate) fn consume_ast<'a>(
                             }
                         } // _ => todo!(),
                     };
-                },
+                }
 
                 Declaration::NewIfBlockDeclaration {
                     else_block,

@@ -23,7 +23,7 @@ pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
 #[cfg(test)]
 mod test {
     use ast::{
-        declaration::{VariableDeclarationKind},
+        declaration::VariableDeclarationKind,
         expression::{BinaryOperator, Expression},
         Ast,
     };

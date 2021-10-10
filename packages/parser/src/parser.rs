@@ -76,10 +76,7 @@ impl<'a> Parser<'a> {
      *   } .....
      *
      * */
-    pub(crate) fn parse_if_block(
-        &mut self,
-        context: &mut SymbolContext,
-    ) -> Result<Ast, String> {
+    pub(crate) fn parse_if_block(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
         let cur_tok = self.get_cur_token()?;
 
         match cur_tok {
