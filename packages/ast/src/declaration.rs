@@ -30,6 +30,11 @@ pub enum Declaration {
         condition: Expression,
         block: Box<Vec<Ast>>,
     },
+
+    DoWhileLoopDeclaration {
+        condition: Expression,
+        block: Box<Vec<Ast>>,
+    },
 }
 
 #[derive(Debug, PartialEq, Clone)]

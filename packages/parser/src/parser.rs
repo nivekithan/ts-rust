@@ -52,6 +52,11 @@ impl<'a> Parser<'a> {
                     return Ok(ast);
                 }
 
+                KeywordKind::Do => {
+                    let ast = self.parse_do_while_loop(context)?;
+                    return Ok(ast);
+                }
+
                 _ => {
                     return Err(format!(
                         "Update function next_ast\n Unexpected keyword, {:?}",
@@ -162,6 +167,34 @@ impl<'a> Parser<'a> {
 
         let block_with_condition = self.parse_block_with_condition(context)?;
         return Ok(Ast::new_while_loop(block_with_condition));
+    }
+
+    pub(crate) fn parse_do_while_loop(
+        &mut self,
+        context: &mut SymbolContext,
+    ) -> Result<Ast, String> {
+        self.assert_cur_token(&Token::Keyword(KeywordKind::Do))?;
+
+        self.next(); // consumes do
+
+        let block = self.parse_block(context)?;
+
+        self.assert_cur_token(&Token::Keyword(KeywordKind::While))?;
+        self.next(); // consumes while
+
+        self.assert_cur_token(&Token::CurveOpenBracket)?;
+        self.next(); // consumes (
+
+        let condition = self.parse_expression(1, context)?;
+
+        self.assert_cur_token(&Token::CurveCloseBracket)?;
+        self.next(); // consumes )
+
+        let block_with_condition = BlockWithCondition {
+            block: Box::new(block),
+            condition,
+        };
+        return Ok(Ast::new_do_while_loop(block_with_condition));
     }
 
     pub(crate) fn parse_variable_declaration(

@@ -85,7 +85,11 @@ pub(crate) fn consume_ast<'a>(
                         function_value,
                         symbol_table,
                     );
-                } // _ => todo!(),
+                }
+
+                Declaration::DoWhileLoopDeclaration { block, condition } => {
+                    unimplemented!()
+                }
             },
 
             _ => todo!(),

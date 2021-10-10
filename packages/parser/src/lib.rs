@@ -59,4 +59,31 @@ mod test {
 
         assert_eq!(expected_output, actual_output);
     }
+
+    #[test]
+    fn test_3() {
+        let input = "
+        do {
+        const x = 1;
+        } while (true)";
+
+        let expected_output: Vec<Ast> = vec![Ast::new_do_while_loop(BlockWithCondition {
+            condition: Expression::BooleanLiteralExp {
+                name: "true".to_string(),
+                value: true,
+            },
+            block: Box::new(vec![Ast::new_variable_declaration(
+                "x_0",
+                Expression::FloatLiteralExp {
+                    name: "1".to_string(),
+                    value: 1.0,
+                },
+                VariableDeclarationKind::Const,
+            )]),
+        })];
+
+        let actual_output = convert_to_ast(convert_to_token(input));
+
+        assert_eq!(expected_output, actual_output);
+    }
 }

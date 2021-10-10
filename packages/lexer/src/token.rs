@@ -64,7 +64,7 @@ pub enum KeywordKind {
     Else,
 
     While,
-    Do
+    Do,
 }
 
 #[derive(Debug, PartialEq, Clone)]

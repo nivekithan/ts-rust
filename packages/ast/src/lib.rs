@@ -94,6 +94,13 @@ impl Ast {
             block: while_loop.block,
         });
     }
+
+    pub fn new_do_while_loop(do_while_loop: BlockWithCondition) -> Ast {
+        return Ast::Declaration(Declaration::DoWhileLoopDeclaration {
+            condition: do_while_loop.condition,
+            block: do_while_loop.block,
+        });
+    }
 }
 
 impl Ast {
