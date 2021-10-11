@@ -23,7 +23,7 @@ impl<'a> IntType<'a> {
             int_type: Type::new(int_type),
         };
     }
-
+    
     pub fn const_int(self, value: u64, sign_extended: bool) -> IntValue<'a> {
         unsafe {
             return IntValue::new(LLVMConstInt(
@@ -39,6 +39,8 @@ impl<'a> IntType<'a> {
             return LLVMGetIntTypeWidth(self.as_type_ref());
         }
     }
+
+
 }
 
 impl<'a> AsTypeRef for IntType<'a> {
