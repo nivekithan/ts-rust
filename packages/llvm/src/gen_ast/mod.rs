@@ -1,8 +1,8 @@
+mod consume_do_while_loop;
 mod consume_if_block;
 mod consume_variable_assignment;
 mod consume_variable_declaration;
 mod consume_while_loop;
-mod consume_do_while_loop;
 
 use std::collections::HashMap;
 
@@ -13,7 +13,12 @@ use inkwell::{
     values::{fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
-use crate::gen_ast::{consume_do_while_loop::consume_do_while_loop, consume_if_block::consume_if_block, consume_variable_assignment::consume_variable_assignment, consume_variable_declaration::consume_variable_declaration, consume_while_loop::consume_while_loop};
+use crate::gen_ast::{
+    consume_do_while_loop::consume_do_while_loop, consume_if_block::consume_if_block,
+    consume_variable_assignment::consume_variable_assignment,
+    consume_variable_declaration::consume_variable_declaration,
+    consume_while_loop::consume_while_loop,
+};
 
 pub(crate) fn consume_ast<'a>(
     asts: &Vec<Ast>,
@@ -85,7 +90,14 @@ pub(crate) fn consume_ast<'a>(
                 }
 
                 Declaration::DoWhileLoopDeclaration { block, condition } => {
-                    consume_do_while_loop(block, condition, context, builder, function_value, symbol_table);
+                    consume_do_while_loop(
+                        block,
+                        condition,
+                        context,
+                        builder,
+                        function_value,
+                        symbol_table,
+                    );
                 }
             },
 

@@ -1,11 +1,6 @@
 use crate::values::float_value::FloatValue;
 
-use super::{
-    enums::BasicTypeEnum,
-    fn_type::FunctionType,
-    traits::{AsTypeRef, BasicTypeTrait, FloatMathTypeTrait},
-    Type,
-};
+use super::{Type, array_type::ArrayType, enums::BasicTypeEnum, fn_type::FunctionType, traits::{AsTypeRef, BasicTypeTrait, FloatMathTypeTrait}};
 use llvm_sys::{core::LLVMConstReal, prelude::LLVMTypeRef};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -29,6 +24,10 @@ impl<'a> FloatType<'a> {
         variadic_arg: bool,
     ) -> FunctionType<'a> {
         return self.float_type.fn_type(param_types, variadic_arg);
+    }
+
+    pub fn array_type(self, size : u32) -> ArrayType<'a> {
+        return self.float_type.array_type(size);
     }
 
     pub fn const_float(self, value: f64) -> FloatValue<'a> {

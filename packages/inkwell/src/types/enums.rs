@@ -1,19 +1,14 @@
 use llvm_sys::{core::LLVMGetTypeKind, prelude::LLVMTypeRef, LLVMTypeKind};
 
-use super::{
-    float_type::FloatType,
-    int_type::IntType,
-    ptr_type::PointerType,
-    traits::{AsTypeRef, BasicTypeTrait},
-    void_type::VoidType,
-};
+use super::{array_type::ArrayType, float_type::FloatType, int_type::IntType, ptr_type::PointerType, traits::{AsTypeRef, BasicTypeTrait}, void_type::VoidType};
 
 pub enum BasicTypeEnum<'a> {
     VoidType(VoidType<'a>),
     FloatType(FloatType<'a>),
     PointerType(PointerType<'a>),
     IntType(IntType<'a>),
-}
+    ArrayType(ArrayType<'a>)
+,}
 
 impl<'a> BasicTypeEnum<'a> {
     pub(crate) unsafe fn new(type_: LLVMTypeRef) -> Self {
@@ -24,6 +19,7 @@ impl<'a> BasicTypeEnum<'a> {
                 BasicTypeEnum::PointerType(PointerType::new(type_))
             }
             LLVMTypeKind::LLVMIntegerTypeKind => BasicTypeEnum::FloatType(FloatType::new(type_)),
+            LLVMTypeKind::LLVMArrayTypeKind => BasicTypeEnum::ArrayType(ArrayType::new(type_)),
 
             _ => unreachable!("unsupported type for BasicType generation"),
         }
@@ -37,6 +33,7 @@ impl<'a> AsTypeRef for BasicTypeEnum<'a> {
             BasicTypeEnum::FloatType(ty) => ty.as_type_ref(),
             BasicTypeEnum::PointerType(ty) => ty.as_type_ref(),
             BasicTypeEnum::IntType(ty) => ty.as_type_ref(),
+            BasicTypeEnum::ArrayType(ty) => ty.as_type_ref(),
         }
     }
 }

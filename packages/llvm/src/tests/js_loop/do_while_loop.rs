@@ -3,9 +3,6 @@ use parser::convert_to_ast;
 
 use crate::write_llvm_ir;
 
-
-
-
 #[test]
 fn do_while_loop() {
     let input = "
@@ -17,6 +14,6 @@ fn do_while_loop() {
     ";
 
     let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
-    
+
     insta::assert_snapshot!(output);
 }

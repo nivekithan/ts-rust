@@ -5,10 +5,7 @@ use llvm_sys::{
 
 use crate::values::int_value::IntValue;
 
-use super::{
-    traits::{AsTypeRef, BasicTypeTrait, IntMathTypeTrait},
-    Type,
-};
+use super::{Type, array_type::ArrayType, enums::BasicTypeEnum, fn_type::FunctionType, traits::{AsTypeRef, BasicTypeTrait, IntMathTypeTrait}};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct IntType<'a> {
@@ -23,7 +20,7 @@ impl<'a> IntType<'a> {
             int_type: Type::new(int_type),
         };
     }
-    
+
     pub fn const_int(self, value: u64, sign_extended: bool) -> IntValue<'a> {
         unsafe {
             return IntValue::new(LLVMConstInt(
@@ -34,13 +31,19 @@ impl<'a> IntType<'a> {
         }
     }
 
+    pub fn fn_type(self, param_types : &[BasicTypeEnum<'a>], variadic_arg : bool ) -> FunctionType<'a> {
+        return self.int_type.fn_type(param_types, variadic_arg);
+    }   
+
+    pub fn array_type(self, size: u32) -> ArrayType<'a> {
+        return self.int_type.array_type(size);
+    }
+
     pub fn get_bit_width(self) -> u32 {
         unsafe {
             return LLVMGetIntTypeWidth(self.as_type_ref());
         }
     }
-
-
 }
 
 impl<'a> AsTypeRef for IntType<'a> {
