@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, convert::TryInto};
 
 use ast::{
     data_type::DataType,
@@ -36,6 +36,32 @@ pub(crate) fn build_expression<'a>(
         Expression::BooleanLiteralExp { name: _, value } => {
             let bool_as_int_value = context.i1_type().const_int(*value as u64, false);
             return BasicValueEnum::IntValue(bool_as_int_value);
+        }
+
+        Expression::StringLiteralExp { value } => {
+            let size_of_string = value.len() as u32;
+            let string_array_type = context.i8_type().array_type(size_of_string);
+
+            let base_pointer = builder.build_alloca(string_array_type, name);
+
+            for (i, c) in value.chars().enumerate() {
+                let indices = vec![
+                    context.i64_type().const_int(0, true),
+                    context.i64_type().const_int(i.try_into().unwrap(), true),
+                ];
+
+                let index_pointer = builder.build_gep_2(
+                    string_array_type,
+                    base_pointer,
+                    &indices,
+                    &function_value.get_unique_reg_name(),
+                );
+
+                let char_value = context.i8_type().const_int(c as u64, false);
+                builder.build_store(index_pointer, char_value);
+            }
+
+            return BasicValueEnum::PointerValue(base_pointer);
         }
 
         Expression::IdentExp {
@@ -219,7 +245,5 @@ pub(crate) fn build_expression<'a>(
                 }
             }
         }
-
-        _ => todo!(),
     }
 }

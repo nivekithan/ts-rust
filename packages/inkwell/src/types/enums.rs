@@ -1,14 +1,21 @@
 use llvm_sys::{core::LLVMGetTypeKind, prelude::LLVMTypeRef, LLVMTypeKind};
 
-use super::{array_type::ArrayType, float_type::FloatType, int_type::IntType, ptr_type::PointerType, traits::{AsTypeRef, BasicTypeTrait}, void_type::VoidType};
+use super::{
+    array_type::ArrayType,
+    float_type::FloatType,
+    int_type::IntType,
+    ptr_type::PointerType,
+    traits::{AsTypeRef, BasicTypeTrait},
+    void_type::VoidType,
+};
 
 pub enum BasicTypeEnum<'a> {
     VoidType(VoidType<'a>),
     FloatType(FloatType<'a>),
     PointerType(PointerType<'a>),
     IntType(IntType<'a>),
-    ArrayType(ArrayType<'a>)
-,}
+    ArrayType(ArrayType<'a>),
+}
 
 impl<'a> BasicTypeEnum<'a> {
     pub(crate) unsafe fn new(type_: LLVMTypeRef) -> Self {

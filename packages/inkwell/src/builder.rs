@@ -3,11 +3,11 @@ use std::marker::PhantomData;
 use llvm_sys::{
     core::{
         LLVMBuildAlloca, LLVMBuildBr, LLVMBuildCondBr, LLVMBuildFAdd, LLVMBuildFCmp, LLVMBuildFDiv,
-        LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFSub, LLVMBuildICmp, LLVMBuildLoad2, LLVMBuildRet,
-        LLVMBuildRetVoid, LLVMBuildStore, LLVMBuildXor, LLVMDisposeBuilder,
+        LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFSub, LLVMBuildGEP2, LLVMBuildICmp, LLVMBuildLoad2,
+        LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore, LLVMBuildXor, LLVMDisposeBuilder,
         LLVMPositionBuilderAtEnd,
     },
-    prelude::LLVMBuilderRef,
+    prelude::{LLVMBuilderRef, LLVMValueRef},
 };
 
 use crate::{
@@ -45,6 +45,32 @@ impl<'a> Builder<'a> {
     pub fn position_at_end(&self, basic_block: &BasicBlock<'a>) {
         unsafe {
             return LLVMPositionBuilderAtEnd(self.builder, basic_block.basic_block);
+        }
+    }
+
+    pub fn build_gep_2<T: AsTypeRef>(
+        &self,
+        ty: T,
+        value: PointerValue<'a>,
+        indices: &[IntValue<'a>],
+        name: &str,
+    ) -> PointerValue<'a> {
+        let c_name = to_c_str(name);
+
+        unsafe {
+            let mut index_values: Vec<LLVMValueRef> =
+                indices.iter().map(|val| val.as_value_ref()).collect();
+
+            let value = LLVMBuildGEP2(
+                self.builder,
+                ty.as_type_ref(),
+                value.as_value_ref(),
+                index_values.as_mut_ptr(),
+                index_values.len() as u32,
+                c_name.as_ptr(),
+            );
+
+            return PointerValue::new(value);
         }
     }
 

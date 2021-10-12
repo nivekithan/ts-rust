@@ -5,7 +5,13 @@ use llvm_sys::{
 
 use crate::values::int_value::IntValue;
 
-use super::{Type, array_type::ArrayType, enums::BasicTypeEnum, fn_type::FunctionType, traits::{AsTypeRef, BasicTypeTrait, IntMathTypeTrait}};
+use super::{
+    array_type::ArrayType,
+    enums::BasicTypeEnum,
+    fn_type::FunctionType,
+    traits::{AsTypeRef, BasicTypeTrait, IntMathTypeTrait},
+    Type,
+};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct IntType<'a> {
@@ -31,9 +37,13 @@ impl<'a> IntType<'a> {
         }
     }
 
-    pub fn fn_type(self, param_types : &[BasicTypeEnum<'a>], variadic_arg : bool ) -> FunctionType<'a> {
+    pub fn fn_type(
+        self,
+        param_types: &[BasicTypeEnum<'a>],
+        variadic_arg: bool,
+    ) -> FunctionType<'a> {
         return self.int_type.fn_type(param_types, variadic_arg);
-    }   
+    }
 
     pub fn array_type(self, size: u32) -> ArrayType<'a> {
         return self.int_type.array_type(size);

@@ -1,6 +1,9 @@
 use llvm_sys::prelude::LLVMTypeRef;
 
-use super::{Type, traits::{AsTypeRef, BasicTypeTrait}};
+use super::{
+    traits::{AsTypeRef, BasicTypeTrait},
+    Type,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub struct ArrayType<'a> {
@@ -23,4 +26,4 @@ impl<'a> AsTypeRef for ArrayType<'a> {
     }
 }
 
-impl<'a> BasicTypeTrait<'a> for ArrayType<'a>{}
+impl<'a> BasicTypeTrait<'a> for ArrayType<'a> {}

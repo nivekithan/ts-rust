@@ -6,7 +6,7 @@ use ast::data_type::DataType;
 use inkwell::{
     builder::Builder,
     context::Context,
-    values::{fn_value::FunctionValue, ptr_value::PointerValue},
+    values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
 use crate::build_expression::build_expression;
@@ -38,6 +38,22 @@ pub(crate) fn consume_variable_declaration<'a>(
             builder.build_store(pointer.clone(), value_of_exp);
 
             pointer
+        }
+
+        DataType::String => {
+            let value = build_expression(
+                exp,
+                context,
+                builder,
+                function_value,
+                symbol_table,
+                Some(ident_name.to_string()),
+            );
+            if let BasicValueEnum::PointerValue(pointer) = value {
+                pointer
+            } else {
+                todo!();
+            }
         }
 
         _ => todo!(),
