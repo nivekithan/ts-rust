@@ -72,6 +72,16 @@ impl<'a> Parser<'a> {
         let cur_tok = self.get_cur_token()?;
 
         match cur_tok {
+            Token::BoxOpenBracket => {
+                self.next(); // consumes [
+
+                self.assert_cur_token(&Token::BoxCloseBracket)?;
+                self.next(); // consumes ]
+                return Ok(Ok(DataType::ArrayType {
+                    base_type: Box::new(left),
+                }));
+            }
+
             _ => return Ok(Err(left)),
         }
     }
@@ -84,6 +94,7 @@ impl<'a> Parser<'a> {
 
     pub(crate) fn get_type_non_prefix_precedence(token: &Token) -> usize {
         match token {
+            Token::BoxOpenBracket => 5,
             _ => 1,
         }
     }

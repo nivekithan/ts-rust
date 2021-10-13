@@ -29,6 +29,9 @@ pub enum Token {
     CurveOpenBracket,  // (
     CurveCloseBracket, // )
 
+    BoxOpenBracket,  //  [
+    BoxCloseBracket, // ]
+
     Comma, // ,
 
     Bang, // !

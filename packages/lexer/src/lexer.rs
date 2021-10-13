@@ -72,6 +72,12 @@ impl<'a> Lexer<'a> {
                 } else if char == ')' {
                     self.next(); // consumes )
                     return CurveCloseBracket;
+                } else if char == '[' {
+                    self.next(); // consumes [
+                    return BoxOpenBracket;
+                } else if char == ']' {
+                    self.next(); // consumes ]
+                    return BoxCloseBracket;
                 } else if char == ',' {
                     self.next(); // consumes ,
                     return Comma;

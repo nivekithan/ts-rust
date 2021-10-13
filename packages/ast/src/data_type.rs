@@ -4,4 +4,5 @@ pub enum DataType {
     String,
     Boolean,
     Unknown,
+    ArrayType { base_type: Box<DataType> },
 }

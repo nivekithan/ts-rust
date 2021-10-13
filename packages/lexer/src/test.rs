@@ -36,6 +36,9 @@ fn test_operators() {
     (
     )
 
+    [
+    ]
+
     ,
 
     !
@@ -70,6 +73,8 @@ fn test_operators() {
         AngleCloseBracket,
         CurveOpenBracket,
         CurveCloseBracket,
+        BoxOpenBracket,
+        BoxCloseBracket,
         Comma,
         Bang,
         Plus,
