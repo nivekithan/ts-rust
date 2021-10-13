@@ -1,8 +1,12 @@
 mod parse_block;
 mod parse_expression;
+mod parse_type_expression;
 mod parser;
 mod symbol_table;
 mod utils;
+
+#[cfg(test)]
+mod tests;
 
 use crate::{parser::Parser, symbol_table::SymbolContext};
 use ast::Ast;

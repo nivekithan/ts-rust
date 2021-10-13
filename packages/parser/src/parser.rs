@@ -230,7 +230,7 @@ impl<'a> Parser<'a> {
                         let expected_data_type = match self.get_cur_token()? {
                             Token::Colon => {
                                 self.next(); // consumes :
-                                self.parse_type_declaration()
+                                self.parse_type_declaration(1)?
                             }
 
                             _ => DataType::Unknown,
@@ -395,28 +395,5 @@ impl<'a> Parser<'a> {
                     .to_string(),
             );
         }
-    }
-
-    pub(crate) fn parse_type_declaration(&mut self) -> DataType {
-        let cur_tok = self.get_cur_token().unwrap();
-
-        let data_type = match cur_tok {
-            Token::Ident { name } => {
-                if name == "string" {
-                    DataType::String
-                } else if name == "boolean" {
-                    DataType::Boolean
-                } else if name == "number" {
-                    DataType::Float
-                } else {
-                    todo!()
-                }
-            }
-            _ => todo!(),
-        };
-
-        self.next(); // consumes ident;
-
-        return data_type;
     }
 }

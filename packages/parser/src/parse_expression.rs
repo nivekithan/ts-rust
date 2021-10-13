@@ -40,7 +40,7 @@ impl<'a> Parser<'a> {
 
         match cur_token {
             Token::Plus | Token::Minus | Token::Bang => {
-                return self.parse_genric_unary_expression(context);
+                return self.parse_generic_unary_expression(context);
             }
 
             Token::Literal(literal_kind) => match literal_kind {
@@ -134,7 +134,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub(crate) fn parse_genric_unary_expression(
+    pub(crate) fn parse_generic_unary_expression(
         &mut self,
         context: &SymbolContext,
     ) -> Result<Expression, String> {
