@@ -1,4 +1,4 @@
-use ast::expression::Expression;
+use ast::{data_type::DataType, expression::Expression};
 use lexer::token::{KeywordKind, LiteralKind, Token};
 
 use crate::{
@@ -123,6 +123,61 @@ impl<'a> Parser<'a> {
                 self.next(); // consumes )
 
                 return Ok(grouped_exp);
+            }
+
+            Token::BoxOpenBracket => {
+                self.next(); // consumes [
+
+                let mut expressions: Vec<Expression> = vec![];
+
+                let mut there_is_comma = true;
+
+                while self.get_cur_token()? != &Token::AngleCloseBracket && there_is_comma {
+                    let item = self.parse_expression(1, context)?;
+
+                    let tok = self.get_cur_token()?;
+
+                    if tok == &Token::Comma {
+                        there_is_comma = true;
+                        self.next();
+                    } else {
+                        there_is_comma = false;
+                    }
+                    expressions.push(item);
+                }
+
+                if there_is_comma {
+                    self.next(); // consumes ]
+                } else {
+                    self.assert_cur_token(&Token::BoxCloseBracket)?;
+                    self.next(); // consumes ]
+                }
+
+                if expressions.len() <= 0 {
+                    return Err(format!("Creating array with 0 items is not yet supported"));
+                }
+
+                let mut data_type = DataType::Unknown;
+
+                let matched = expressions.iter().enumerate().all(|(i, exp)| {
+                    if i == 1 {
+                        data_type = exp.get_data_type();
+                        return true;
+                    }
+
+                    return data_type == exp.get_data_type();
+                });
+
+                if !matched {
+                    return Err(format!(
+                        "Expected all expressions to have same datatype in array"
+                    ));
+                }
+
+                return Ok(Expression::ArrayLiteral {
+                    expression: Box::new(expressions),
+                    expression_data_type: data_type,
+                });
             }
 
             tok => {

@@ -43,6 +43,10 @@ pub enum Expression {
         name: String,
         value: bool,
     },
+    ArrayLiteral {
+        expression: Box<Vec<Expression>>,
+        expression_data_type: DataType,
+    },
 
     IdentExp {
         name: String,
@@ -67,6 +71,14 @@ impl Expression {
             Expression::FloatLiteralExp { name: _, value: _ } => return DataType::Float,
             Expression::StringLiteralExp { value: _ } => return DataType::String,
             Expression::BooleanLiteralExp { name: _, value: _ } => return DataType::Boolean,
+            Expression::ArrayLiteral {
+                expression: _,
+                expression_data_type: data_type,
+            } => {
+                return DataType::ArrayType {
+                    base_type: Box::new(data_type.clone()),
+                }
+            }
 
             Expression::IdentExp { name: _, data_type } => return data_type.clone(),
 
