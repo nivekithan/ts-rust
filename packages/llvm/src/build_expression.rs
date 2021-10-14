@@ -8,7 +8,7 @@ use inkwell::{
     builder::Builder,
     context::Context,
     enums::{IntCompareOperator, RealCompareOperator},
-    types::traits::BasicTypeTrait,
+    types::{array_type::ArrayType, traits::BasicTypeTrait},
     values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
@@ -245,5 +245,59 @@ pub(crate) fn build_expression<'a>(
                 }
             }
         }
+
+        Expression::ArrayLiteral {
+            expression,
+            expression_data_type,
+        } => {
+            let array_type = convert_data_type_to_array_type(
+                expression_data_type,
+                context,
+                expression.len() as u32,
+            )
+            .unwrap();
+
+            let base_pointer = builder.build_alloca(array_type, name);
+
+            for (i, exp) in expression.iter().enumerate() {
+                let value =
+                    build_expression(exp, context, builder, function_value, symbol_table, None);
+
+                let indices = vec![
+                    context.i64_type().const_int(0, true),
+                    context.i64_type().const_int(i.try_into().unwrap(), true),
+                ];
+
+                let index_pointer = builder.build_gep_2(
+                    array_type,
+                    base_pointer,
+                    &indices,
+                    &function_value.get_unique_reg_name(),
+                );
+
+                builder.build_store(index_pointer, value);
+            }
+
+            return BasicValueEnum::PointerValue(base_pointer);
+        }
     }
+}
+
+fn convert_data_type_to_array_type<'a>(
+    data_type: &DataType,
+    context: &'a Context,
+    size: u32,
+) -> Result<ArrayType<'a>, String> {
+    let array_type = match data_type {
+        DataType::Boolean => context.i1_type().array_type(size),
+        DataType::Float => context.f64_type().array_type(size),
+
+        _ => {
+            return Err(format!(
+                "Not possible to create array type for this dataType"
+            ))
+        }
+    };
+
+    return Ok(array_type);
 }

@@ -160,7 +160,7 @@ impl<'a> Parser<'a> {
                 let mut data_type = DataType::Unknown;
 
                 let matched = expressions.iter().enumerate().all(|(i, exp)| {
-                    if i == 1 {
+                    if i == 0 {
                         data_type = exp.get_data_type();
                         return true;
                     }

@@ -56,6 +56,23 @@ pub(crate) fn consume_variable_declaration<'a>(
             }
         }
 
+        DataType::ArrayType { base_type: _ } => {
+            let value = build_expression(
+                exp,
+                context,
+                builder,
+                function_value,
+                symbol_table,
+                Some(ident_name.to_string()),
+            );
+
+            if let BasicValueEnum::PointerValue(pointer) = value {
+                pointer
+            } else {
+                todo!();
+            }
+        }
+
         _ => todo!(),
     };
 

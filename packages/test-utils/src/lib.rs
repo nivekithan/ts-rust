@@ -77,6 +77,7 @@ impl ExpressionTest {
             generate_boolean_true_literal,
             generate_boolean_false_literal,
             generate_string_literal,
+            generate_array_literal,
             generate_unary_bang,
             generate_unary_minus,
             generate_unary_plus,
@@ -575,6 +576,31 @@ fn generate_string_literal() -> TExp {
 
     let exp = Expression::StringLiteralExp {
         value: "Hello World".to_string(),
+    };
+
+    return TExp {
+        exp,
+        exp_str,
+        ast_str: "\n".to_string(),
+        asts: vec![],
+    };
+}
+
+fn generate_array_literal() -> TExp {
+    let exp_str = "[1, 1]".to_string();
+
+    let exp = Expression::ArrayLiteral {
+        expression: Box::new(vec![
+            Expression::FloatLiteralExp {
+                name: "1".to_string(),
+                value: 1.0,
+            },
+            Expression::FloatLiteralExp {
+                name: "1".to_string(),
+                value: 1.0,
+            },
+        ]),
+        expression_data_type: DataType::Float,
     };
 
     return TExp {
