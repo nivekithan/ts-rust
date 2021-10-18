@@ -81,7 +81,9 @@ pub(crate) fn build_expression<'a>(
                         name,
                     ),
 
-                    _ => todo!(),
+                    DataType::ArrayType{base_type : _ } => BasicValueEnum::PointerValue(pointer.clone()),
+
+                    _ => panic!("Update Function build_expression -> Expression::IdentExp, Unsupported datatype"),
                 };
 
                 return load_value;

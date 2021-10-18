@@ -95,7 +95,11 @@ impl ExpressionTest {
             generate_binary_greater_than_or_equal,
         ];
 
-        let every_1_arg_gen = [generate_boolean_ident, generate_float_ident];
+        let every_1_arg_gen = [
+            generate_boolean_ident,
+            generate_float_ident,
+            generate_array_ident,
+        ];
 
         let mut valid_t_exp: Vec<TExp> = vec![];
 
@@ -608,5 +612,43 @@ fn generate_array_literal() -> TExp {
         exp_str,
         ast_str: "\n".to_string(),
         asts: vec![],
+    };
+}
+
+fn generate_array_ident(var_name: &str) -> TExp {
+    let exp_str = format!("({})", var_name);
+
+    let exp = Expression::IdentExp {
+        name: var_name.to_string(),
+        data_type: DataType::ArrayType {
+            base_type: Box::new(DataType::Float),
+        },
+    };
+
+    let ast_str = format!("const {} = [1,1]\n", var_name);
+
+    let asts = vec![Ast::new_variable_declaration(
+        var_name,
+        Expression::ArrayLiteral {
+            expression: Box::new(vec![
+                Expression::FloatLiteralExp {
+                    name: "1".to_string(),
+                    value: 1.0,
+                },
+                Expression::FloatLiteralExp {
+                    name: "1".to_string(),
+                    value: 1.0,
+                },
+            ]),
+            expression_data_type: DataType::Float,
+        },
+        VariableDeclarationKind::Const,
+    )];
+
+    return TExp {
+        exp,
+        exp_str,
+        ast_str,
+        asts,
     };
 }

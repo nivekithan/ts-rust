@@ -27,7 +27,12 @@ pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
 
 #[cfg(test)]
 mod test {
-    use ast::{Ast, data_type::DataType, declaration::{BlockWithCondition, VariableDeclarationKind}, expression::Expression};
+    use ast::{
+        data_type::DataType,
+        declaration::{BlockWithCondition, VariableDeclarationKind},
+        expression::Expression,
+        Ast,
+    };
     use lexer::convert_to_token;
 
     use crate::convert_to_ast;
@@ -50,10 +55,9 @@ mod test {
                         value: 1.0,
                     },
                 ]),
-                expression_data_type : DataType::Float
+                expression_data_type: DataType::Float,
             },
-            VariableDeclarationKind::Const
-            
+            VariableDeclarationKind::Const,
         )];
 
         let actual_output = convert_to_ast(convert_to_token(input));
