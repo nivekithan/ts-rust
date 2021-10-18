@@ -52,7 +52,7 @@ pub(crate) fn build_expression<'a>(
 
                 let index_pointer = builder.build_gep_2(
                     string_array_type,
-                    base_pointer,
+                    &base_pointer,
                     &indices,
                     &function_value.get_unique_reg_name(),
                 );
@@ -64,6 +64,13 @@ pub(crate) fn build_expression<'a>(
             return BasicValueEnum::PointerValue(base_pointer);
         }
 
+        /*
+         * param 'name' is not used if the datatype of IdentExp is one of
+         *          - String
+         *          - ArrayType
+         *
+         *
+         **/
         Expression::IdentExp {
             name: variable_name,
             data_type,
@@ -80,6 +87,7 @@ pub(crate) fn build_expression<'a>(
                         context.i1_type().as_basic_type_enum(),
                         name,
                     ),
+                    DataType::String => BasicValueEnum::PointerValue(pointer.clone()),
 
                     DataType::ArrayType{base_type : _ } => BasicValueEnum::PointerValue(pointer.clone()),
 
@@ -272,7 +280,7 @@ pub(crate) fn build_expression<'a>(
 
                 let index_pointer = builder.build_gep_2(
                     array_type,
-                    base_pointer,
+                    &base_pointer,
                     &indices,
                     &function_value.get_unique_reg_name(),
                 );

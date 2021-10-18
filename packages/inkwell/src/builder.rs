@@ -51,7 +51,7 @@ impl<'a> Builder<'a> {
     pub fn build_gep_2<T: AsTypeRef>(
         &self,
         ty: T,
-        value: PointerValue<'a>,
+        value: &PointerValue<'a>,
         indices: &[IntValue<'a>],
         name: &str,
     ) -> PointerValue<'a> {

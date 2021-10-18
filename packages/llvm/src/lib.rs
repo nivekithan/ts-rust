@@ -39,7 +39,7 @@ mod test_1 {
     #[test]
     fn test_some() {
         let input = "
-        const x = [1,1]
+        const x = \"1234\"
         const y = x";
 
         let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));

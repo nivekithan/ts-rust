@@ -1,4 +1,4 @@
-use llvm_sys::prelude::LLVMTypeRef;
+use llvm_sys::{core::LLVMGetArrayLength, prelude::LLVMTypeRef};
 
 use super::{
     traits::{AsTypeRef, BasicTypeTrait},
@@ -17,6 +17,13 @@ impl<'a> ArrayType<'a> {
         return ArrayType {
             array_type: Type::new(array_type),
         };
+    }
+
+    pub fn get_length(&self) -> u32 {
+        unsafe {
+            let length = LLVMGetArrayLength(self.as_type_ref());
+            return length;
+        }
     }
 }
 
