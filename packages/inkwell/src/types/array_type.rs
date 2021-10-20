@@ -1,6 +1,13 @@
-use llvm_sys::{core::{LLVMGetArrayLength, LLVMGetElementType}, prelude::LLVMTypeRef};
+use llvm_sys::{
+    core::{LLVMGetArrayLength, LLVMGetElementType},
+    prelude::LLVMTypeRef,
+};
 
-use super::{Type, enums::BasicTypeEnum, traits::{AsTypeRef, BasicTypeTrait}};
+use super::{
+    enums::BasicTypeEnum,
+    traits::{AsTypeRef, BasicTypeTrait},
+    Type,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub struct ArrayType<'a> {
