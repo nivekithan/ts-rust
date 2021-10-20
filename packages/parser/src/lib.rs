@@ -40,7 +40,7 @@ mod test {
     #[test]
     fn test_2() {
         let input = "
-        const x = [1, 1][2]";
+        const x = [1, 1][1]";
 
         let expected_output: Vec<Ast> = vec![Ast::new_variable_declaration(
             "x_",
