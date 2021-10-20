@@ -4,7 +4,7 @@ use ast::{
     data_type::DataType,
     expression::{BinaryOperator, Expression, UnaryOperator},
 };
-use inkwell::{builder::Builder, context::Context, enums::{IntCompareOperator, RealCompareOperator}, types::{array_type::ArrayType, traits::BasicTypeTrait}, values::{enums::BasicValueEnum, float_value, fn_value::FunctionValue, ptr_value::PointerValue}};
+use inkwell::{builder::Builder, context::Context, enums::{IntCompareOperator, RealCompareOperator}, types::{array_type::ArrayType, traits::BasicTypeTrait}, values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue}};
 
 pub(crate) fn build_expression<'a>(
     expression: &Expression,
