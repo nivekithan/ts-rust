@@ -230,6 +230,41 @@ impl<'a> Parser<'a> {
                 return Ok(Ok(exp));
             }
 
+            Token::BoxOpenBracket => {
+                self.next(); // consumes [
+
+                let member_access_exp = self.parse_expression(1, context)?;
+
+                self.assert_cur_token(&Token::BoxCloseBracket)?;
+                self.next(); // consumes ]
+
+                let data_type = member_access_exp.get_data_type();
+
+                match data_type {
+                    DataType::Float => {
+                        let left_data_type = left.get_data_type();
+
+                        if let DataType::ArrayType { base_type: _ } = left_data_type {
+                            let exp = Expression::ArrayMemberAccess {
+                                array: Box::new(left),
+                                argument: Box::new(member_access_exp),
+                            };
+
+                            return Ok(Ok(exp));
+                        } else {
+                            return Err(format!("Expected the argument for left parameter to be expression of datatype ArrayType but got {:?}", left_data_type));
+                        }
+                    }
+
+                    _ => {
+                        return Err(format!(
+                            "Expected datatype of member_access_exp to be Float but got {:?}",
+                            data_type
+                        ))
+                    }
+                }
+            }
+
             _ => return Ok(Err(left)),
         }
     }
@@ -263,6 +298,8 @@ impl<'a> Parser<'a> {
 
     pub(crate) fn get_non_prefix_precedence(token: &Token) -> usize {
         match token {
+            Token::BoxOpenBracket => 20,
+
             Token::Star | Token::Slash => return 15,
 
             Token::Plus | Token::Minus => return 14,

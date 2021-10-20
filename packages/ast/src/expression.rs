@@ -63,6 +63,11 @@ pub enum Expression {
         left: Box<Expression>,
         right: Box<Expression>,
     },
+
+    ArrayMemberAccess {
+        array: Box<Expression>,
+        argument: Box<Expression>,
+    },
 }
 
 impl Expression {
@@ -120,6 +125,21 @@ impl Expression {
                 | BinaryOperator::GreaterThan
                 | BinaryOperator::GreaterThanOrEqual => return DataType::Boolean,
             },
+
+            /*
+             * It only validates that datatype of field "array" is of DataType::ArrayType
+             * it does not validate weather argument is valid or not
+             *
+             * */
+            Expression::ArrayMemberAccess { argument: _, array } => {
+                let data_type = array.get_data_type();
+
+                if let DataType::ArrayType { base_type } = data_type {
+                    return base_type.as_ref().clone();
+                } else {
+                    unreachable!();
+                }
+            }
         }
     }
 }

@@ -4,13 +4,7 @@ use ast::{
     data_type::DataType,
     expression::{BinaryOperator, Expression, UnaryOperator},
 };
-use inkwell::{
-    builder::Builder,
-    context::Context,
-    enums::{IntCompareOperator, RealCompareOperator},
-    types::{array_type::ArrayType, traits::BasicTypeTrait},
-    values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
-};
+use inkwell::{builder::Builder, context::Context, enums::{IntCompareOperator, RealCompareOperator}, types::{array_type::ArrayType, traits::BasicTypeTrait}, values::{enums::BasicValueEnum, float_value, fn_value::FunctionValue, ptr_value::PointerValue}};
 
 pub(crate) fn build_expression<'a>(
     expression: &Expression,
@@ -289,6 +283,46 @@ pub(crate) fn build_expression<'a>(
             }
 
             return BasicValueEnum::PointerValue(base_pointer);
+        }
+
+        Expression::ArrayMemberAccess { array, argument } => {
+            let array_value = build_expression(
+                array.as_ref(),
+                context,
+                builder,
+                function_value,
+                symbol_table,
+                None,
+            );
+
+            if let BasicValueEnum::PointerValue(pointer) = array_value {
+
+                let member_access_value = build_expression(
+                    argument.as_ref(),
+                    context,
+                    builder,
+                    function_value,
+                    symbol_table,
+                    None,
+                );
+
+                if let BasicValueEnum::FloatValue(float_value) = member_access_value {
+                    let converted_int_value = builder.build_fp_to_si(float_value, context.i64_type(), function_value.get_unique_reg_name().as_str());
+                    let indices = vec![context.i64_type().const_int(0, true), converted_int_value];
+
+                    let array_type = pointer.get_type().into_array_type().unwrap();
+                    let index_pointer = builder.build_gep_2(array_type, &pointer , &indices, function_value.get_unique_reg_name().as_str());
+                    
+                    let element_type = array_type.get_element_type();
+                    let loaded_value = builder.build_load(index_pointer, element_type, name);
+                    return loaded_value;
+
+                } else {
+                    panic!("Expected building expression in field 'argument' to give BasicValueEnum::FloatValue but got {:?}", member_access_value);
+                }
+            } else {
+                panic!("Expected building expression in field 'array' to give BasicValueEnum::PointerValue but got {:?}", array_value);
+            }
         }
     }
 }

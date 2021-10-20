@@ -40,22 +40,28 @@ mod test {
     #[test]
     fn test_2() {
         let input = "
-        const x = [1, 1]";
+        const x = [1, 1][2]";
 
         let expected_output: Vec<Ast> = vec![Ast::new_variable_declaration(
             "x_",
-            Expression::ArrayLiteral {
-                expression: Box::new(vec![
-                    Expression::FloatLiteralExp {
-                        name: "1".to_string(),
-                        value: 1.0,
-                    },
-                    Expression::FloatLiteralExp {
-                        name: "1".to_string(),
-                        value: 1.0,
-                    },
-                ]),
-                expression_data_type: DataType::Float,
+            Expression::ArrayMemberAccess {
+                array: Box::new(Expression::ArrayLiteral {
+                    expression: Box::new(vec![
+                        Expression::FloatLiteralExp {
+                            name: "1".to_string(),
+                            value: 1.0,
+                        },
+                        Expression::FloatLiteralExp {
+                            name: "1".to_string(),
+                            value: 1.0,
+                        },
+                    ]),
+                    expression_data_type: DataType::Float,
+                }),
+                argument: Box::new(Expression::FloatLiteralExp {
+                    name: "1".to_string(),
+                    value: 1.0,
+                }),
             },
             VariableDeclarationKind::Const,
         )];

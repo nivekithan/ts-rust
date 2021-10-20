@@ -1,9 +1,6 @@
-use llvm_sys::{core::LLVMGetArrayLength, prelude::LLVMTypeRef};
+use llvm_sys::{core::{LLVMGetArrayLength, LLVMGetElementType}, prelude::LLVMTypeRef};
 
-use super::{
-    traits::{AsTypeRef, BasicTypeTrait},
-    Type,
-};
+use super::{Type, enums::BasicTypeEnum, traits::{AsTypeRef, BasicTypeTrait}};
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub struct ArrayType<'a> {
@@ -23,6 +20,14 @@ impl<'a> ArrayType<'a> {
         unsafe {
             let length = LLVMGetArrayLength(self.as_type_ref());
             return length;
+        }
+    }
+
+    pub fn get_element_type(&self) -> BasicTypeEnum {
+        unsafe {
+            let element_type = LLVMGetElementType(self.as_type_ref());
+            let basic_type = BasicTypeEnum::new(element_type);
+            return basic_type;
         }
     }
 }

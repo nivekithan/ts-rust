@@ -3,9 +3,9 @@ use std::marker::PhantomData;
 use llvm_sys::{
     core::{
         LLVMBuildAlloca, LLVMBuildBr, LLVMBuildCondBr, LLVMBuildFAdd, LLVMBuildFCmp, LLVMBuildFDiv,
-        LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFSub, LLVMBuildGEP2, LLVMBuildICmp, LLVMBuildLoad2,
-        LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore, LLVMBuildXor, LLVMDisposeBuilder,
-        LLVMPositionBuilderAtEnd,
+        LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFPToSI, LLVMBuildFSub, LLVMBuildGEP2, LLVMBuildICmp,
+        LLVMBuildLoad2, LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore, LLVMBuildXor,
+        LLVMDisposeBuilder, LLVMPositionBuilderAtEnd,
     },
     prelude::{LLVMBuilderRef, LLVMValueRef},
 };
@@ -15,11 +15,13 @@ use crate::{
     enums::{IntCompareOperator, RealCompareOperator},
     types::{
         enums::BasicTypeEnum,
+        int_type::IntType,
         traits::{AsTypeRef, BasicTypeTrait},
     },
     utils::to_c_str,
     values::{
         enums::BasicValueEnum,
+        float_value::FloatValue,
         instruction_value::InstructionValue,
         int_value::IntValue,
         ptr_value::PointerValue,
@@ -266,6 +268,20 @@ impl<'a> Builder<'a> {
                 else_block.basic_block,
             );
             return InstructionValue::new(value);
+        }
+    }
+
+    pub fn build_fp_to_si(&self, float: FloatValue, int_type: IntType, name: &str) -> IntValue {
+        let c_string = to_c_str(name);
+
+        unsafe {
+            let value = LLVMBuildFPToSI(
+                self.builder,
+                float.as_value_ref(),
+                int_type.as_type_ref(),
+                c_string.as_ptr(),
+            );
+            return IntValue::new(value);
         }
     }
 }
