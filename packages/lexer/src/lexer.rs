@@ -363,7 +363,9 @@ fn is_keyword(word: &String) -> IsKeyword {
         return IsKeyword::Yes(KeywordKind::While);
     } else if word == "do" {
         return IsKeyword::Yes(KeywordKind::Do);
-    } else {
+    } else if word == "break" {
+        return IsKeyword::Yes(KeywordKind::Break);
+    }else {
         return IsKeyword::No;
     }
 }

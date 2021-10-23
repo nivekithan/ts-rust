@@ -86,7 +86,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub(crate) fn get_type_prefix_precedence(token: &Token) -> usize {
+    pub(crate) fn _get_type_prefix_precedence(token: &Token) -> usize {
         match token {
             _ => 1,
         }
