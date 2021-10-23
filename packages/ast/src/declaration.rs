@@ -20,6 +20,13 @@ pub enum Declaration {
         exp: Expression,
     },
 
+    ArrayMemberAssignment {
+        ident_name: String,
+        member_access_exp: Expression,
+        operator: VariableAssignmentOperator,
+        exp: Expression,
+    },
+
     NewIfBlockDeclaration {
         if_block: BlockWithCondition,
         else_if_block: Vec<BlockWithCondition>,

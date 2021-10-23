@@ -99,6 +99,8 @@ pub(crate) fn consume_ast<'a>(
                         symbol_table,
                     );
                 }
+
+                _ => todo!(),
             },
 
             _ => todo!(),

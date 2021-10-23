@@ -76,6 +76,20 @@ impl Ast {
         });
     }
 
+    pub fn new_array_member_assignment(
+        ident_name: &str,
+        member_access_exp: Expression,
+        operator: VariableAssignmentOperator,
+        exp: Expression,
+    ) -> Ast {
+        return Ast::Declaration(Declaration::ArrayMemberAssignment {
+            operator,
+            exp,
+            ident_name: ident_name.to_string(),
+            member_access_exp,
+        });
+    }
+
     pub fn new_if_block(
         if_block: BlockWithCondition,
         else_if_block: Vec<BlockWithCondition>,

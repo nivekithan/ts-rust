@@ -29,7 +29,7 @@ pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
 mod test {
     use ast::{
         data_type::DataType,
-        declaration::{BlockWithCondition, VariableDeclarationKind},
+        declaration::{BlockWithCondition, VariableAssignmentOperator, VariableDeclarationKind},
         expression::Expression,
         Ast,
     };
@@ -40,12 +40,13 @@ mod test {
     #[test]
     fn test_2() {
         let input = "
-        const x = [1, 1][1]";
+        const x = [1, 1];
+        x[1] = 2;";
 
-        let expected_output: Vec<Ast> = vec![Ast::new_variable_declaration(
-            "x_",
-            Expression::ArrayMemberAccess {
-                array: Box::new(Expression::ArrayLiteral {
+        let expected_output: Vec<Ast> = vec![
+            Ast::new_variable_declaration(
+                "x_",
+                Expression::ArrayLiteral {
                     expression: Box::new(vec![
                         Expression::FloatLiteralExp {
                             name: "1".to_string(),
@@ -57,14 +58,22 @@ mod test {
                         },
                     ]),
                     expression_data_type: DataType::Float,
-                }),
-                argument: Box::new(Expression::FloatLiteralExp {
+                },
+                VariableDeclarationKind::Const,
+            ),
+            Ast::new_array_member_assignment(
+                "x_",
+                Expression::FloatLiteralExp {
                     name: "1".to_string(),
                     value: 1.0,
-                }),
-            },
-            VariableDeclarationKind::Const,
-        )];
+                },
+                VariableAssignmentOperator::Assign,
+                Expression::FloatLiteralExp {
+                    name: "2".to_string(),
+                    value: 2.0,
+                },
+            ),
+        ];
 
         let actual_output = convert_to_ast(convert_to_token(input));
 

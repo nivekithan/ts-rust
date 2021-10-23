@@ -299,45 +299,106 @@ impl<'a> Parser<'a> {
         match cur_tok {
             Token::Ident { name } => {
                 let sym_meta = context.get(name).unwrap();
-                if sym_meta.is_const {
-                    return Err(format!("Cannot reassign a const variable"));
-                }
-
-                let data_type = sym_meta.data_type.clone();
 
                 self.next(); // consumes the ident
 
-                let operator = match self.get_cur_token()? {
-                    Token::Assign => VariableAssignmentOperator::Assign,
-                    Token::PlusAssign => VariableAssignmentOperator::PlusAssign,
-                    Token::MinusAssign => VariableAssignmentOperator::MinusAssign,
-                    Token::StarAssign => VariableAssignmentOperator::StarAssign,
-                    Token::SlashAssign => VariableAssignmentOperator::SlashAssign,
+                let next_token = self.get_cur_token()?;
 
-                    tok => return Err(format!("Expected either one of the =, +=, -=, *=, /= assignment operators but got {:?}", tok)),
-                };
+                match next_token {
+                    Token::BoxOpenBracket => {
+                        let array_datatype = &sym_meta.data_type;
 
-                self.next(); // consumes =
+                        if let DataType::ArrayType { base_type } = array_datatype {
+                            self.next(); // consumes [
 
-                let expression = self.parse_expression(1, context)?;
+                            let member_access_exp = self.parse_expression(1, context)?;
 
-                if expression.get_data_type() != data_type {
-                    return Err(format!(
-                        "Reassigning datatype {:?} to variable whose datatype is {:?}",
-                        expression.get_data_type(),
-                        data_type
-                    ));
+                            if let DataType::Float = member_access_exp.get_data_type() {
+                            } else {
+                                return Err(format!("Expected data_type of array member access expression to be float but got {:?}", member_access_exp.get_data_type()));
+                            }
+
+                            self.assert_cur_token(&Token::BoxCloseBracket)?;
+                            self.next(); // consumes ]
+
+                            let operator = match self.get_cur_token()? {
+                            Token::Assign => VariableAssignmentOperator::Assign,
+                            Token::PlusAssign => VariableAssignmentOperator::PlusAssign,
+                            Token::MinusAssign => VariableAssignmentOperator::MinusAssign,
+                            Token::StarAssign => VariableAssignmentOperator::StarAssign,
+                            Token::SlashAssign => VariableAssignmentOperator::SlashAssign,
+                            tok => return Err(format!("Expected either one of the =, +=, -=, *=, /= assignment operators but got {:?}", tok)),
+                        };
+
+                            self.next(); // consumes VariableAssignmentOperator
+
+                            let exp = self.parse_expression(1, context)?;
+
+                            if &exp.get_data_type() != base_type.as_ref() {
+                                return Err(format!(
+                                    "Reassigning datatype {:?} to variable whose datatype is {:?}",
+                                    exp.get_data_type(),
+                                    base_type
+                                ));
+                            }
+
+                            self.skip_semicolon()?;
+
+                            let suffix_name = format!("{}{}", name, sym_meta.suffix);
+
+                            return Ok(Ast::new_array_member_assignment(
+                                suffix_name.as_str(),
+                                member_access_exp,
+                                operator,
+                                exp,
+                            ));
+                        } else {
+                            return Err(format!(
+                                "Expected the datatype of ident {:?} to be ArrayType but got {:?}",
+                                name, array_datatype
+                            ));
+                        }
+                    }
+
+                    _ => {
+                        if sym_meta.is_const {
+                            return Err(format!("Cannot reassign a const variable"));
+                        }
+
+                        let data_type = sym_meta.data_type.clone();
+
+                        let operator = match self.get_cur_token()? {
+                            Token::Assign => VariableAssignmentOperator::Assign,
+                            Token::PlusAssign => VariableAssignmentOperator::PlusAssign,
+                            Token::MinusAssign => VariableAssignmentOperator::MinusAssign,
+                            Token::StarAssign => VariableAssignmentOperator::StarAssign,
+                            Token::SlashAssign => VariableAssignmentOperator::SlashAssign,
+                            tok => return Err(format!("Expected either one of the =, +=, -=, *=, /= assignment operators but got {:?}", tok)),
+                        };
+
+                        self.next(); // consumes VariableAssignmentOperator
+
+                        let expression = self.parse_expression(1, context)?;
+
+                        if expression.get_data_type() != data_type {
+                            return Err(format!(
+                                "Reassigning datatype {:?} to variable whose datatype is {:?}",
+                                expression.get_data_type(),
+                                data_type
+                            ));
+                        }
+
+                        self.skip_semicolon()?;
+
+                        let suffix_name = format!("{}{}", name, sym_meta.suffix);
+
+                        return Ok(Ast::new_variable_assignment(
+                            suffix_name.as_str(),
+                            operator,
+                            expression,
+                        ));
+                    }
                 }
-
-                self.skip_semicolon()?;
-
-                let suffix_name = format!("{}{}", name, sym_meta.suffix);
-
-                return Ok(Ast::new_variable_assignment(
-                    suffix_name.as_str(),
-                    operator,
-                    expression,
-                ));
             }
 
             tok => return Err(format!("Expected tok to be of ident but got {:?}", tok)),
