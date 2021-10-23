@@ -2,6 +2,7 @@ use ast::Ast;
 use codegen::Codegen;
 use inkwell::context::Context;
 
+mod build_assignment;
 mod build_expression;
 mod codegen;
 mod enums;

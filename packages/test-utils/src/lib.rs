@@ -77,7 +77,7 @@ impl ExpressionTest {
             generate_boolean_true_literal,
             generate_boolean_false_literal,
             generate_string_literal,
-            generate_array_literal,
+            generate_array_float_literal,
             generate_unary_bang,
             generate_unary_minus,
             generate_unary_plus,
@@ -98,7 +98,7 @@ impl ExpressionTest {
         let every_1_arg_gen = [
             generate_boolean_ident,
             generate_float_ident,
-            generate_array_ident,
+            generate_array_float_ident,
             generate_string_ident,
         ];
 
@@ -617,7 +617,7 @@ fn generate_string_ident(var_name: &str) -> TExp {
     };
 }
 
-fn generate_array_literal() -> TExp {
+fn generate_array_float_literal() -> TExp {
     let exp_str = "[1, 1]".to_string();
 
     let exp = Expression::ArrayLiteral {
@@ -642,7 +642,7 @@ fn generate_array_literal() -> TExp {
     };
 }
 
-fn generate_array_ident(var_name: &str) -> TExp {
+fn generate_array_float_ident(var_name: &str) -> TExp {
     let exp_str = format!("({})", var_name);
 
     let exp = Expression::IdentExp {

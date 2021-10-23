@@ -1,3 +1,4 @@
+mod consume_array_member_assignment;
 mod consume_do_while_loop;
 mod consume_if_block;
 mod consume_variable_assignment;
@@ -14,6 +15,7 @@ use inkwell::{
 };
 
 use crate::gen_ast::{
+    consume_array_member_assignment::consume_array_member_assignments,
     consume_do_while_loop::consume_do_while_loop, consume_if_block::consume_if_block,
     consume_variable_assignment::consume_variable_assignment,
     consume_variable_declaration::consume_variable_declaration,
@@ -100,7 +102,23 @@ pub(crate) fn consume_ast<'a>(
                     );
                 }
 
-                _ => todo!(),
+                Declaration::ArrayMemberAssignment {
+                    ident_name,
+                    member_access_exp,
+                    operator,
+                    exp,
+                } => {
+                    consume_array_member_assignments(
+                        ident_name,
+                        member_access_exp,
+                        operator,
+                        exp,
+                        context,
+                        builder,
+                        function_value,
+                        symbol_table,
+                    );
+                }
             },
 
             _ => todo!(),
