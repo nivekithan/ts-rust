@@ -17,7 +17,6 @@ fn test_while_loop() {
     insta::assert_snapshot!(output);
 }
 
-
 #[test]
 fn test_while_loop_with_break() {
     let input = "
@@ -31,7 +30,6 @@ fn test_while_loop_with_break() {
 
     insta::assert_snapshot!(input, output);
 }
-
 
 #[test]
 fn test_while_loop_with_continue() {

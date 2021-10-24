@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::data_type::DataType;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -45,7 +47,11 @@ pub enum Expression {
     },
     ArrayLiteral {
         expression: Box<Vec<Expression>>,
-        expression_data_type: DataType,
+        expression_data_type: DataType, // Should correspond to DataType::ArrayType
+    },
+    ObjectLiteral {
+        expression: HashMap<String, Expression>,
+        data_type: DataType, // should correspond to DataType::ObjectType
     },
 
     IdentExp {
@@ -83,6 +89,12 @@ impl Expression {
                 return DataType::ArrayType {
                     base_type: Box::new(data_type.clone()),
                 }
+            }
+            Expression::ObjectLiteral {
+                expression: _,
+                data_type,
+            } => {
+                return data_type.clone();
             }
 
             Expression::IdentExp { name: _, data_type } => return data_type.clone(),

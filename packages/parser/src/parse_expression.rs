@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use ast::{data_type::DataType, expression::Expression};
 use lexer::token::{KeywordKind, LiteralKind, Token};
 
@@ -125,6 +127,7 @@ impl<'a> Parser<'a> {
                 return Ok(grouped_exp);
             }
 
+            // Parsing ArrayLiterals
             Token::BoxOpenBracket => {
                 self.next(); // consumes [
 
@@ -177,6 +180,48 @@ impl<'a> Parser<'a> {
                 return Ok(Expression::ArrayLiteral {
                     expression: Box::new(expressions),
                     expression_data_type: data_type,
+                });
+            }
+
+            // Assumes Parsing Object Literal
+            Token::AngleOpenBracket => {
+                self.next(); // consumes {
+
+                let mut expression_entries: HashMap<String, Expression> = HashMap::new();
+                let mut datatype_entries: HashMap<String, DataType> = HashMap::new();
+
+                while self.get_cur_token()? != &Token::AngleCloseBracket {
+                    if let Token::Ident { name } = self.get_cur_token()?.clone() {
+                        self.next(); // consumes Ident
+
+                        self.assert_cur_token(&Token::Colon)?;
+                        self.next(); // consumes :
+
+                        let exp = self.parse_expression(1, context)?;
+                        let exp_data_type = exp.get_data_type();
+
+                        expression_entries.insert(name.clone(), exp);
+                        datatype_entries.insert(name.clone(), exp_data_type);
+
+                        if self.get_cur_token()? == &Token::Comma {
+                            self.next();
+                        } else {
+                            self.assert_cur_token(&Token::AngleCloseBracket)?;
+                        }
+                    } else {
+                        return Err(format!(
+                            "Expected token to be Ident but got {:?}",
+                            self.get_cur_token()?
+                        ));
+                    }
+                }
+
+                self.next(); // consumes }
+                return Ok(Expression::ObjectLiteral {
+                    data_type: DataType::ObjectType {
+                        entries: datatype_entries,
+                    },
+                    expression: expression_entries,
                 });
             }
 

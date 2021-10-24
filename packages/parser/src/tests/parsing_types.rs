@@ -1,3 +1,5 @@
+use std::{collections::HashMap};
+
 use ast::data_type::DataType;
 use lexer::convert_to_token;
 
@@ -55,16 +57,40 @@ fn test_array_type() {
     let mut parser = Parser::new(&tokens);
     let data_type = parser.parse_type_declaration(1);
 
-    match &data_type {
-        Err(s) => println!("{}", s),
-        _ => {}
-    }
     assert_eq!(
         data_type,
         Ok(DataType::ArrayType {
             base_type: Box::new(DataType::ArrayType {
                 base_type: Box::new(DataType::String)
             })
+        })
+    );
+}
+
+#[test]
+fn test_object_type() {
+    let input = "{a : string, b : number , c : string[], d : boolean}";
+
+    let tokens = convert_to_token(input);
+    let mut parser = Parser::new(&tokens);
+    let data_type = parser.parse_type_declaration(1);
+
+    let mut data_type_entries: HashMap<String, DataType> = HashMap::new();
+
+    data_type_entries.insert("a".to_string(), DataType::String);
+    data_type_entries.insert("b".to_string(), DataType::Float);
+    data_type_entries.insert(
+        "c".to_string(),
+        DataType::ArrayType {
+            base_type: Box::new(DataType::String),
+        },
+    );
+    data_type_entries.insert("d".to_string(), DataType::Boolean);
+
+    assert_eq!(
+        data_type,
+        Ok(DataType::ObjectType {
+            entries: data_type_entries
         })
     );
 }

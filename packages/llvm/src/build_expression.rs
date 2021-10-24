@@ -337,6 +337,13 @@ pub(crate) fn build_expression<'a>(
                 panic!("Expected building expression in field 'array' to give BasicValueEnum::PointerValue but got {:?}", array_value);
             }
         }
+
+        Expression::ObjectLiteral {
+            data_type: _,
+            expression: _,
+        } => {
+            todo!();
+        }
     }
 }
 

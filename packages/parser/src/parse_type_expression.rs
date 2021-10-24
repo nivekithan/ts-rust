@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use ast::data_type::DataType;
 use lexer::token::Token;
 
@@ -54,6 +56,35 @@ impl<'a> Parser<'a> {
 
                 self.next(); // consumes )
                 return Ok(grouped_data_type);
+            }
+
+            Token::AngleOpenBracket => {
+                self.next(); // consumes {
+
+                let mut data_type_entries: HashMap<String, DataType> = HashMap::new();
+
+                while self.get_cur_token()? != &Token::AngleCloseBracket {
+                    if let Token::Ident { name } = self.get_cur_token()?.clone() {
+                        self.next(); // consumes Ident;
+
+                        self.assert_cur_token(&Token::Colon)?;
+                        self.next();
+
+                        let entry_data_type = self.parse_type_declaration(1)?;
+
+                        data_type_entries.insert(name, entry_data_type);
+
+                        if self.get_cur_token()? == &Token::Comma {
+                            self.next(); // consume ,
+                        } else {
+                            self.assert_cur_token(&Token::AngleCloseBracket)?;
+                        }
+                    }
+                }
+
+                return Ok(DataType::ObjectType {
+                    entries: data_type_entries,
+                });
             }
 
             _ => {

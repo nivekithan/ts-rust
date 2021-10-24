@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 #[derive(PartialEq, Debug, Clone)]
 pub enum DataType {
     Float,
@@ -5,4 +7,5 @@ pub enum DataType {
     Boolean,
     Unknown,
     ArrayType { base_type: Box<DataType> },
+    ObjectType { entries: HashMap<String, DataType> },
 }
