@@ -9,7 +9,7 @@ use inkwell::{
 
 use crate::build_expression::build_expression;
 
-use super::consume_ast;
+use super::consume_ast_in_loop;
 
 pub(crate) fn consume_do_while_loop<'a>(
     block: &Box<Vec<Ast>>,
@@ -32,7 +32,15 @@ pub(crate) fn consume_do_while_loop<'a>(
     builder.build_unconditional_branch(&do_while_block);
     builder.position_at_end(&do_while_block);
 
-    consume_ast(block, context, builder, function_value, symbol_table);
+    consume_ast_in_loop(
+        block,
+        context,
+        builder,
+        function_value,
+        symbol_table,
+        &exit_block_bb,
+        &condition_checker_block_bb,
+    );
     builder.build_unconditional_branch(&condition_checker_block_bb);
 
     builder.position_at_end(&condition_checker_block_bb);

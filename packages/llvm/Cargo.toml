@@ -8,9 +8,10 @@ edition = "2018"
 [dependencies]
 ast = {path = "../ast"}
 inkwell = { path = "../inkwell"}
+lexer = {path = "../lexer"}
+
 
 [dev-dependencies]
 parser = { path = "../parser"}
-lexer = {path = "../lexer"}
 insta = "1.7.2"
 test-utils = {path = "../test-utils"}

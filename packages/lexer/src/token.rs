@@ -69,6 +69,7 @@ pub enum KeywordKind {
     While,
     Do,
     Break,
+    Continue,
 }
 
 #[derive(Debug, PartialEq, Clone)]

@@ -13,7 +13,7 @@ use crate::{
     enums::{NextElsIfBlock, TypeOfIfBlock},
 };
 
-use super::consume_ast;
+use super::consume_generic_ast;
 
 pub(crate) fn consume_if_block<'a>(
     if_block: &BlockWithCondition,
@@ -87,7 +87,7 @@ pub(crate) fn consume_if_block<'a>(
                 builder.build_conditional_branch(cond_value, &if_block_bb, &exit_block_bb);
                 builder.position_at_end(&if_block_bb);
 
-                consume_ast(
+                consume_generic_ast(
                     &if_block.block,
                     context,
                     builder,
@@ -105,7 +105,7 @@ pub(crate) fn consume_if_block<'a>(
                         builder.build_conditional_branch(cond_value, &if_block_bb, &else_block_bb);
                         builder.position_at_end(&if_block_bb);
 
-                        consume_ast(
+                        consume_generic_ast(
                             &if_block.block,
                             context,
                             builder,
@@ -117,7 +117,7 @@ pub(crate) fn consume_if_block<'a>(
 
                         builder.position_at_end(&else_block_bb);
 
-                        consume_ast(
+                        consume_generic_ast(
                             else_block_asts,
                             context,
                             builder,
@@ -158,7 +158,7 @@ pub(crate) fn consume_if_block<'a>(
                 );
                 builder.position_at_end(&if_block_bb);
 
-                consume_ast(
+                consume_generic_ast(
                     &if_block.block,
                     context,
                     builder,
@@ -190,7 +190,7 @@ pub(crate) fn consume_if_block<'a>(
                                 );
                                 builder.position_at_end(else_if_block_bb);
 
-                                consume_ast(
+                                consume_generic_ast(
                                     &else_if_block[i].block,
                                     context,
                                     builder,
@@ -210,7 +210,7 @@ pub(crate) fn consume_if_block<'a>(
                                 );
                                 builder.position_at_end(else_if_block_bb);
 
-                                consume_ast(
+                                consume_generic_ast(
                                     &else_if_block[i].block,
                                     context,
                                     builder,
@@ -228,7 +228,7 @@ pub(crate) fn consume_if_block<'a>(
                                     else_block_bb,
                                 );
                                 builder.position_at_end(else_if_block_bb);
-                                consume_ast(
+                                consume_generic_ast(
                                     &else_if_block[i].block,
                                     context,
                                     builder,
@@ -244,7 +244,7 @@ pub(crate) fn consume_if_block<'a>(
 
                 if let Some(_) = else_block_maybe {
                     if let Some(else_block_ast) = else_block {
-                        consume_ast(
+                        consume_generic_ast(
                             else_block_ast,
                             context,
                             builder,

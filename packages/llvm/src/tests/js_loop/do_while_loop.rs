@@ -17,3 +17,31 @@ fn do_while_loop() {
 
     insta::assert_snapshot!(output);
 }
+
+#[test]
+fn do_while_loop_with_break() {
+    let input = "
+    const x = 0;
+    do {
+        break
+    } while (x !== 1)";
+
+    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+
+    insta::assert_snapshot!(input, output);
+}
+
+
+#[test]
+fn do_while_loop_with_continue() {
+    let input = "
+    const x = 0;
+    do {
+        continue
+    } while (x !== 1)";
+
+    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+
+    insta::assert_snapshot!(input, output);
+}
+

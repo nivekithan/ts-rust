@@ -1,3 +1,5 @@
+use lexer::token::KeywordKind;
+
 use crate::{expression::Expression, Ast};
 
 #[derive(Debug, PartialEq, Clone)]
@@ -41,6 +43,10 @@ pub enum Declaration {
     DoWhileLoopDeclaration {
         condition: Expression,
         block: Box<Vec<Ast>>,
+    },
+
+    LoopControlFlow {
+        keyword: KeywordKind,
     },
 }
 

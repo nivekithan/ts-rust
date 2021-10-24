@@ -2,7 +2,9 @@ use core::panic;
 
 use ast::{
     data_type::DataType,
-    declaration::{BlockWithCondition, VariableAssignmentOperator, VariableDeclarationKind},
+    declaration::{
+        BlockWithCondition, Declaration, VariableAssignmentOperator, VariableDeclarationKind,
+    },
     Ast,
 };
 use lexer::token::{KeywordKind, Token};
@@ -55,6 +57,22 @@ impl<'a> Parser<'a> {
                 KeywordKind::Do => {
                     let ast = self.parse_do_while_loop(context)?;
                     return Ok(ast);
+                }
+
+                KeywordKind::Break => {
+                    self.next(); // consumes break
+                    self.skip_semicolon()?;
+                    return Ok(Ast::Declaration(Declaration::LoopControlFlow {
+                        keyword: KeywordKind::Break,
+                    }));
+                }
+
+                KeywordKind::Continue => {
+                    self.next(); // consumes continue
+                    self.skip_semicolon()?;
+                    return Ok(Ast::Declaration(Declaration::LoopControlFlow {
+                        keyword: KeywordKind::Continue,
+                    }));
                 }
 
                 _ => {

@@ -7,7 +7,7 @@ use inkwell::{
     values::{fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
-use crate::gen_ast::consume_ast;
+use crate::gen_ast::consume_generic_ast;
 
 pub struct Codegen<'a> {
     content: &'a Vec<Ast>,
@@ -28,7 +28,7 @@ impl<'a> Codegen<'a> {
         builder: &'a Builder,
         function_value: &mut FunctionValue,
     ) {
-        consume_ast(
+        consume_generic_ast(
             self.content,
             context,
             builder,

@@ -5,7 +5,6 @@ use test_utils::{DatatypeOrFn, ExpressionTest};
 
 use crate::write_llvm_ir;
 
-
 #[test]
 fn test_array_member_assign() {
     let exp_test = ExpressionTest {
@@ -27,7 +26,9 @@ fn test_array_member_assign() {
 
         expressions_data_type: vec![
             (
-                DatatypeOrFn::DataType(DataType::ArrayType{base_type : Box::new(DataType::Float)}),
+                DatatypeOrFn::DataType(DataType::ArrayType {
+                    base_type: Box::new(DataType::Float),
+                }),
                 vec!["_x".to_string()],
             ),
             (
