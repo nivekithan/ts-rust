@@ -7,6 +7,7 @@ use declaration::{
     BlockWithCondition, Declaration, VariableAssignmentOperator, VariableDeclarationKind,
 };
 use expression::{BinaryOperator, Expression, UnaryOperator};
+use indexmap::IndexMap;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Ast {
@@ -113,6 +114,20 @@ impl Ast {
         return Ast::Declaration(Declaration::DoWhileLoopDeclaration {
             condition: do_while_loop.condition,
             block: do_while_loop.block,
+        });
+    }
+
+    pub fn new_function_declaration(
+        arguments: IndexMap<String, DataType>,
+        blocks: Box<Vec<Ast>>,
+        ident_name: String,
+        return_type: DataType,
+    ) -> Ast {
+        return Ast::Declaration(Declaration::FunctionDeclaration {
+            arguments,
+            blocks,
+            ident_name,
+            return_type,
         });
     }
 }

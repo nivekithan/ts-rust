@@ -1,6 +1,7 @@
+use indexmap::IndexMap;
 use lexer::token::KeywordKind;
 
-use crate::{expression::Expression, Ast};
+use crate::{data_type::DataType, expression::Expression, Ast};
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum VariableDeclarationKind {
@@ -14,6 +15,13 @@ pub enum Declaration {
         ident_name: String,
         exp: Expression,
         kind: VariableDeclarationKind,
+    },
+
+    FunctionDeclaration {
+        ident_name: String,
+        return_type: DataType,
+        arguments: IndexMap<String, DataType>,
+        blocks: Box<Vec<Ast>>,
     },
 
     VariableAssignment {
