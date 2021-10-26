@@ -32,7 +32,7 @@ pub struct SymbolContext<'a> {
 }
 
 impl<'a> SymbolContext<'a> {
-    pub fn new_global() -> Self {
+    pub fn new_empty_context() -> Self {
         return SymbolContext {
             symbols: HashMap::new(),
             parent: None,
@@ -86,6 +86,13 @@ impl<'a> SymbolContext<'a> {
     pub fn get_suffix(&self, name: &str) -> String {
         let context_available = self.get_context_for_name(name).unwrap();
         return context_available.suffix.clone();
+    }
+
+    pub fn _is_parent_none(&self) -> bool {
+        match self.parent {
+            Some(_) => false,
+            None => true,
+        }
     }
 
     fn get_context_for_name(&'a self, name: &str) -> Option<&'a SymbolContext<'a>> {

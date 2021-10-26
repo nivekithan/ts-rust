@@ -14,6 +14,6 @@ pub enum DataType {
     },
     FunctionType {
         return_type: Box<DataType>,
-        arguments: Vec<DataType>,
+        arguments: IndexMap<String, DataType>,
     },
 }

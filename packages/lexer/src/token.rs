@@ -72,7 +72,7 @@ pub enum KeywordKind {
     Break,
     Continue,
 
-    Function
+    Function,
 }
 
 #[derive(Debug, PartialEq, Clone)]

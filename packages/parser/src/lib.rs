@@ -15,7 +15,7 @@ use lexer::token::Token;
 pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
     let mut parser = Parser::new(&input);
     let mut asts: Vec<Ast> = vec![];
-    let mut context = SymbolContext::new_global();
+    let mut context = SymbolContext::new_empty_context();
 
     while parser.get_cur_token().unwrap() != &Token::Eof {
         let next_ast = parser.next_ast(&mut context);
@@ -31,7 +31,7 @@ mod test {
 
     use ast::{
         data_type::DataType,
-        declaration::{BlockWithCondition, VariableDeclarationKind},
+        declaration::{VariableDeclarationKind},
         expression::Expression,
         Ast,
     };
@@ -97,24 +97,23 @@ mod test {
     #[test]
     fn test_3() {
         let input = "
-        do {
-        const x = 1;
-        } while (true)";
+        function foo(x : number) : number {
+            const x = 1;
+        }";
 
-        let expected_output: Vec<Ast> = vec![Ast::new_do_while_loop(BlockWithCondition {
-            condition: Expression::BooleanLiteralExp {
-                name: "true".to_string(),
-                value: true,
-            },
-            block: Box::new(vec![Ast::new_variable_declaration(
-                "x_0",
+        let expected_output = vec![Ast::new_function_declaration(
+            indexmap! {"x".to_string() => DataType::Float},
+            Box::new(vec![Ast::new_variable_declaration(
+                "x_",
                 Expression::FloatLiteralExp {
                     name: "1".to_string(),
                     value: 1.0,
                 },
                 VariableDeclarationKind::Const,
             )]),
-        })];
+            "foo_".to_string(),
+            DataType::Float,
+        )];
 
         let actual_output = convert_to_ast(convert_to_token(input));
 

@@ -56,18 +56,40 @@ impl<'a> Parser<'a> {
      * */
     pub(crate) fn parse_block(&mut self, context: &mut SymbolContext) -> Result<Vec<Ast>, String> {
         self.assert_cur_token(&Token::AngleOpenBracket)?;
-        self.next(); // consumes {
 
         let cur_value = context.counter;
         let suffix = format!("{}{}", context.suffix, cur_value);
         context.counter += 1;
 
         let mut child_context = context.create_child_context(suffix);
+        return self.parse_block_with_context(&mut child_context);
+    }
 
+    /*
+     * Assumes the current token to be `{` in
+     *
+     *  {
+     *      <block>
+     *  }
+     *
+     * Consumes till token } in
+     *
+     * {
+     *     <block>
+     * }
+     *
+     * Pass the context in which you want to create the ast
+     *
+     * */
+    pub(crate) fn parse_block_with_context(&mut self, context : &mut SymbolContext) -> Result<Vec<Ast>, String> {
+        self.assert_cur_token(&Token::AngleOpenBracket)?;
+        self.next(); // consumes {
+
+            
         let mut ast_block: Vec<Ast> = vec![];
 
         while self.get_cur_token().unwrap() != &Token::AngleCloseBracket {
-            let ast = self.next_ast_in_context(&mut child_context)?;
+            let ast = self.next_ast_in_context(context)?;
             ast_block.push(ast);
         }
 

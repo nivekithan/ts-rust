@@ -7,6 +7,7 @@ use ast::{
     },
     Ast,
 };
+use indexmap::IndexMap;
 use lexer::token::{KeywordKind, Token};
 
 use crate::symbol_table::{SymbolContext, SymbolMetaInsert};
@@ -73,6 +74,10 @@ impl<'a> Parser<'a> {
                     return Ok(Ast::Declaration(Declaration::LoopControlFlow {
                         keyword: KeywordKind::Continue,
                     }));
+                }
+
+                KeywordKind::Function => {
+                    return self.parse_function_declaration(context);
                 }
 
                 _ => {
@@ -420,6 +425,103 @@ impl<'a> Parser<'a> {
             }
 
             tok => return Err(format!("Expected tok to be of ident but got {:?}", tok)),
+        }
+    }
+
+    /*
+     * Assumes the current token to be `keyword functions` in
+     *
+     * function name(parameter1 : type1, parameter2 : type2 ) : returnType {
+     *      <block>
+     * };
+     *
+     * Expects the returnType to be explicitly defined
+     *
+     * Consumes till the token ;
+     *
+     * Pass the context no need to create child context
+     *
+     * TODO: Support closures
+     *
+     * */
+    pub(crate) fn parse_function_declaration(
+        &mut self,
+        context: &mut SymbolContext,
+    ) -> Result<Ast, String> {
+        self.assert_cur_token(&Token::Keyword(KeywordKind::Function))?;
+        self.next(); // consumes keyword function
+
+        if let Token::Ident { name } = self.get_cur_token()?.clone() {
+            self.next(); // consumes Ident
+
+            self.assert_cur_token(&Token::CurveOpenBracket)?;
+            self.next(); // consumes (
+
+            let mut arguments: IndexMap<String, DataType> = IndexMap::new();
+
+            while self.get_cur_token()?.clone() != Token::CurveCloseBracket {
+                if let Token::Ident { name } = self.get_cur_token()?.clone() {
+                    self.next(); // consumes Ident
+
+                    self.assert_cur_token(&Token::Colon)?;
+                    self.next(); // consumes :
+
+                    let data_type = self.parse_type_declaration(1)?;
+
+                    if arguments.contains_key(&name) {
+                        return Err(format!("In function declaration each argument must have different names but name : {} is repeated", &name));
+                    } else {
+                        arguments.insert(name, data_type);
+                    }
+
+                    if let Token::Comma = self.get_cur_token()?.clone() {
+                        self.next();
+                        continue;
+                    } else {
+                        self.assert_cur_token(&Token::CurveCloseBracket)?;
+                    }
+                } else {
+                    return Err(format!(
+                        "Expected current token to be of Ident but got {:?}",
+                        self.get_cur_token()?
+                    ));
+                }
+            }
+
+            self.next(); // consumes )
+
+            self.assert_cur_token(&Token::Colon)?;
+            self.next(); // consumes :
+
+            let return_type = self.parse_type_declaration(1)?;
+
+            self.assert_cur_token(&Token::AngleOpenBracket)?;
+
+            let block = self.parse_block_with_context(&mut SymbolContext::new_empty_context())?;
+            context.insert(
+                name.as_str(),
+                SymbolMetaInsert::create(
+                    DataType::FunctionType {
+                        arguments: arguments.clone(),
+                        return_type: Box::new(return_type.clone()),
+                    },
+                    true,
+                ),
+            )?;
+
+            self.skip_semicolon()?;
+            let name_with_suffix = format!("{}{}", name, context.suffix.clone());
+            return Ok(Ast::new_function_declaration(
+                arguments,
+                Box::new(block),
+                name_with_suffix,
+                return_type,
+            ));
+        } else {
+            return Err(format!(
+                "Expected the current token to be ident but got {:?}",
+                self.get_cur_token()?
+            ));
         }
     }
 
