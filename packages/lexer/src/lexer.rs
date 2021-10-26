@@ -41,6 +41,9 @@ impl<'a> Lexer<'a> {
                 } else if char == ':' {
                     self.next(); // consumes :
                     return Colon;
+                } else if char == '.' {
+                    self.next(); // consumes .
+                    return Dot;
                 } else if char == '=' {
                     self.next(); // consumes =
 

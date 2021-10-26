@@ -40,6 +40,7 @@ fn test_operators() {
     ]
 
     ,
+    .
 
     !
 
@@ -76,6 +77,7 @@ fn test_operators() {
         BoxOpenBracket,
         BoxCloseBracket,
         Comma,
+        Dot,
         Bang,
         Plus,
         Minus,
