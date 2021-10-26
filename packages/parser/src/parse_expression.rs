@@ -311,6 +311,30 @@ impl<'a> Parser<'a> {
                 }
             }
 
+            Token::Dot => {
+                self.next(); // consumes .
+
+                if let Token::Ident { name } = self.get_cur_token()?.clone() {
+                    let data_type = left.get_data_type();
+
+                    if let DataType::ObjectType { entries: _ } = data_type {
+                        self.next(); // consumes Ident
+
+                        return Ok(Ok(Expression::DotMemberAccess {
+                            container: Box::new(left),
+                            argument: name.clone(),
+                        }));
+                    } else {
+                        return Err(format!("Dot member access can be only used on expression whose datatype is ObjectType but used on data_type {:?}", data_type));
+                    }
+                } else {
+                    return Err(format!(
+                        "Expected token to be ident but got {:?}",
+                        self.get_cur_token()?
+                    ));
+                }
+            }
+
             _ => return Ok(Err(left)),
         }
     }
@@ -344,7 +368,7 @@ impl<'a> Parser<'a> {
 
     pub(crate) fn get_non_prefix_precedence(token: &Token) -> usize {
         match token {
-            Token::BoxOpenBracket => 20,
+            Token::BoxOpenBracket | Token::Dot => 20,
 
             Token::Star | Token::Slash => return 15,
 

@@ -1,6 +1,6 @@
 mod clock;
 
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 use ast::{
     data_type::DataType,

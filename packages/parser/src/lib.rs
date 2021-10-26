@@ -27,12 +27,15 @@ pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
 
 #[cfg(test)]
 mod test {
+    use std::collections::HashMap;
+
     use ast::{
         data_type::DataType,
-        declaration::{BlockWithCondition, VariableAssignmentOperator, VariableDeclarationKind},
+        declaration::{BlockWithCondition, VariableDeclarationKind},
         expression::Expression,
         Ast,
     };
+    use indexmap::indexmap;
     use lexer::convert_to_token;
 
     use crate::convert_to_ast;
@@ -40,38 +43,49 @@ mod test {
     #[test]
     fn test_2() {
         let input = "
-        const x = [1, 1];
-        x[1] = 2;";
+        const x = {a : 1, b : 2};
+        const y = x.a;";
+
+        let mut exp_hash_map: HashMap<String, Expression> = HashMap::new();
+
+        exp_hash_map.insert(
+            "a".to_string(),
+            Expression::FloatLiteralExp {
+                name: "1".to_string(),
+                value: 1.0,
+            },
+        );
+        exp_hash_map.insert(
+            "b".to_string(),
+            Expression::FloatLiteralExp {
+                name: "2".to_string(),
+                value: 2.0,
+            },
+        );
 
         let expected_output: Vec<Ast> = vec![
             Ast::new_variable_declaration(
                 "x_",
-                Expression::ArrayLiteral {
-                    expression: Box::new(vec![
-                        Expression::FloatLiteralExp {
-                            name: "1".to_string(),
-                            value: 1.0,
-                        },
-                        Expression::FloatLiteralExp {
-                            name: "1".to_string(),
-                            value: 1.0,
-                        },
-                    ]),
-                    expression_data_type: DataType::Float,
+                Expression::ObjectLiteral {
+                    expression: exp_hash_map,
+                    data_type: DataType::ObjectType {
+                        entries: indexmap! {"a".to_string() => DataType::Float, "b".to_string() => DataType::Float},
+                    },
                 },
                 VariableDeclarationKind::Const,
             ),
-            Ast::new_array_member_assignment(
-                "x_",
-                Expression::FloatLiteralExp {
-                    name: "1".to_string(),
-                    value: 1.0,
+            Ast::new_variable_declaration(
+                "y_",
+                Expression::DotMemberAccess {
+                    container: Box::new(Expression::IdentExp {
+                        data_type: DataType::ObjectType {
+                            entries: indexmap! {"a".to_string() => DataType::Float, "b".to_string() => DataType::Float},
+                        },
+                        name: "x_".to_string(),
+                    }),
+                    argument: "a".to_string(),
                 },
-                VariableAssignmentOperator::Assign,
-                Expression::FloatLiteralExp {
-                    name: "2".to_string(),
-                    value: 2.0,
-                },
+                VariableDeclarationKind::Const,
             ),
         ];
 

@@ -74,6 +74,11 @@ pub enum Expression {
         array: Box<Expression>,
         argument: Box<Expression>,
     },
+
+    DotMemberAccess {
+        container: Box<Expression>,
+        argument: String,
+    },
 }
 
 impl Expression {
@@ -150,6 +155,22 @@ impl Expression {
                     return base_type.as_ref().clone();
                 } else {
                     unreachable!();
+                }
+            }
+
+            Expression::DotMemberAccess {
+                argument,
+                container,
+            } => {
+                let exp_data_type = container.get_data_type();
+
+                match &exp_data_type {
+                    DataType::ObjectType{entries} => {
+                        let member_data_type = entries.get(argument).expect(format!("There is no member with name {} on Datatype {:?}", argument, exp_data_type).as_str());
+                        return member_data_type.clone();
+                    },
+
+                    _ => panic!("As of now only expression with datatype Datatype::ObjectType is supported for got expression with datatype {:?}", exp_data_type)
                 }
             }
         }

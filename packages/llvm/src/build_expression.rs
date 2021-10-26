@@ -382,6 +382,13 @@ pub(crate) fn build_expression<'a>(
                 unreachable!();
             }
         }
+
+        Expression::DotMemberAccess {
+            argument: _,
+            container: _,
+        } => {
+            unimplemented!();
+        }
     }
 }
 

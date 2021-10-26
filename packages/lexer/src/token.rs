@@ -22,7 +22,7 @@ pub enum Token {
 
     SemiColon, // ;
     Colon,     // :
-    Dot, // .
+    Dot,       // .
 
     AngleOpenBracket,  // {
     AngleCloseBracket, // }
