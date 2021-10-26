@@ -5,6 +5,7 @@ use llvm_sys::{
 
 use super::{
     array_type::ArrayType,
+    struct_type::StructType,
     traits::{AsTypeRef, BasicTypeTrait},
     Type,
 };
@@ -37,6 +38,22 @@ impl<'a> PointerType<'a> {
             } else {
                 return Err(format!(
                     "Expected the pointer type to point to ArrayType but instead got {:?}",
+                    LLVMGetTypeKind(element_type.as_type_ref())
+                ));
+            }
+        }
+    }
+
+    pub fn into_struct_type(&self) -> Result<StructType<'a>, String> {
+        unsafe {
+            let element_type = self.into_element_type();
+            let is_struct_type = element_type.is_struct_type();
+
+            if is_struct_type {
+                return Ok(StructType::new(element_type.as_type_ref()));
+            } else {
+                return Err(format!(
+                    "Expected the pointer type to point to StructureType but instead got {:?}",
                     LLVMGetTypeKind(element_type.as_type_ref())
                 ));
             }

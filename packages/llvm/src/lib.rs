@@ -40,7 +40,8 @@ mod test_1 {
     #[test]
     fn test_some() {
         let input = "
-        const x = {a : 1, b : 2 }";
+        const x = {a : 1, b : true }
+        const y = !x.b;";
 
         let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
 

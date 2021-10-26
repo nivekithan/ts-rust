@@ -1,6 +1,9 @@
-use llvm_sys::prelude::LLVMTypeRef;
+use std::convert::TryInto;
+
+use llvm_sys::{core::LLVMStructGetTypeAtIndex, prelude::LLVMTypeRef};
 
 use super::{
+    enums::BasicTypeEnum,
     traits::{AsTypeRef, BasicTypeTrait},
     Type,
 };
@@ -17,6 +20,13 @@ impl<'a> StructType<'a> {
         return StructType {
             struct_type: Type::new(struct_type),
         };
+    }
+
+    pub fn get_field_type(&self, index: usize) -> BasicTypeEnum {
+        unsafe {
+            let type_ref = LLVMStructGetTypeAtIndex(self.as_type_ref(), index.try_into().unwrap());
+            return BasicTypeEnum::new(type_ref);
+        }
     }
 }
 

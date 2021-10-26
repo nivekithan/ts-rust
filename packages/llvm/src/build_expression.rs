@@ -94,6 +94,7 @@ pub(crate) fn build_expression<'a>(
                     DataType::String => BasicValueEnum::PointerValue(pointer.clone()),
 
                     DataType::ArrayType{base_type : _ } => BasicValueEnum::PointerValue(pointer.clone()),
+                    DataType::ObjectType { entries : _ } => BasicValueEnum::PointerValue(pointer.clone()),
 
                     _ => panic!("Update Function build_expression -> Expression::IdentExp, Unsupported datatype"),
                 };
@@ -384,10 +385,47 @@ pub(crate) fn build_expression<'a>(
         }
 
         Expression::DotMemberAccess {
-            argument: _,
-            container: _,
+            argument,
+            container,
         } => {
-            unimplemented!();
+            let container_value = build_expression(
+                container.as_ref(),
+                context,
+                builder,
+                function_value,
+                symbol_table,
+                None,
+            );
+
+            if let BasicValueEnum::PointerValue(container_pointer) = container_value {
+                let container_data_type = container.get_data_type();
+                if let DataType::ObjectType { entries } = container_data_type {
+                    let index = entries.get_index_of(argument).unwrap();
+
+                    let structure_type = container_pointer.get_type().into_struct_type().unwrap();
+                    let indices = vec![
+                        context.i32_type().const_int(1, true),
+                        context
+                            .i32_type()
+                            .const_int(index.try_into().unwrap(), true),
+                    ];
+
+                    let member_pointer = builder.build_gep_2(
+                        structure_type,
+                        &container_pointer,
+                        &indices,
+                        &function_value.get_unique_reg_name(),
+                    );
+
+                    let field_type = structure_type.get_field_type(index);
+                    let loaded_value = builder.build_load(member_pointer, field_type, name);
+                    return loaded_value;
+                } else {
+                    unreachable!();
+                }
+            } else {
+                unreachable!();
+            }
         }
     }
 }

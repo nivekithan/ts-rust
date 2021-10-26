@@ -91,6 +91,16 @@ impl<'a> Type<'a> {
         }
     }
 
+    pub(crate) fn is_struct_type(&self) -> bool {
+        unsafe {
+            match LLVMGetTypeKind(self.ty) {
+                LLVMTypeKind::LLVMStructTypeKind => true,
+
+                _ => false,
+            }
+        }
+    }
+
     // pub(crate) fn is_fn_type(&self) -> bool {
     //     unsafe {
     //         match LLVMGetTypeKind(self.ty) {
