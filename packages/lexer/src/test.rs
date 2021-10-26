@@ -141,7 +141,9 @@ fn test_keyword() {
     while
     do
     break
-    continue";
+    continue
+    
+    function";
 
     let expected_output: Vec<Token> = vec![
         Keyword(KeywordKind::Const),
@@ -154,6 +156,7 @@ fn test_keyword() {
         Keyword(KeywordKind::Do),
         Keyword(KeywordKind::Break),
         Keyword(KeywordKind::Continue),
+        Keyword(KeywordKind::Function),
         Eof,
     ];
 

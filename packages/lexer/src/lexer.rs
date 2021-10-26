@@ -373,6 +373,8 @@ fn is_keyword(word: &String) -> IsKeyword {
         return IsKeyword::Yes(KeywordKind::Break);
     } else if word == "continue" {
         return IsKeyword::Yes(KeywordKind::Continue);
+    } else if word == "function" {
+        return IsKeyword::Yes(KeywordKind::Function);
     } else {
         return IsKeyword::No;
     }

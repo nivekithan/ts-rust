@@ -71,6 +71,8 @@ pub enum KeywordKind {
     Do,
     Break,
     Continue,
+
+    Function
 }
 
 #[derive(Debug, PartialEq, Clone)]
