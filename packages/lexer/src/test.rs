@@ -41,6 +41,7 @@ fn test_operators() {
 
     ,
     .
+    =>
 
     !
 
@@ -78,6 +79,7 @@ fn test_operators() {
         BoxCloseBracket,
         Comma,
         Dot,
+        FunctionArrow,
         Bang,
         Plus,
         Minus,

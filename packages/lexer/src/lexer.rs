@@ -59,6 +59,9 @@ impl<'a> Lexer<'a> {
                             }
 
                             return Equality;
+                        } else if char == '>' {
+                            self.next(); // consumes >
+                            return FunctionArrow;
                         }
                     }
 

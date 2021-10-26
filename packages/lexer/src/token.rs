@@ -23,6 +23,8 @@ pub enum Token {
     SemiColon, // ;
     Colon,     // :
     Dot,       // .
+    Comma, // ,
+    FunctionArrow, // =>
 
     AngleOpenBracket,  // {
     AngleCloseBracket, // }
@@ -33,8 +35,7 @@ pub enum Token {
     BoxOpenBracket,  //  [
     BoxCloseBracket, // ]
 
-    Comma, // ,
-
+    
     Bang, // !
 
     Plus,  // +
