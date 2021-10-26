@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::data_type::DataType;
+use crate::{data_type::DataType, Ast};
 
 #[derive(Debug, PartialEq, Clone)]
 
@@ -78,6 +78,12 @@ pub enum Expression {
     DotMemberAccess {
         container: Box<Expression>,
         argument: String,
+    },
+
+    Function {
+        return_type: DataType,
+        arguments: Vec<DataType>,
+        block: Box<Vec<Ast>>,
     },
 }
 
@@ -172,6 +178,17 @@ impl Expression {
 
                     _ => panic!("As of now only expression with datatype Datatype::ObjectType is supported for got expression with datatype {:?}", exp_data_type)
                 }
+            }
+
+            Expression::Function {
+                arguments,
+                return_type,
+                block: _,
+            } => {
+                return DataType::FunctionType {
+                    arguments: arguments.clone(),
+                    return_type: Box::new(return_type.clone()),
+                };
             }
         }
     }

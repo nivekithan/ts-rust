@@ -129,6 +129,11 @@ pub(crate) fn consume_variable_declaration<'a>(
             }
         }
 
+        DataType::FunctionType {
+            arguments: _,
+            return_type: _,
+        } => unreachable!(),
+
         DataType::Unknown => unreachable!(),
     };
 

@@ -6,6 +6,14 @@ pub enum DataType {
     String,
     Boolean,
     Unknown,
-    ArrayType { base_type: Box<DataType> },
-    ObjectType { entries: IndexMap<String, DataType> },
+    ArrayType {
+        base_type: Box<DataType>,
+    },
+    ObjectType {
+        entries: IndexMap<String, DataType>,
+    },
+    FunctionType {
+        return_type: Box<DataType>,
+        arguments: Vec<DataType>,
+    },
 }

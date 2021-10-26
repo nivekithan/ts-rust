@@ -427,6 +427,14 @@ pub(crate) fn build_expression<'a>(
                 unreachable!();
             }
         }
+
+        Expression::Function {
+            arguments: _,
+            block: _,
+            return_type: _,
+        } => {
+            unimplemented!();
+        }
     }
 }
 

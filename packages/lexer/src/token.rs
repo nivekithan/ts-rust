@@ -20,10 +20,10 @@ pub enum Token {
     GreaterThan,        // >
     GreaterThanOrEqual, // >=
 
-    SemiColon, // ;
-    Colon,     // :
-    Dot,       // .
-    Comma, // ,
+    SemiColon,     // ;
+    Colon,         // :
+    Dot,           // .
+    Comma,         // ,
     FunctionArrow, // =>
 
     AngleOpenBracket,  // {
@@ -35,7 +35,6 @@ pub enum Token {
     BoxOpenBracket,  //  [
     BoxCloseBracket, // ]
 
-    
     Bang, // !
 
     Plus,  // +
