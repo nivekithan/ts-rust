@@ -81,11 +81,13 @@ impl<'a> Parser<'a> {
      * Pass the context in which you want to create the ast
      *
      * */
-    pub(crate) fn parse_block_with_context(&mut self, context : &mut SymbolContext) -> Result<Vec<Ast>, String> {
+    pub(crate) fn parse_block_with_context(
+        &mut self,
+        context: &mut SymbolContext,
+    ) -> Result<Vec<Ast>, String> {
         self.assert_cur_token(&Token::AngleOpenBracket)?;
         self.next(); // consumes {
 
-            
         let mut ast_block: Vec<Ast> = vec![];
 
         while self.get_cur_token().unwrap() != &Token::AngleCloseBracket {

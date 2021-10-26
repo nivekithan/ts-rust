@@ -30,10 +30,7 @@ mod test {
     use std::collections::HashMap;
 
     use ast::{
-        data_type::DataType,
-        declaration::{VariableDeclarationKind},
-        expression::Expression,
-        Ast,
+        data_type::DataType, declaration::VariableDeclarationKind, expression::Expression, Ast,
     };
     use indexmap::indexmap;
     use lexer::convert_to_token;
