@@ -1,6 +1,5 @@
-use std::collections::HashMap;
-
 use ast::data_type::DataType;
+use indexmap::IndexMap;
 use lexer::token::Token;
 
 use crate::parser::Parser;
@@ -61,7 +60,7 @@ impl<'a> Parser<'a> {
             Token::AngleOpenBracket => {
                 self.next(); // consumes {
 
-                let mut data_type_entries: HashMap<String, DataType> = HashMap::new();
+                let mut data_type_entries: IndexMap<String, DataType> = IndexMap::new();
 
                 while self.get_cur_token()? != &Token::AngleCloseBracket {
                     if let Token::Ident { name } = self.get_cur_token()?.clone() {

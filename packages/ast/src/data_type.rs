@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum DataType {
@@ -7,5 +7,5 @@ pub enum DataType {
     Boolean,
     Unknown,
     ArrayType { base_type: Box<DataType> },
-    ObjectType { entries: HashMap<String, DataType> },
+    ObjectType { entries: IndexMap<String, DataType> },
 }

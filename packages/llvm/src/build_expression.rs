@@ -4,11 +4,15 @@ use ast::{
     data_type::DataType,
     expression::{BinaryOperator, Expression, UnaryOperator},
 };
+use indexmap::IndexMap;
 use inkwell::{
     builder::Builder,
     context::Context,
     enums::{IntCompareOperator, RealCompareOperator},
-    types::{array_type::ArrayType, traits::BasicTypeTrait},
+    types::{
+        array_type::ArrayType, enums::BasicTypeEnum, struct_type::StructType,
+        traits::BasicTypeTrait,
+    },
     values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
@@ -339,10 +343,44 @@ pub(crate) fn build_expression<'a>(
         }
 
         Expression::ObjectLiteral {
-            data_type: _,
-            expression: _,
+            data_type,
+            expression,
         } => {
-            todo!();
+            if let DataType::ObjectType { entries } = data_type {
+                let struct_type = convert_index_map_to_struct_type(entries, context).unwrap();
+
+                let base_pointer = builder.build_alloca(struct_type.clone(), name);
+
+                for (i, (k, _)) in entries.iter().enumerate() {
+                    let corresponding_exp = expression.get(k).unwrap();
+                    let exp = build_expression(
+                        corresponding_exp,
+                        context,
+                        builder,
+                        function_value,
+                        symbol_table,
+                        None,
+                    );
+
+                    let indices = vec![
+                        context.i32_type().const_int(1, true),
+                        context.i32_type().const_int(i.try_into().unwrap(), true),
+                    ];
+
+                    let index_pointer = builder.build_gep_2(
+                        struct_type,
+                        &base_pointer,
+                        &indices,
+                        function_value.get_unique_reg_name().as_str(),
+                    );
+
+                    builder.build_store(index_pointer, exp);
+                }
+
+                return BasicValueEnum::PointerValue(base_pointer);
+            } else {
+                unreachable!();
+            }
         }
     }
 }
@@ -364,4 +402,27 @@ fn convert_data_type_to_array_type<'a>(
     };
 
     return Ok(array_type);
+}
+
+fn convert_index_map_to_struct_type<'a>(
+    index_map: &IndexMap<String, DataType>,
+    context: &'a Context,
+) -> Result<StructType<'a>, String> {
+    let mut all_field: Vec<BasicTypeEnum> = vec![];
+
+    for (_, data_type) in index_map {
+        match data_type {
+            DataType::Boolean => all_field.push(context.i1_type().as_basic_type_enum()),
+            DataType::Float => all_field.push(context.f64_type().as_basic_type_enum()),
+
+            _ => {
+                return Err(format!(
+                    "It is not supported to create a struct field with this data_type {:?}",
+                    data_type
+                ))
+            }
+        }
+    }
+
+    return Ok(context.struct_type(&all_field, true));
 }

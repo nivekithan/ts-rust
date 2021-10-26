@@ -112,7 +112,24 @@ pub(crate) fn consume_variable_declaration<'a>(
             }
         }
 
-        _ => todo!(),
+        DataType::ObjectType { entries: _ } => {
+            let value = build_expression(
+                exp,
+                context,
+                builder,
+                function_value,
+                symbol_table,
+                Some(ident_name.to_string()),
+            );
+
+            if let BasicValueEnum::PointerValue(pointer) = value {
+                pointer
+            } else {
+                panic!("Expected function build_expression for DataType::ObjectType to return BasicValueEnum::PointerValue")
+            }
+        }
+
+        DataType::Unknown => unreachable!(),
     };
 
     symbol_table.insert(ident_name.to_owned(), pointer);

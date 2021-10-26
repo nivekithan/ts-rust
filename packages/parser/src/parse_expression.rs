@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use ast::{data_type::DataType, expression::Expression};
+use indexmap::IndexMap;
 use lexer::token::{KeywordKind, LiteralKind, Token};
 
 use crate::{
@@ -188,7 +189,7 @@ impl<'a> Parser<'a> {
                 self.next(); // consumes {
 
                 let mut expression_entries: HashMap<String, Expression> = HashMap::new();
-                let mut datatype_entries: HashMap<String, DataType> = HashMap::new();
+                let mut datatype_entries: IndexMap<String, DataType> = IndexMap::new();
 
                 while self.get_cur_token()? != &Token::AngleCloseBracket {
                     if let Token::Ident { name } = self.get_cur_token()?.clone() {

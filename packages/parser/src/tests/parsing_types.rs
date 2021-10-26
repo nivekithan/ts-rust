@@ -1,6 +1,5 @@
-use std::{collections::HashMap};
-
 use ast::data_type::DataType;
+use indexmap::IndexMap;
 use lexer::convert_to_token;
 
 use crate::parser::Parser;
@@ -75,7 +74,7 @@ fn test_object_type() {
     let mut parser = Parser::new(&tokens);
     let data_type = parser.parse_type_declaration(1);
 
-    let mut data_type_entries: HashMap<String, DataType> = HashMap::new();
+    let mut data_type_entries: IndexMap<String, DataType> = IndexMap::new();
 
     data_type_entries.insert("a".to_string(), DataType::String);
     data_type_entries.insert("b".to_string(), DataType::Float);

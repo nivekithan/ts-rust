@@ -1,11 +1,14 @@
 mod clock;
 
+use std::collections::{HashMap};
+
 use ast::{
     data_type::DataType,
     declaration::VariableDeclarationKind,
     expression::{BinaryOperator, Expression, UnaryOperator},
     Ast,
 };
+use indexmap::indexmap;
 
 use self::clock::Clock;
 
@@ -93,6 +96,7 @@ impl ExpressionTest {
             generate_binary_less_than_or_equal,
             generate_binary_greater_than,
             generate_binary_greater_than_or_equal,
+            generate_object_literal,
         ];
 
         let every_1_arg_gen = [
@@ -677,5 +681,40 @@ fn generate_array_float_ident(var_name: &str) -> TExp {
         exp_str,
         ast_str,
         asts,
+    };
+}
+
+fn generate_object_literal() -> TExp {
+    let exp_str = "{a : 1, b : true}".to_string();
+
+    let mut exp_hash_map: HashMap<String, Expression> = HashMap::new();
+
+    exp_hash_map.insert(
+        "a".to_string(),
+        Expression::FloatLiteralExp {
+            name: "1".to_string(),
+            value: 1.0,
+        },
+    );
+    exp_hash_map.insert(
+        "b".to_string(),
+        Expression::BooleanLiteralExp {
+            name: "true".to_string(),
+            value: true,
+        },
+    );
+
+    let exp = Expression::ObjectLiteral {
+        data_type: DataType::ObjectType {
+            entries: indexmap! {"a".to_string() => DataType::Float, "b".to_string() => DataType::Boolean},
+        },
+        expression: exp_hash_map,
+    };
+
+    return TExp {
+        exp,
+        exp_str,
+        ast_str: "\n".to_string(),
+        asts: vec![],
     };
 }
