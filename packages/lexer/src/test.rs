@@ -143,7 +143,8 @@ fn test_keyword() {
     break
     continue
     
-    function";
+    function
+    return";
 
     let expected_output: Vec<Token> = vec![
         Keyword(KeywordKind::Const),
@@ -157,6 +158,7 @@ fn test_keyword() {
         Keyword(KeywordKind::Break),
         Keyword(KeywordKind::Continue),
         Keyword(KeywordKind::Function),
+        Keyword(KeywordKind::Return),
         Eof,
     ];
 

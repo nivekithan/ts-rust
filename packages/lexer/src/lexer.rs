@@ -375,6 +375,8 @@ fn is_keyword(word: &String) -> IsKeyword {
         return IsKeyword::Yes(KeywordKind::Continue);
     } else if word == "function" {
         return IsKeyword::Yes(KeywordKind::Function);
+    } else if word == "return" {
+        return IsKeyword::Yes(KeywordKind::Return);
     } else {
         return IsKeyword::No;
     }
