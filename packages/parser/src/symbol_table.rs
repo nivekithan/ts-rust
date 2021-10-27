@@ -22,20 +22,43 @@ impl SymbolMetaInsert {
         };
     }
 }
+#[derive(Debug, Clone, PartialEq)]
+pub struct FunctionSymbol {
+    return_type: DataType,
+}
+
+impl FunctionSymbol {
+    pub fn new(return_type: DataType) -> Self {
+        return Self { return_type };
+    }
+}
 
 pub struct SymbolContext<'a> {
     symbols: HashMap<String, SymbolMetaInsert>,
     parent: Option<Box<&'a SymbolContext<'a>>>,
+    function_symbol: Option<FunctionSymbol>,
 
     pub suffix: String,
     pub counter: usize,
 }
 
 impl<'a> SymbolContext<'a> {
-    pub fn new_empty_context() -> Self {
+    pub fn create_global_context() -> Self {
         return SymbolContext {
             symbols: HashMap::new(),
             parent: None,
+            function_symbol: None,
+
+            suffix: String::from("_"),
+            counter: 0,
+        };
+    }
+
+    pub fn create_function_context(function_symbol: FunctionSymbol) -> Self {
+        return SymbolContext {
+            symbols: HashMap::new(),
+            parent: None,
+            function_symbol: Some(function_symbol),
 
             suffix: String::from("_"),
             counter: 0,
@@ -77,6 +100,7 @@ impl<'a> SymbolContext<'a> {
         let new_context = SymbolContext {
             symbols: HashMap::new(),
             parent: Some(Box::new(self)),
+            function_symbol: self.function_symbol.clone(),
             suffix,
             counter: 0,
         };
@@ -88,10 +112,10 @@ impl<'a> SymbolContext<'a> {
         return context_available.suffix.clone();
     }
 
-    pub fn _is_parent_none(&self) -> bool {
-        match self.parent {
-            Some(_) => false,
-            None => true,
+    pub fn get_return_type(&self) -> Option<&DataType> {
+        match &self.function_symbol {
+            None => None,
+            Some(sym) => return Some(&sym.return_type),
         }
     }
 

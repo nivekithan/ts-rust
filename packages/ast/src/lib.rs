@@ -130,6 +130,10 @@ impl Ast {
             return_type,
         });
     }
+
+    pub fn new_return_statement(exp: Expression) -> Ast {
+        return Ast::Declaration(Declaration::ReturnStatement { return_exp: exp });
+    }
 }
 
 impl Ast {

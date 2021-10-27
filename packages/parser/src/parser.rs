@@ -10,7 +10,7 @@ use ast::{
 use indexmap::IndexMap;
 use lexer::token::{KeywordKind, Token};
 
-use crate::symbol_table::{SymbolContext, SymbolMetaInsert};
+use crate::symbol_table::{FunctionSymbol, SymbolContext, SymbolMetaInsert};
 
 pub struct Parser<'a> {
     pub(crate) content: &'a Vec<Token>,
@@ -78,6 +78,31 @@ impl<'a> Parser<'a> {
 
                 KeywordKind::Function => {
                     return self.parse_function_declaration(context);
+                }
+
+                KeywordKind::Return => {
+                    self.next(); // consumes return
+                    let return_exp = self.parse_expression(1, context)?;
+                    let expected_data_type = {
+                        let return_type = context.get_return_type();
+                        match return_type {
+                            None => {
+                                return Err(format!(
+                                    "Cannot use return keyword outside of function declaration"
+                                ))
+                            }
+                            Some(d) => d,
+                        }
+                    };
+
+                    let actual_data_type = &return_exp.get_data_type();
+
+                    if expected_data_type != actual_data_type {
+                        return Err(format!("Expected the return_type declared in function declaration does not match the data_type of expression which the function is returning"));
+                    }
+
+                    self.skip_semicolon()?;
+                    return Ok(Ast::new_return_statement(return_exp));
                 }
 
                 _ => {
@@ -497,7 +522,11 @@ impl<'a> Parser<'a> {
 
             self.assert_cur_token(&Token::AngleOpenBracket)?;
 
-            let block = self.parse_block_with_context(&mut SymbolContext::new_empty_context())?;
+            let block =
+                self.parse_block_with_context(&mut SymbolContext::create_function_context(
+                    FunctionSymbol::new(return_type.clone()),
+                ))?;
+
             context.insert(
                 name.as_str(),
                 SymbolMetaInsert::create(

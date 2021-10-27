@@ -15,7 +15,7 @@ use lexer::token::Token;
 pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
     let mut parser = Parser::new(&input);
     let mut asts: Vec<Ast> = vec![];
-    let mut context = SymbolContext::new_empty_context();
+    let mut context = SymbolContext::create_global_context();
 
     while parser.get_cur_token().unwrap() != &Token::Eof {
         let next_ast = parser.next_ast(&mut context);
@@ -107,6 +107,30 @@ mod test {
                     value: 1.0,
                 },
                 VariableDeclarationKind::Const,
+            )]),
+            "foo_".to_string(),
+            DataType::Float,
+        )];
+
+        let actual_output = convert_to_ast(convert_to_token(input));
+
+        assert_eq!(expected_output, actual_output);
+    }
+
+    #[test]
+    fn test_4() {
+        let input = "
+        function foo(x : number) : number {
+           return 1;
+        }";
+
+        let expected_output = vec![Ast::new_function_declaration(
+            indexmap! {"x".to_string() => DataType::Float},
+            Box::new(vec![Ast::new_return_statement(
+                Expression::FloatLiteralExp {
+                    name: "1".to_string(),
+                    value: 1.0,
+                },
             )]),
             "foo_".to_string(),
             DataType::Float,

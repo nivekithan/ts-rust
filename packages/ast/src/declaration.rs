@@ -56,6 +56,10 @@ pub enum Declaration {
     LoopControlFlow {
         keyword: KeywordKind,
     },
+
+    ReturnStatement {
+        return_exp: Expression,
+    },
 }
 
 #[derive(Debug, PartialEq, Clone)]
