@@ -96,19 +96,35 @@ mod test {
         let input = "
         function foo(x : number) : number {
            return 1;
-        }";
+        }
+        
+        const y = foo(4);";
 
-        let expected_output = vec![Ast::new_function_declaration(
-            indexmap! {"x_".to_string() => DataType::Float},
-            Box::new(vec![Ast::new_return_statement(
-                Expression::FloatLiteralExp {
-                    name: "1".to_string(),
-                    value: 1.0,
+        let expected_output = vec![
+            Ast::new_function_declaration(
+                indexmap! {"x_".to_string() => DataType::Float},
+                Box::new(vec![Ast::new_return_statement(
+                    Expression::FloatLiteralExp {
+                        name: "1".to_string(),
+                        value: 1.0,
+                    },
+                )]),
+                "foo_".to_string(),
+                DataType::Float,
+            ),
+            Ast::new_variable_declaration(
+                "y_",
+                Expression::FunctionCall {
+                    fn_name: "foo_".to_string(),
+                    parameters: vec![Expression::FloatLiteralExp {
+                        name: "4".to_string(),
+                        value: 4.0,
+                    }],
+                    return_type: DataType::Float,
                 },
-            )]),
-            "foo_".to_string(),
-            DataType::Float,
-        )];
+                VariableDeclarationKind::Const,
+            ),
+        ];
 
         let actual_output = convert_to_ast(convert_to_token(input));
 

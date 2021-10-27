@@ -79,11 +79,16 @@ pub enum Expression {
         container: Box<Expression>,
         argument: String,
     },
-    // Function {
-    //     return_type: DataType,
-    //     arguments: Vec<DataType>,
-    //     block: Box<Vec<Ast>>,
-    // },
+
+    FunctionCall {
+        fn_name: String,
+        parameters: Vec<Expression>,
+        return_type: DataType,
+    }, // Function {
+       //     return_type: DataType,
+       //     arguments: Vec<DataType>,
+       //     block: Box<Vec<Ast>>,
+       // }
 }
 
 impl Expression {
@@ -177,16 +182,13 @@ impl Expression {
 
                     _ => panic!("As of now only expression with datatype Datatype::ObjectType is supported for got expression with datatype {:?}", exp_data_type)
                 }
-            } // Expression::Function {
-              //     arguments,
-              //     return_type,
-              //     block: _,
-              // } => {
-              //     return DataType::FunctionType {
-              //         arguments: arguments.clone(),
-              //         return_type: Box::new(return_type.clone()),
-              //     };
-              // }
+            }
+
+            Expression::FunctionCall {
+                parameters: _,
+                fn_name: _,
+                return_type,
+            } => return return_type.clone(),
         }
     }
 }

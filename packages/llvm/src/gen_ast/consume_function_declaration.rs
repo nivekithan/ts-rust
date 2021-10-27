@@ -51,8 +51,8 @@ pub(crate) fn consume_function_declaration<'a>(
 
     /*
      * We have to store parameters in stack so that it can be
-     * manipulated just like any other variables 
-     * 
+     * manipulated just like any other variables
+     *
      * */
     for (i, (name, data_type)) in arguments.iter().enumerate() {
         let llvm_type = data_type.to_basic_type(context);

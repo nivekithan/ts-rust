@@ -335,6 +335,66 @@ impl<'a> Parser<'a> {
                 }
             }
 
+            Token::CurveOpenBracket => {
+                self.next(); // consumes (
+
+                let left_data_type = left.get_data_type();
+
+                if let DataType::FunctionType {
+                    arguments,
+                    return_type,
+                } = left_data_type
+                {
+                    let mut function_parameters: Vec<Expression> = vec![];
+                    let mut index = 0;
+
+                    while self.get_cur_token()?.clone() != Token::CurveCloseBracket {
+                        let parameter = self.parse_expression(1, context)?;
+                        let argument_index = arguments.get_index(index);
+
+                        match argument_index {
+                            None => return Err(format!("Function only takes only {} arguments but you are passing more than that", index)),
+
+                            Some((_, data_type)) => {
+                                let parameter_data_type = parameter.get_data_type();
+
+                                if parameter_data_type == *data_type {
+                                    function_parameters.push(parameter);
+
+                                    if let Token::Comma = self.get_cur_token()?.clone() {
+                                        self.next(); // consumes ,
+                                    } else {
+                                        self.assert_cur_token(&Token::CurveCloseBracket)?;
+                                    }
+
+                                } else {
+                                    return Err( format!("The datatype for {} argument is {:?} but got {:?}", index, data_type, parameter_data_type ));
+                                }
+                            }
+                        }
+
+                        index += 1;
+                    }
+                    self.next(); // consumes )
+
+                    let fn_name = {
+                        if let Expression::IdentExp { data_type: _, name } = &left {
+                            name.clone()
+                        } else {
+                            return Err(format!("As of now only supported way for calling function is to use name of the function"));
+                        }
+                    };
+
+                    return Ok(Ok(Expression::FunctionCall {
+                        fn_name,
+                        parameters: function_parameters,
+                        return_type: return_type.as_ref().clone(),
+                    }));
+                } else {
+                    return Err(format!("Can only use function call on expressions with datatype DataType::FunctionType not on datatype {:?}", left_data_type));
+                }
+            }
+
             _ => return Ok(Err(left)),
         }
     }
@@ -368,7 +428,7 @@ impl<'a> Parser<'a> {
 
     pub(crate) fn get_non_prefix_precedence(token: &Token) -> usize {
         match token {
-            Token::BoxOpenBracket | Token::Dot => 20,
+            Token::BoxOpenBracket | Token::Dot | Token::CurveOpenBracket => 20,
 
             Token::Star | Token::Slash => return 15,
 

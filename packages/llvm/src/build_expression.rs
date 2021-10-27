@@ -426,13 +426,15 @@ pub(crate) fn build_expression<'a>(
             } else {
                 unreachable!();
             }
-        } // Expression::Function {
-          //     arguments: _,
-          //     block: _,
-          //     return_type: _,
-          // } => {
-          //     unimplemented!();
-          // }
+        }
+
+        Expression::FunctionCall {
+            parameters: _,
+            fn_name: _,
+            return_type: _,
+        } => {
+            unimplemented!();
+        }
     }
 }
 

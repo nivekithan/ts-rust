@@ -17,7 +17,6 @@ fn test_simple_fn_declaration() {
     insta::assert_snapshot!(input, output);
 }
 
-
 #[test]
 fn test_using_parameters() {
     let input = "
