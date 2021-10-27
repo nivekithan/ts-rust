@@ -130,7 +130,7 @@ pub(crate) fn build_expression<'a>(
                 BasicValueEnum::IntValue(value) => {
                     let evaluated_int_value = match operator {
                         UnaryOperator::Bang => {
-                            builder.build_xor(value, context.i64_type().const_int(1, false), name)
+                            builder.build_xor(value, context.i1_type().const_int(1, false), name)
                         }
 
                         _ => todo!(),

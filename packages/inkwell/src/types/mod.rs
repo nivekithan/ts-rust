@@ -38,7 +38,6 @@ impl<'a> Type<'a> {
         param_types: &[BasicTypeEnum<'a>],
         variadic_arg: bool,
     ) -> FunctionType<'a> {
-        assert!(self.is_void_type() || self.is_double_type());
 
         let mut param_types: Vec<LLVMTypeRef> = param_types
             .iter()
@@ -61,7 +60,7 @@ impl<'a> Type<'a> {
         }
     }
 
-    pub(crate) fn is_void_type(&self) -> bool {
+    pub(crate) fn _is_void_type(&self) -> bool {
         unsafe {
             match LLVMGetTypeKind(self.ty) {
                 LLVMTypeKind::LLVMVoidTypeKind => true,
@@ -71,7 +70,7 @@ impl<'a> Type<'a> {
         }
     }
 
-    pub(crate) fn is_double_type(&self) -> bool {
+    pub(crate) fn _is_double_type(&self) -> bool {
         unsafe {
             match LLVMGetTypeKind(self.ty) {
                 LLVMTypeKind::LLVMDoubleTypeKind => true,

@@ -7,6 +7,7 @@ mod build_expression;
 mod codegen;
 mod enums;
 mod gen_ast;
+mod to_basic_type;
 
 #[cfg(test)]
 mod tests;
@@ -24,7 +25,7 @@ pub fn write_llvm_ir(content: Vec<Ast>) -> String {
     let entry = context.append_basic_block(&main_fn, "entry");
     builder.position_at_end(&entry);
 
-    codgen.consume(&context, &builder, &mut main_fn);
+    codgen.consume(&context, &builder, &module, &mut main_fn);
 
     let content = module.print_to_string().to_string();
     return content;
@@ -40,8 +41,11 @@ mod test_1 {
     #[test]
     fn test_some() {
         let input = "
-        const x = {a : 1, b : true }
-        const y = !x.b;";
+        function foo(x : number) : number {
+            const y = 2;
+            const c = 1;
+            const z = y * c + 42 ;
+        }";
 
         let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
 

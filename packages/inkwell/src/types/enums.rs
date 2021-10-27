@@ -3,6 +3,7 @@ use llvm_sys::{core::LLVMGetTypeKind, prelude::LLVMTypeRef, LLVMTypeKind};
 use super::{
     array_type::ArrayType,
     float_type::FloatType,
+    fn_type::FunctionType,
     int_type::IntType,
     ptr_type::PointerType,
     struct_type::StructType,
@@ -10,6 +11,7 @@ use super::{
     void_type::VoidType,
 };
 
+#[derive(Debug, PartialEq, Clone)]
 pub enum BasicTypeEnum<'a> {
     VoidType(VoidType<'a>),
     FloatType(FloatType<'a>),
@@ -32,6 +34,21 @@ impl<'a> BasicTypeEnum<'a> {
             LLVMTypeKind::LLVMStructTypeKind => BasicTypeEnum::StructType(StructType::new(type_)),
 
             _ => unreachable!("unsupported type for BasicType generation"),
+        }
+    }
+
+    pub fn fn_type(
+        &self,
+        param_types: &'a [BasicTypeEnum],
+        variadic_arg: bool,
+    ) -> FunctionType<'a> {
+        match self {
+            BasicTypeEnum::VoidType(type_) => type_.fn_type(param_types, variadic_arg),
+            BasicTypeEnum::IntType(type_) => type_.fn_type(param_types, variadic_arg),
+            BasicTypeEnum::FloatType(type_) => type_.fn_type(param_types, variadic_arg),
+            BasicTypeEnum::PointerType(type_) => type_.fn_type(param_types, variadic_arg),
+
+            _ => panic!("Cannot convert {:?} to fn_type", self),
         }
     }
 }

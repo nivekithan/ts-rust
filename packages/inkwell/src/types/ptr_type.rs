@@ -5,11 +5,14 @@ use llvm_sys::{
 
 use super::{
     array_type::ArrayType,
+    enums::BasicTypeEnum,
+    fn_type::FunctionType,
     struct_type::StructType,
     traits::{AsTypeRef, BasicTypeTrait},
     Type,
 };
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct PointerType<'a> {
     ptr_type: Type<'a>,
 }
@@ -21,6 +24,14 @@ impl<'a> PointerType<'a> {
         return PointerType {
             ptr_type: Type::new(ptr_type),
         };
+    }
+
+    pub fn fn_type(
+        &self,
+        param_types: &'a [BasicTypeEnum],
+        variadic_arg: bool,
+    ) -> FunctionType<'a> {
+        return self.ptr_type.fn_type(param_types, variadic_arg);
     }
 
     pub(crate) unsafe fn into_element_type(&self) -> Type<'a> {

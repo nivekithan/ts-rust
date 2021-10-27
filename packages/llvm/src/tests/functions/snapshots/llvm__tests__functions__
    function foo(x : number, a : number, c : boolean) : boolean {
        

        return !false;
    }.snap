@@ -1,0 +1,18 @@
+---
+source: packages/llvm/src/tests/functions/mod.rs
+expression: output
+
+---
+; ModuleID = 'main'
+source_filename = "main"
+
+define void @main() {
+entry:
+  ret void
+}
+
+define i1 @foo_(double %0, double %1, i1 %2) {
+main:
+  ret i1 true
+}
+

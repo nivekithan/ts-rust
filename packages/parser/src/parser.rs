@@ -521,20 +521,17 @@ impl<'a> Parser<'a> {
             let return_type = self.parse_type_declaration(1)?;
 
             self.assert_cur_token(&Token::AngleOpenBracket)?;
-            
+
             let function_block_context = &mut SymbolContext::create_function_context(
                 FunctionSymbol::new(return_type.clone()),
             );
 
             for (arg_name, arg_data_type) in &arguments {
-                let sym_meta = SymbolMetaInsert::create( arg_data_type.clone(), false);
+                let sym_meta = SymbolMetaInsert::create(arg_data_type.clone(), false);
                 function_block_context.insert(&arg_name, sym_meta)?;
             }
 
-
-            let block =
-                self.parse_block_with_context(function_block_context)?;
-
+            let block = self.parse_block_with_context(function_block_context)?;
 
             context.insert(
                 name.as_str(),

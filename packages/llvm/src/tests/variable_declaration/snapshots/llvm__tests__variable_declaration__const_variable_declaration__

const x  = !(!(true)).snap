@@ -9,7 +9,7 @@ source_filename = "main"
 define void @main() {
 entry:
   %x_ = alloca i1, align 1
-  store i64 1, i1* %x_, align 4
+  store i1 true, i1* %x_, align 1
   ret void
 }
 

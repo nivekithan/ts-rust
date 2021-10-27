@@ -1,5 +1,6 @@
 mod consume_array_member_assignment;
 mod consume_do_while_loop;
+mod consume_function_declaration;
 mod consume_if_block;
 mod consume_variable_assignment;
 mod consume_variable_declaration;
@@ -11,6 +12,7 @@ use inkwell::{
     basic_block::BasicBlock,
     builder::Builder,
     context::Context,
+    module::Module,
     values::{fn_value::FunctionValue, ptr_value::PointerValue},
 };
 use lexer::token::KeywordKind;
@@ -22,6 +24,8 @@ use crate::gen_ast::{
     consume_variable_declaration::consume_variable_declaration,
     consume_while_loop::consume_while_loop,
 };
+
+use self::consume_function_declaration::consume_function_declaration;
 
 pub(crate) fn consume_single_ast<'a>(
     ast: &Ast,
@@ -166,6 +170,39 @@ pub(crate) fn consume_ast_in_loop<'a>(
             }
         } else {
             todo!()
+        }
+    }
+}
+
+pub(crate) fn consume_ast_in_module<'a>(
+    asts: &Vec<Ast>,
+    context: &'a Context,
+    builder: &'a Builder,
+    module: &Module,
+    function_value: &mut FunctionValue,
+    symbol_table: &mut HashMap<String, PointerValue<'a>>,
+) {
+    for cur_ast in asts.iter() {
+        if let Ast::Declaration(dec) = cur_ast {
+            match dec {
+                Declaration::FunctionDeclaration {
+                    arguments,
+                    blocks,
+                    ident_name,
+                    return_type,
+                } => {
+                    consume_function_declaration(
+                        arguments,
+                        blocks,
+                        ident_name,
+                        return_type,
+                        context,
+                        module,
+                    );
+                }
+
+                _ => consume_single_ast(cur_ast, context, builder, function_value, symbol_table),
+            }
         }
     }
 }

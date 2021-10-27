@@ -4,10 +4,11 @@ use ast::Ast;
 use inkwell::{
     builder::Builder,
     context::Context,
+    module::Module,
     values::{fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
-use crate::gen_ast::consume_generic_ast;
+use crate::gen_ast::consume_ast_in_module;
 
 pub struct Codegen<'a> {
     content: &'a Vec<Ast>,
@@ -26,12 +27,14 @@ impl<'a> Codegen<'a> {
         &mut self,
         context: &'a Context,
         builder: &'a Builder,
+        module: &Module,
         function_value: &mut FunctionValue,
     ) {
-        consume_generic_ast(
+        consume_ast_in_module(
             self.content,
             context,
             builder,
+            module,
             function_value,
             &mut self.symbol_table,
         );

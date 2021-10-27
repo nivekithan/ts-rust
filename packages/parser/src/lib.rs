@@ -91,7 +91,6 @@ mod test {
         assert_eq!(expected_output, actual_output);
     }
 
-
     #[test]
     fn test_4() {
         let input = "

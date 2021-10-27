@@ -39,6 +39,10 @@ impl<'a> FunctionValue<'a> {
 
         return block_name;
     }
+
+    pub fn set_reg_counter(&mut self, new_num : usize ) {
+        self.reg_counter = new_num;
+    }
 }
 
 impl<'a> AsValueRef for FunctionValue<'a> {

@@ -20,7 +20,7 @@ impl<'a> Module<'a> {
     pub(crate) unsafe fn new(module: LLVMModuleRef) -> Self {
         debug_assert!(
             !module.is_null(),
-            "Contaning Struct should haved checked for null pointer"
+            "Containing Struct should have checked for null pointer"
         );
 
         return Module {
