@@ -7,7 +7,7 @@ mod build_expression;
 mod codegen;
 mod enums;
 mod gen_ast;
-mod to_basic_type;
+mod llvm_utils;
 
 #[cfg(test)]
 mod tests;

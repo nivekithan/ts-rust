@@ -1,6 +1,9 @@
-use llvm_sys::{core::LLVMIsAFunction, prelude::LLVMValueRef};
+use llvm_sys::{
+    core::{LLVMCountParams, LLVMGetParam, LLVMIsAFunction},
+    prelude::LLVMValueRef,
+};
 
-use super::{traits::AsValueRef, Value};
+use super::{enums::BasicValueEnum, traits::AsValueRef, Value};
 
 #[derive(PartialEq, Eq, Clone, Copy, Hash)]
 
@@ -40,8 +43,26 @@ impl<'a> FunctionValue<'a> {
         return block_name;
     }
 
-    pub fn set_reg_counter(&mut self, new_num : usize ) {
+    pub fn set_reg_counter(&mut self, new_num: usize) {
         self.reg_counter = new_num;
+    }
+
+    pub fn count_params(&self) -> u32 {
+        unsafe {
+            return LLVMCountParams(self.as_value_ref());
+        }
+    }
+
+    pub fn get_nth_param(&self, nth: u32) -> Option<BasicValueEnum<'a>> {
+        let count = self.count_params();
+
+        if nth + 1 > count {
+            return None;
+        }
+
+        unsafe {
+            return Some(BasicValueEnum::new(LLVMGetParam(self.as_value_ref(), nth)));
+        }
     }
 }
 

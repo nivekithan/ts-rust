@@ -38,7 +38,6 @@ impl<'a> Type<'a> {
         param_types: &[BasicTypeEnum<'a>],
         variadic_arg: bool,
     ) -> FunctionType<'a> {
-
         let mut param_types: Vec<LLVMTypeRef> = param_types
             .iter()
             .map(|bt| return bt.as_type_ref())

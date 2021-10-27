@@ -492,7 +492,7 @@ impl<'a> Parser<'a> {
                     self.next(); // consumes :
 
                     let data_type = self.parse_type_declaration(1)?;
-
+                    let name = format!("{}{}", name, context.suffix);
                     if arguments.contains_key(&name) {
                         return Err(format!("In function declaration each argument must have different names but name : {} is repeated", &name));
                     } else {
@@ -527,8 +527,20 @@ impl<'a> Parser<'a> {
             );
 
             for (arg_name, arg_data_type) in &arguments {
+
+                /*
+                 * In arguments the arg_name are with the suffix but to insert into 
+                 * function_block_context the name should not have suffix as it will be
+                 * added by the context itself 
+                 * 
+                 * So we have to remove the suffix
+                 * */
+
+                let arg_name_cloned = arg_name.clone();
+                let arg_name_without_suffix = arg_name_cloned.strip_suffix(&context.suffix).unwrap();
+
                 let sym_meta = SymbolMetaInsert::create(arg_data_type.clone(), false);
-                function_block_context.insert(&arg_name, sym_meta)?;
+                function_block_context.insert(arg_name_without_suffix, sym_meta)?;
             }
 
             let block = self.parse_block_with_context(function_block_context)?;
