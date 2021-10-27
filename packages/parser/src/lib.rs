@@ -91,31 +91,6 @@ mod test {
         assert_eq!(expected_output, actual_output);
     }
 
-    #[test]
-    fn test_3() {
-        let input = "
-        function foo(x : number) : number {
-            const x = 1;
-        }";
-
-        let expected_output = vec![Ast::new_function_declaration(
-            indexmap! {"x".to_string() => DataType::Float},
-            Box::new(vec![Ast::new_variable_declaration(
-                "x_",
-                Expression::FloatLiteralExp {
-                    name: "1".to_string(),
-                    value: 1.0,
-                },
-                VariableDeclarationKind::Const,
-            )]),
-            "foo_".to_string(),
-            DataType::Float,
-        )];
-
-        let actual_output = convert_to_ast(convert_to_token(input));
-
-        assert_eq!(expected_output, actual_output);
-    }
 
     #[test]
     fn test_4() {
