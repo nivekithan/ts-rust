@@ -29,6 +29,17 @@ impl<'a> BasicValueEnum<'a> {
             _ => panic!("unsupported value kind for generation of BasicValue"),
         }
     }
+
+    pub(crate) fn is_basic_value_enum(value_ref: LLVMValueRef) -> bool {
+        unsafe {
+            return match LLVMGetTypeKind(LLVMTypeOf(value_ref)) {
+                LLVMTypeKind::LLVMDoubleTypeKind
+                | LLVMTypeKind::LLVMPointerTypeKind
+                | LLVMTypeKind::LLVMIntegerTypeKind => true,
+                _ => false,
+            };
+        }
+    }
 }
 
 impl<'a> AsValueRef for BasicValueEnum<'a> {

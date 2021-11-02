@@ -1,6 +1,6 @@
-use llvm_sys::prelude::LLVMTypeRef;
+use llvm_sys::{core::LLVMGetReturnType, prelude::LLVMTypeRef};
 
-use super::{traits::AsTypeRef, Type};
+use super::{enums::BasicTypeEnum, traits::AsTypeRef, Type};
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub struct FunctionType<'a> {
@@ -14,6 +14,13 @@ impl<'a> FunctionType<'a> {
         return FunctionType {
             fn_type: Type::new(fn_type),
         };
+    }
+
+    pub fn get_return_type(&self) -> BasicTypeEnum<'a> {
+        unsafe {
+            let return_type = LLVMGetReturnType(self.as_type_ref());
+            return BasicTypeEnum::new(return_type);
+        }
     }
 }
 

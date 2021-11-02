@@ -4,8 +4,8 @@ use llvm_sys::{
     core::{
         LLVMBuildAlloca, LLVMBuildBr, LLVMBuildCondBr, LLVMBuildFAdd, LLVMBuildFCmp, LLVMBuildFDiv,
         LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFPToSI, LLVMBuildFSub, LLVMBuildGEP2, LLVMBuildICmp,
-        LLVMBuildLoad2, LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore, LLVMBuildXor,
-        LLVMDisposeBuilder, LLVMPositionBuilderAtEnd,
+        LLVMBuildInvoke2, LLVMBuildLoad2, LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore,
+        LLVMBuildXor, LLVMDisposeBuilder, LLVMPositionBuilderAtEnd,
     },
     prelude::{LLVMBuilderRef, LLVMValueRef},
 };
@@ -22,6 +22,7 @@ use crate::{
     values::{
         enums::BasicValueEnum,
         float_value::FloatValue,
+        fn_value::FunctionValue,
         instruction_value::InstructionValue,
         int_value::IntValue,
         ptr_value::PointerValue,
@@ -282,6 +283,39 @@ impl<'a> Builder<'a> {
                 c_string.as_ptr(),
             );
             return IntValue::new(value);
+        }
+    }
+
+    pub fn build_invoke_2(
+        &self,
+        fn_value: &'a FunctionValue<'a>,
+        args: &[BasicValueEnum<'a>],
+        then_block: &BasicBlock<'a>,
+        catch_block: &BasicBlock<'a>,
+        mut name: &str,
+    ) -> InstructionValue<'a> {
+        unsafe {
+            let return_type = fn_value.get_type().get_return_type();
+
+            if let BasicTypeEnum::VoidType(_) = &return_type {
+                name = ""
+            };
+
+            let c_name = to_c_str(name);
+            let mut args: Vec<LLVMValueRef> = args.iter().map(|v| v.as_value_ref()).collect();
+
+            let value = LLVMBuildInvoke2(
+                self.builder,
+                return_type.as_type_ref(),
+                fn_value.as_value_ref(),
+                args.as_mut_ptr(),
+                args.len() as u32,
+                then_block.basic_block,
+                catch_block.basic_block,
+                c_name.as_ptr(),
+            );
+
+            return InstructionValue::new(value);
         }
     }
 }

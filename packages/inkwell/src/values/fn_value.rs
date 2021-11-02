@@ -3,6 +3,8 @@ use llvm_sys::{
     prelude::LLVMValueRef,
 };
 
+use crate::types::fn_type::FunctionType;
+
 use super::{enums::BasicValueEnum, traits::AsValueRef, Value};
 
 #[derive(PartialEq, Eq, Clone, Copy, Hash)]
@@ -62,6 +64,12 @@ impl<'a> FunctionValue<'a> {
 
         unsafe {
             return Some(BasicValueEnum::new(LLVMGetParam(self.as_value_ref(), nth)));
+        }
+    }
+
+    pub fn get_type(&self) -> FunctionType<'a> {
+        unsafe {
+            return FunctionType::new(self.fn_value.get_type());
         }
     }
 }
