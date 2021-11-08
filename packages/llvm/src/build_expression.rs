@@ -9,6 +9,7 @@ use inkwell::{
     builder::Builder,
     context::Context,
     enums::{IntCompareOperator, RealCompareOperator},
+    module::Module,
     types::{
         array_type::ArrayType, enums::BasicTypeEnum, struct_type::StructType,
         traits::BasicTypeTrait,
@@ -16,12 +17,15 @@ use inkwell::{
     values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
+use crate::{utils::get_personality_fn};
+
 pub(crate) fn build_expression<'a>(
     expression: &Expression,
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
     symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    module: &'a Module,
     name: Option<String>,
 ) -> BasicValueEnum<'a> {
     let name = match name {
@@ -112,6 +116,7 @@ pub(crate) fn build_expression<'a>(
                 builder,
                 function_value,
                 symbol_table,
+                module,
                 None,
             );
 
@@ -154,6 +159,7 @@ pub(crate) fn build_expression<'a>(
                 builder,
                 function_value,
                 symbol_table,
+                module,
                 None,
             );
             let right_value = build_expression(
@@ -162,6 +168,7 @@ pub(crate) fn build_expression<'a>(
                 builder,
                 function_value,
                 symbol_table,
+                module,
                 None,
             );
 
@@ -275,8 +282,15 @@ pub(crate) fn build_expression<'a>(
             let base_pointer = builder.build_alloca(array_type, name);
 
             for (i, exp) in expression.iter().enumerate() {
-                let value =
-                    build_expression(exp, context, builder, function_value, symbol_table, None);
+                let value = build_expression(
+                    exp,
+                    context,
+                    builder,
+                    function_value,
+                    symbol_table,
+                    module,
+                    None,
+                );
 
                 let indices = vec![
                     context.i64_type().const_int(0, true),
@@ -303,6 +317,7 @@ pub(crate) fn build_expression<'a>(
                 builder,
                 function_value,
                 symbol_table,
+                module,
                 None,
             );
 
@@ -313,6 +328,7 @@ pub(crate) fn build_expression<'a>(
                     builder,
                     function_value,
                     symbol_table,
+                    module,
                     None,
                 );
 
@@ -360,6 +376,7 @@ pub(crate) fn build_expression<'a>(
                         builder,
                         function_value,
                         symbol_table,
+                        module,
                         None,
                     );
 
@@ -394,6 +411,7 @@ pub(crate) fn build_expression<'a>(
                 builder,
                 function_value,
                 symbol_table,
+                module,
                 None,
             );
 
@@ -429,11 +447,64 @@ pub(crate) fn build_expression<'a>(
         }
 
         Expression::FunctionCall {
-            parameters: _,
-            fn_name: _,
+            parameters,
+            fn_name,
             return_type: _,
         } => {
-            unimplemented!();
+            let then_block_name = function_value.get_unique_block_name();
+            let then_block = context.append_basic_block(function_value, &then_block_name);
+
+            let catch_block_name = function_value.get_unique_block_name();
+            let catch_block = {
+                let catch_block = context.append_basic_block(function_value, &catch_block_name);
+                let personality_fn = get_personality_fn(module);
+
+                function_value.set_personality_fn(&personality_fn);
+
+                let catch_builder = context.create_builder();
+
+                catch_builder.position_at_end(&catch_block);
+                catch_builder.build_landing_pad(
+                    &context.i64_type().as_basic_type_enum(),
+                    &personality_fn,
+                    &vec![],
+                    true,
+                    &function_value.get_unique_reg_name(),
+                );
+                catch_block
+            };
+            let calling_fn_value = module.get_fn_value(&fn_name);
+
+            let args: Vec<BasicValueEnum> = parameters
+                .iter()
+                .map(|exp| {
+                    let value = build_expression(
+                        exp,
+                        context,
+                        builder,
+                        function_value,
+                        symbol_table,
+                        module,
+                        None,
+                    );
+                    return value;
+                })
+                .collect();
+
+
+            let value = builder.build_invoke_2(
+                &calling_fn_value,
+                &args,
+                &then_block,
+                &catch_block,
+                name,
+            );
+
+            builder.position_at_end(&then_block);
+
+            // let basic_value = value.try_as_basic_value().unwrap();
+
+            return value;
         }
     }
 }

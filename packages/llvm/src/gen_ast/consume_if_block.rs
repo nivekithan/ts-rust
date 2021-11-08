@@ -5,6 +5,7 @@ use inkwell::{
     basic_block::BasicBlock,
     builder::Builder,
     context::Context,
+    module::Module,
     values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
@@ -23,6 +24,7 @@ pub(crate) fn consume_if_block<'a>(
     builder: &'a Builder,
     function_value: &mut FunctionValue,
     symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    module: &'a Module,
 ) {
     let if_block_condition = build_expression(
         &if_block.condition,
@@ -30,6 +32,7 @@ pub(crate) fn consume_if_block<'a>(
         builder,
         function_value,
         symbol_table,
+        module,
         None,
     );
 
@@ -93,6 +96,7 @@ pub(crate) fn consume_if_block<'a>(
                     builder,
                     function_value,
                     symbol_table,
+                    module,
                 );
 
                 builder.build_unconditional_branch(&exit_block_bb);
@@ -111,6 +115,7 @@ pub(crate) fn consume_if_block<'a>(
                             builder,
                             function_value,
                             symbol_table,
+                            module,
                         );
 
                         builder.build_unconditional_branch(&exit_block_bb);
@@ -123,6 +128,7 @@ pub(crate) fn consume_if_block<'a>(
                             builder,
                             function_value,
                             symbol_table,
+                            module,
                         );
 
                         builder.build_unconditional_branch(&exit_block_bb);
@@ -164,6 +170,7 @@ pub(crate) fn consume_if_block<'a>(
                     builder,
                     function_value,
                     symbol_table,
+                    module,
                 );
                 builder.build_unconditional_branch(&exit_block_bb);
                 builder.position_at_end(condition_checker_block_bb);
@@ -175,6 +182,7 @@ pub(crate) fn consume_if_block<'a>(
                         builder,
                         function_value,
                         symbol_table,
+                        module,
                         None,
                     );
 
@@ -196,6 +204,7 @@ pub(crate) fn consume_if_block<'a>(
                                     builder,
                                     function_value,
                                     symbol_table,
+                                    module,
                                 );
                                 builder.build_unconditional_branch(&exit_block_bb);
                                 builder.position_at_end(&exit_block_bb);
@@ -216,6 +225,7 @@ pub(crate) fn consume_if_block<'a>(
                                     builder,
                                     function_value,
                                     symbol_table,
+                                    module,
                                 );
                                 builder.build_unconditional_branch(&exit_block_bb);
                                 builder.position_at_end(next_condition_checker_block_bb);
@@ -234,6 +244,7 @@ pub(crate) fn consume_if_block<'a>(
                                     builder,
                                     function_value,
                                     symbol_table,
+                                    module,
                                 );
                                 builder.build_unconditional_branch(&exit_block_bb);
                                 builder.position_at_end(else_block_bb);
@@ -250,6 +261,7 @@ pub(crate) fn consume_if_block<'a>(
                             builder,
                             function_value,
                             symbol_table,
+                            module,
                         );
                         builder.build_unconditional_branch(&exit_block_bb);
                         builder.position_at_end(&exit_block_bb);

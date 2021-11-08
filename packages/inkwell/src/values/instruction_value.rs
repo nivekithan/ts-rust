@@ -1,6 +1,4 @@
-use llvm_sys::{
-    prelude::{LLVMValueRef},
-};
+use llvm_sys::prelude::LLVMValueRef;
 
 use super::{enums::BasicValueEnum, traits::AsValueRef, Value};
 
@@ -17,7 +15,6 @@ impl<'a> InstructionValue<'a> {
             instruction_value: Value::new(instruction_value),
         };
     }
-
 
     pub fn try_as_basic_value(&self) -> Result<BasicValueEnum<'a>, String> {
         unsafe {

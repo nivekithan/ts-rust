@@ -2,10 +2,11 @@ use std::marker::PhantomData;
 
 use llvm_sys::{
     core::{
-        LLVMBuildAlloca, LLVMBuildBr, LLVMBuildCondBr, LLVMBuildFAdd, LLVMBuildFCmp, LLVMBuildFDiv,
-        LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFPToSI, LLVMBuildFSub, LLVMBuildGEP2, LLVMBuildICmp,
-        LLVMBuildInvoke2, LLVMBuildLoad2, LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore,
-        LLVMBuildXor, LLVMDisposeBuilder, LLVMPositionBuilderAtEnd,
+        LLVMAddClause, LLVMBuildAlloca, LLVMBuildBr, LLVMBuildCondBr, LLVMBuildFAdd, LLVMBuildFCmp,
+        LLVMBuildFDiv, LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFPToSI, LLVMBuildFSub, LLVMBuildGEP2,
+        LLVMBuildICmp, LLVMBuildInvoke2, LLVMBuildLandingPad, LLVMBuildLoad2, LLVMBuildRet,
+        LLVMBuildRetVoid, LLVMBuildStore, LLVMBuildXor, LLVMDisposeBuilder,
+        LLVMPositionBuilderAtEnd, LLVMSetCleanup,
     },
     prelude::{LLVMBuilderRef, LLVMValueRef},
 };
@@ -288,15 +289,15 @@ impl<'a> Builder<'a> {
 
     pub fn build_invoke_2(
         &self,
-        fn_value: &'a FunctionValue<'a>,
+        fn_value: &FunctionValue<'a>,
         args: &[BasicValueEnum<'a>],
         then_block: &BasicBlock<'a>,
         catch_block: &BasicBlock<'a>,
         mut name: &str,
-    ) -> InstructionValue<'a> {
+    ) -> BasicValueEnum<'a> {
         unsafe {
-            let return_type = fn_value.get_type().get_return_type();
-
+            let fn_type = fn_value.get_type();
+            let return_type = fn_type.get_return_type();
             if let BasicTypeEnum::VoidType(_) = &return_type {
                 name = ""
             };
@@ -306,7 +307,7 @@ impl<'a> Builder<'a> {
 
             let value = LLVMBuildInvoke2(
                 self.builder,
-                return_type.as_type_ref(),
+                fn_type.as_type_ref(),
                 fn_value.as_value_ref(),
                 args.as_mut_ptr(),
                 args.len() as u32,
@@ -315,7 +316,43 @@ impl<'a> Builder<'a> {
                 c_name.as_ptr(),
             );
 
-            return InstructionValue::new(value);
+            return BasicValueEnum::new(value);
+        }
+    }
+
+    /*
+     * TODO:
+     * Learn more about personality functions
+     *
+     * */
+
+    pub fn build_landing_pad(
+        &self,
+        exception_type: &BasicTypeEnum<'a>,
+        personality_fn: &FunctionValue<'a>,
+        clauses: &[BasicValueEnum<'a>],
+        is_cleanup: bool,
+        name: &str,
+    ) -> BasicValueEnum {
+        unsafe {
+            let c_string = to_c_str(name);
+            let num_clauses = clauses.len() as u32;
+
+            let value = LLVMBuildLandingPad(
+                self.builder,
+                exception_type.as_type_ref(),
+                personality_fn.as_value_ref(),
+                num_clauses,
+                c_string.as_ptr(),
+            );
+
+            for clause in clauses {
+                LLVMAddClause(value, clause.as_value_ref());
+            }
+
+            LLVMSetCleanup(value, is_cleanup as i32);
+
+            return BasicValueEnum::new(value);
         }
     }
 }

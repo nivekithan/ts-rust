@@ -43,3 +43,8 @@ Block_5:                                          ; preds = %Block_4, %Block_3, 
   ret void
 }
 
+define void @__typescript__personality() {
+entry:
+  ret void
+}
+

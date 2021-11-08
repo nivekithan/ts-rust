@@ -35,3 +35,7 @@ impl RealCompareOperator {
         }
     }
 }
+
+pub enum Linkage {
+    External,
+}

@@ -1,0 +1,37 @@
+---
+source: packages/llvm/src/tests/functions/mod.rs
+expression: output
+
+---
+; ModuleID = 'main'
+source_filename = "main"
+
+define void @main() personality void ()* @__typescript__personality {
+entry:
+  %y_ = alloca double, align 8
+  %"0" = invoke double @foo_(double 5.000000e+00)
+          to label %Block_0 unwind label %Block_1
+
+Block_0:                                          ; preds = %entry
+  store double %"0", double* %y_, align 8
+  ret void
+
+Block_1:                                          ; preds = %entry
+  %"1" = landingpad i64
+          cleanup
+}
+
+define void @__typescript__personality() {
+entry:
+  ret void
+}
+
+define double @foo_(double %0) {
+main:
+  %x_ = alloca double, align 8
+  store double %0, double* %x_, align 8
+  %"2" = load double, double* %x_, align 8
+  %"1" = fadd double %"2", 1.000000e+00
+  ret double %"1"
+}
+

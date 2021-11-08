@@ -20,3 +20,8 @@ entry:
   ret void
 }
 
+define void @__typescript__personality() {
+entry:
+  ret void
+}
+

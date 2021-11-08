@@ -23,13 +23,26 @@ use crate::{
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Context {
     pub(crate) context: LLVMContextRef,
+    drop: bool,
 }
 
 impl Context {
     pub(crate) unsafe fn new(context: LLVMContextRef) -> Self {
         assert!(!context.is_null());
 
-        return Context { context };
+        return Context {
+            context,
+            drop: true,
+        };
+    }
+
+    pub(crate) unsafe fn new_without_drop(context: LLVMContextRef) -> Self {
+        assert!(!context.is_null());
+
+        return Context {
+            context,
+            drop: false,
+        };
     }
 
     pub fn create() -> Self {
@@ -114,8 +127,10 @@ impl Context {
 
 impl Drop for Context {
     fn drop(&mut self) {
-        unsafe {
-            LLVMContextDispose(self.context);
+        if self.drop {
+            unsafe {
+                LLVMContextDispose(self.context);
+            }
         }
     }
 }

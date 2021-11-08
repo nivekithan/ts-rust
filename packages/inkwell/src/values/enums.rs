@@ -26,7 +26,10 @@ impl<'a> BasicValueEnum<'a> {
             }
             LLVMTypeKind::LLVMIntegerTypeKind => BasicValueEnum::IntValue(IntValue::new(value)),
 
-            _ => panic!("unsupported value kind for generation of BasicValue"),
+            kind => panic!(
+                "unsupported value kind for generation of BasicValue {:?}",
+                kind
+            ),
         }
     }
 
@@ -36,7 +39,10 @@ impl<'a> BasicValueEnum<'a> {
                 LLVMTypeKind::LLVMDoubleTypeKind
                 | LLVMTypeKind::LLVMPointerTypeKind
                 | LLVMTypeKind::LLVMIntegerTypeKind => true,
-                _ => false,
+                ty => {
+                    println!("{:?}", ty);
+                    return false;
+                }
             };
         }
     }

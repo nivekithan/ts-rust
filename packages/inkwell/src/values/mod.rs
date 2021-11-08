@@ -1,9 +1,11 @@
 use std::marker::PhantomData;
 
 use llvm_sys::{
-    core::LLVMTypeOf,
+    core::{LLVMPrintValueToString, LLVMTypeOf},
     prelude::{LLVMTypeRef, LLVMValueRef},
 };
+
+use crate::utils::llvm_string::LLVMString;
 
 use self::traits::AsValueRef;
 
@@ -30,6 +32,14 @@ impl<'a> Value<'a> {
             value,
             _marker: PhantomData,
         };
+    }
+
+    pub fn print_value(&self) {
+        unsafe {
+            let value = LLVMPrintValueToString(self.value);
+            let llvm_string = LLVMString::new(value).to_string();
+            println!("{}", llvm_string);
+        }
     }
 
     pub(crate) fn get_type(&self) -> LLVMTypeRef {

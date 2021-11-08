@@ -4,6 +4,7 @@ use ast::{expression::Expression, Ast};
 use inkwell::{
     builder::Builder,
     context::Context,
+    module::Module,
     values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
@@ -18,6 +19,7 @@ pub(crate) fn consume_while_loop<'a>(
     builder: &'a Builder,
     function_value: &mut FunctionValue,
     symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    module: &'a Module,
 ) {
     let condition_checker_block_name = function_value.get_unique_block_name();
     let condition_checker_block_bb =
@@ -38,6 +40,7 @@ pub(crate) fn consume_while_loop<'a>(
         builder,
         function_value,
         symbol_table,
+        module,
         None,
     );
 
@@ -52,6 +55,7 @@ pub(crate) fn consume_while_loop<'a>(
             symbol_table,
             &exit_block_bb,
             &condition_checker_block_bb,
+            module,
         );
         builder.build_unconditional_branch(&condition_checker_block_bb);
         builder.position_at_end(&exit_block_bb);

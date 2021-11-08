@@ -1,9 +1,6 @@
-use llvm_sys::{
-    core::{LLVMCountParams, LLVMGetParam, LLVMIsAFunction},
-    prelude::LLVMValueRef,
-};
+use llvm_sys::{LLVMLinkage, core::{LLVMCountParams, LLVMGetElementType, LLVMGetParam, LLVMIsAFunction, LLVMSetLinkage, LLVMSetPersonalityFn}, prelude::LLVMValueRef};
 
-use crate::types::fn_type::FunctionType;
+use crate::{enums::Linkage, types::fn_type::FunctionType};
 
 use super::{enums::BasicValueEnum, traits::AsValueRef, Value};
 
@@ -69,7 +66,29 @@ impl<'a> FunctionValue<'a> {
 
     pub fn get_type(&self) -> FunctionType<'a> {
         unsafe {
-            return FunctionType::new(self.fn_value.get_type());
+            let pointer_type = self.fn_value.get_type();
+            let fn_type = LLVMGetElementType(pointer_type);
+            return FunctionType::new(fn_type);
+        }
+    }
+
+    pub fn set_linkage(&self, linkage: &Linkage) {
+        unsafe {
+            let llvm_linkage = match linkage {
+                Linkage::External => LLVMLinkage::LLVMExternalLinkage,
+            };
+
+            LLVMSetLinkage(self.as_value_ref(), llvm_linkage);
+        }
+    }
+
+    pub fn print_value(&self) {
+        self.fn_value.print_value();
+    }
+
+    pub fn set_personality_fn(&self, personality_fn: &FunctionValue<'a>) {
+        unsafe {
+            LLVMSetPersonalityFn(self.as_value_ref(), personality_fn.as_value_ref());
         }
     }
 }

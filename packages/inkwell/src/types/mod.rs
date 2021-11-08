@@ -6,6 +6,7 @@ pub mod int_type;
 pub mod ptr_type;
 pub mod struct_type;
 pub mod traits;
+pub mod utils;
 pub mod void_type;
 
 use llvm_sys::{
@@ -14,6 +15,8 @@ use llvm_sys::{
     LLVMTypeKind,
 };
 use std::marker::PhantomData;
+
+
 
 use self::{array_type::ArrayType, enums::BasicTypeEnum, fn_type::FunctionType, traits::AsTypeRef};
 

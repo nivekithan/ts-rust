@@ -27,16 +27,16 @@ impl<'a> Codegen<'a> {
         &mut self,
         context: &'a Context,
         builder: &'a Builder,
-        module: &Module,
+        module: &'a Module,
         function_value: &mut FunctionValue,
     ) {
         consume_ast_in_module(
             self.content,
             context,
             builder,
-            module,
             function_value,
             &mut self.symbol_table,
+            module,
         );
 
         builder.build_return(None);

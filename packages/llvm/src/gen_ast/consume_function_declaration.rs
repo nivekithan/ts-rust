@@ -16,7 +16,7 @@ pub(crate) fn consume_function_declaration<'a>(
     ident_name: &String,
     return_type: &DataType,
     context: &'a Context,
-    module: &Module,
+    module: &'a Module,
 ) {
     let mut number_of_arguments = 0;
     let llvm_return_type = return_type.to_basic_type(context);
@@ -74,6 +74,7 @@ pub(crate) fn consume_function_declaration<'a>(
                         &builder,
                         &mut function_value,
                         &mut symbol_table,
+                        module,
                         None,
                     );
                     builder.build_return(Some(&value));
@@ -85,6 +86,7 @@ pub(crate) fn consume_function_declaration<'a>(
                     &builder,
                     &mut function_value,
                     &mut symbol_table,
+                    module,
                 ),
             }
         }

@@ -4,6 +4,7 @@ use ast::{declaration::VariableAssignmentOperator, expression::Expression};
 use inkwell::{
     builder::Builder,
     context::Context,
+    module::Module,
     values::{fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
@@ -17,9 +18,18 @@ pub(crate) fn consume_variable_assignment<'a>(
     builder: &'a Builder,
     function_value: &mut FunctionValue,
     symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    module: &'a Module,
 ) {
     let var_ptr = symbol_table.get(ident_name).unwrap().clone();
-    let value = build_expression(exp, context, builder, function_value, symbol_table, None);
+    let value = build_expression(
+        exp,
+        context,
+        builder,
+        function_value,
+        symbol_table,
+        module,
+        None,
+    );
 
     build_assignment(
         &var_ptr,

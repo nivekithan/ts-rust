@@ -33,7 +33,7 @@ impl<'a> BasicTypeEnum<'a> {
             LLVMTypeKind::LLVMArrayTypeKind => BasicTypeEnum::ArrayType(ArrayType::new(type_)),
             LLVMTypeKind::LLVMStructTypeKind => BasicTypeEnum::StructType(StructType::new(type_)),
 
-            _ => unreachable!("unsupported type for BasicType generation"),
+            t => unreachable!("unsupported type for BasicType generation : {:?}", t),
         }
     }
 

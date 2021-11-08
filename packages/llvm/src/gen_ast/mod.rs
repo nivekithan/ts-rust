@@ -33,6 +33,7 @@ pub(crate) fn consume_single_ast<'a>(
     builder: &'a Builder,
     function_value: &mut FunctionValue,
     symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    module: &'a Module,
 ) {
     match ast {
         Ast::Declaration(dec) => match dec {
@@ -48,6 +49,7 @@ pub(crate) fn consume_single_ast<'a>(
                     builder,
                     function_value,
                     symbol_table,
+                    module,
                 );
             }
 
@@ -65,6 +67,7 @@ pub(crate) fn consume_single_ast<'a>(
                     builder,
                     function_value,
                     symbol_table,
+                    module,
                 );
             }
 
@@ -81,6 +84,7 @@ pub(crate) fn consume_single_ast<'a>(
                     builder,
                     function_value,
                     symbol_table,
+                    module,
                 );
             }
 
@@ -92,6 +96,7 @@ pub(crate) fn consume_single_ast<'a>(
                     builder,
                     function_value,
                     symbol_table,
+                    module,
                 );
             }
 
@@ -103,6 +108,7 @@ pub(crate) fn consume_single_ast<'a>(
                     builder,
                     function_value,
                     symbol_table,
+                    module,
                 );
             }
 
@@ -121,6 +127,7 @@ pub(crate) fn consume_single_ast<'a>(
                     builder,
                     function_value,
                     symbol_table,
+                    module,
                 );
             }
 
@@ -137,9 +144,17 @@ pub(crate) fn consume_generic_ast<'a>(
     builder: &'a Builder,
     function_value: &mut FunctionValue,
     symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    module: &'a Module,
 ) {
     for cur_ast in asts.iter() {
-        consume_single_ast(cur_ast, context, builder, function_value, symbol_table);
+        consume_single_ast(
+            cur_ast,
+            context,
+            builder,
+            function_value,
+            symbol_table,
+            module,
+        );
     }
 }
 
@@ -151,6 +166,7 @@ pub(crate) fn consume_ast_in_loop<'a>(
     symbol_table: &mut HashMap<String, PointerValue<'a>>,
     exit_block: &BasicBlock,
     continue_block: &BasicBlock,
+    module: &'a Module,
 ) {
     for ast in asts.iter() {
         if let Ast::Declaration(dec) = ast {
@@ -166,7 +182,9 @@ pub(crate) fn consume_ast_in_loop<'a>(
                     _ => panic!("Unexpected keyword {:?}", keyword),
                 },
 
-                _ => consume_single_ast(ast, context, builder, function_value, symbol_table),
+                _ => {
+                    consume_single_ast(ast, context, builder, function_value, symbol_table, module)
+                }
             }
         } else {
             todo!()
@@ -178,9 +196,9 @@ pub(crate) fn consume_ast_in_module<'a>(
     asts: &Vec<Ast>,
     context: &'a Context,
     builder: &'a Builder,
-    module: &Module,
     function_value: &mut FunctionValue,
     symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    module: &'a Module,
 ) {
     for cur_ast in asts.iter() {
         if let Ast::Declaration(dec) = cur_ast {
@@ -201,7 +219,14 @@ pub(crate) fn consume_ast_in_module<'a>(
                     );
                 }
 
-                _ => consume_single_ast(cur_ast, context, builder, function_value, symbol_table),
+                _ => consume_single_ast(
+                    cur_ast,
+                    context,
+                    builder,
+                    function_value,
+                    symbol_table,
+                    module,
+                ),
             }
         }
     }

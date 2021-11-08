@@ -6,6 +6,7 @@ use ast::data_type::DataType;
 use inkwell::{
     builder::Builder,
     context::Context,
+    module::Module,
     types::traits::BasicTypeTrait,
     values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
@@ -19,14 +20,22 @@ pub(crate) fn consume_variable_declaration<'a>(
     builder: &'a Builder,
     function_value: &mut FunctionValue,
     symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    module: &'a Module,
 ) {
     let data_type = exp.get_data_type();
 
     let pointer = match data_type {
         DataType::Float => {
             let pointer = builder.build_alloca(context.f64_type(), ident_name.as_str());
-            let value_of_exp =
-                build_expression(exp, context, builder, function_value, symbol_table, None);
+            let value_of_exp = build_expression(
+                exp,
+                context,
+                builder,
+                function_value,
+                symbol_table,
+                module,
+                None,
+            );
             builder.build_store(pointer.clone(), value_of_exp);
 
             pointer
@@ -34,8 +43,15 @@ pub(crate) fn consume_variable_declaration<'a>(
 
         DataType::Boolean => {
             let pointer = builder.build_alloca(context.i1_type(), ident_name.as_str());
-            let value_of_exp =
-                build_expression(exp, context, builder, function_value, symbol_table, None);
+            let value_of_exp = build_expression(
+                exp,
+                context,
+                builder,
+                function_value,
+                symbol_table,
+                module,
+                None,
+            );
             builder.build_store(pointer.clone(), value_of_exp);
 
             pointer
@@ -48,6 +64,7 @@ pub(crate) fn consume_variable_declaration<'a>(
                 builder,
                 function_value,
                 symbol_table,
+                module,
                 Some(ident_name.to_string()),
             );
             if let BasicValueEnum::PointerValue(pointer) = value {
@@ -102,6 +119,7 @@ pub(crate) fn consume_variable_declaration<'a>(
                 builder,
                 function_value,
                 symbol_table,
+                module,
                 Some(ident_name.to_string()),
             );
 
@@ -119,6 +137,7 @@ pub(crate) fn consume_variable_declaration<'a>(
                 builder,
                 function_value,
                 symbol_table,
+                module,
                 Some(ident_name.to_string()),
             );
 

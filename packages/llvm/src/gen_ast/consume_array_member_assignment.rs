@@ -4,6 +4,7 @@ use ast::{declaration::VariableAssignmentOperator, expression::Expression};
 use inkwell::{
     builder::Builder,
     context::Context,
+    module::Module,
     values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
@@ -18,6 +19,7 @@ pub(crate) fn consume_array_member_assignments<'a>(
     builder: &'a Builder,
     function_value: &mut FunctionValue,
     symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    module: &'a Module,
 ) {
     let var_ptr = symbol_table.get(ident_name).unwrap().clone();
     let array_data_type = var_ptr.get_type().into_array_type().unwrap();
@@ -28,6 +30,7 @@ pub(crate) fn consume_array_member_assignments<'a>(
         builder,
         function_value,
         symbol_table,
+        module,
         None,
     );
 
@@ -49,7 +52,15 @@ pub(crate) fn consume_array_member_assignments<'a>(
             &indices,
             function_value.get_unique_reg_name().as_str(),
         );
-        let value = build_expression(exp, context, builder, function_value, symbol_table, None);
+        let value = build_expression(
+            exp,
+            context,
+            builder,
+            function_value,
+            symbol_table,
+            module,
+            None,
+        );
 
         build_assignment(
             &member_var_ptr,
