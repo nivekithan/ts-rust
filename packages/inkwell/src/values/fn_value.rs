@@ -1,4 +1,11 @@
-use llvm_sys::{LLVMLinkage, core::{LLVMCountParams, LLVMGetElementType, LLVMGetParam, LLVMIsAFunction, LLVMSetLinkage, LLVMSetPersonalityFn}, prelude::LLVMValueRef};
+use llvm_sys::{
+    core::{
+        LLVMCountParams, LLVMGetElementType, LLVMGetParam, LLVMIsAFunction, LLVMSetLinkage,
+        LLVMSetPersonalityFn,
+    },
+    prelude::LLVMValueRef,
+    LLVMLinkage,
+};
 
 use crate::{enums::Linkage, types::fn_type::FunctionType};
 

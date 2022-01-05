@@ -143,7 +143,7 @@ impl<'a> Parser<'a> {
 
                     if tok == &Token::Comma {
                         there_is_comma = true;
-                        self.next();
+                        self.next(); // consume ,
                     } else {
                         there_is_comma = false;
                     }

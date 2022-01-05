@@ -1,12 +1,13 @@
 use std::marker::PhantomData;
 
+use either::Either;
 use llvm_sys::{
     core::{
-        LLVMAddClause, LLVMBuildAlloca, LLVMBuildBr, LLVMBuildCondBr, LLVMBuildFAdd, LLVMBuildFCmp,
-        LLVMBuildFDiv, LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFPToSI, LLVMBuildFSub, LLVMBuildGEP2,
-        LLVMBuildICmp, LLVMBuildInvoke2, LLVMBuildLandingPad, LLVMBuildLoad2, LLVMBuildRet,
-        LLVMBuildRetVoid, LLVMBuildStore, LLVMBuildXor, LLVMDisposeBuilder,
-        LLVMPositionBuilderAtEnd, LLVMSetCleanup,
+        LLVMAddClause, LLVMBuildAlloca, LLVMBuildBr, LLVMBuildCall2, LLVMBuildCondBr,
+        LLVMBuildFAdd, LLVMBuildFCmp, LLVMBuildFDiv, LLVMBuildFMul, LLVMBuildFNeg, LLVMBuildFPToSI,
+        LLVMBuildFSub, LLVMBuildGEP2, LLVMBuildICmp, LLVMBuildInvoke2, LLVMBuildLandingPad,
+        LLVMBuildLoad2, LLVMBuildRet, LLVMBuildRetVoid, LLVMBuildStore, LLVMBuildXor,
+        LLVMDisposeBuilder, LLVMPositionBuilderAtEnd, LLVMSetCleanup,
     },
     prelude::{LLVMBuilderRef, LLVMValueRef},
 };
@@ -16,6 +17,7 @@ use crate::{
     enums::{IntCompareOperator, RealCompareOperator},
     types::{
         enums::BasicTypeEnum,
+        fn_type::FunctionType,
         int_type::IntType,
         traits::{AsTypeRef, BasicTypeTrait},
     },
@@ -27,6 +29,7 @@ use crate::{
         instruction_value::InstructionValue,
         int_value::IntValue,
         ptr_value::PointerValue,
+        returned_value::ReturnedValue,
         traits::{AsValueRef, BasicValueTrait, FloatMathValueTrait, IntMathValueTrait},
     },
 };
@@ -317,6 +320,74 @@ impl<'a> Builder<'a> {
             );
 
             return BasicValueEnum::new(value);
+        }
+    }
+
+    pub fn build_call2(
+        &self,
+        callable_value: Either<&FunctionValue<'a>, &PointerValue<'a>>,
+        args: &[BasicValueEnum<'a>],
+        mut name: &str,
+    ) -> ReturnedValue<'a> {
+        unsafe {
+            if let Either::Left(fn_value) = callable_value {
+                let fn_type = fn_value.get_type();
+
+                let return_type = fn_type.get_return_type();
+
+                if let BasicTypeEnum::VoidType(_) = return_type {
+                    name = ""
+                };
+
+                let c_name = to_c_str(name);
+                let mut args: Vec<LLVMValueRef> = args.iter().map(|v| v.as_value_ref()).collect();
+
+                let value = LLVMBuildCall2(
+                    self.builder,
+                    fn_type.as_type_ref(),
+                    fn_value.as_value_ref(),
+                    args.as_mut_ptr(),
+                    args.len() as u32,
+                    c_name.as_ptr(),
+                );
+
+                return ReturnedValue::new(value);
+            } else if let Either::Right(pointer_value) = callable_value {
+                let is_valid_type = pointer_value.get_type().into_element_type().is_fn_type();
+
+                if is_valid_type {
+                    let fn_type = FunctionType::new(
+                        pointer_value.get_type().into_element_type().as_type_ref(),
+                    );
+
+                    let return_type = fn_type.get_return_type();
+
+                    if let BasicTypeEnum::VoidType(_) = return_type {
+                        // TODO: Remove debug
+                        println!("Return type is void");
+                        // ---- ENd
+                        name = ""
+                    };
+
+                    let c_name = to_c_str(name);
+                    let mut args: Vec<LLVMValueRef> =
+                        args.iter().map(|v| v.as_value_ref()).collect();
+                    let value = LLVMBuildCall2(
+                        self.builder,
+                        pointer_value.get_type().into_element_type().as_type_ref(),
+                        pointer_value.as_value_ref(),
+                        args.as_mut_ptr(),
+                        args.len() as u32,
+                        c_name.as_ptr(),
+                    );
+
+                    return ReturnedValue::new(value);
+                } else {
+                    todo!();
+                }
+            } else {
+                unreachable!();
+            }
         }
     }
 

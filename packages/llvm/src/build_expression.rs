@@ -17,7 +17,7 @@ use inkwell::{
     values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
-use crate::{utils::get_personality_fn};
+use crate::utils::get_personality_fn;
 
 pub(crate) fn build_expression<'a>(
     expression: &Expression,
@@ -491,14 +491,8 @@ pub(crate) fn build_expression<'a>(
                 })
                 .collect();
 
-
-            let value = builder.build_invoke_2(
-                &calling_fn_value,
-                &args,
-                &then_block,
-                &catch_block,
-                name,
-            );
+            let value =
+                builder.build_invoke_2(&calling_fn_value, &args, &then_block, &catch_block, name);
 
             builder.position_at_end(&then_block);
 

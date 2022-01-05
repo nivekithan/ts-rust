@@ -6,3 +6,7 @@ pub mod module;
 pub mod types;
 mod utils;
 pub mod values;
+
+#[cfg(test)]
+
+mod test {}

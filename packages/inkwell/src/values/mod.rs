@@ -15,6 +15,7 @@ pub mod fn_value;
 pub mod instruction_value;
 pub mod int_value;
 pub mod ptr_value;
+pub mod returned_value;
 pub mod traits;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]

@@ -16,8 +16,6 @@ use llvm_sys::{
 };
 use std::marker::PhantomData;
 
-
-
 use self::{array_type::ArrayType, enums::BasicTypeEnum, fn_type::FunctionType, traits::AsTypeRef};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -102,15 +100,15 @@ impl<'a> Type<'a> {
         }
     }
 
-    // pub(crate) fn is_fn_type(&self) -> bool {
-    //     unsafe {
-    //         match LLVMGetTypeKind(self.ty) {
-    //             LLVMTypeKind::LLVMFunctionTypeKind => true,
+    pub(crate) fn is_fn_type(&self) -> bool {
+        unsafe {
+            match LLVMGetTypeKind(self.ty) {
+                LLVMTypeKind::LLVMFunctionTypeKind => true,
 
-    //             _ => false,
-    //         }
-    //     }
-    // }
+                _ => false,
+            }
+        }
+    }
 }
 
 impl<'a> AsTypeRef for Type<'a> {

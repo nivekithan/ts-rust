@@ -10,7 +10,7 @@ ast = {path = "../ast"}
 inkwell = { path = "../inkwell"}
 lexer = {path = "../lexer"}
 indexmap = "1.7.0"
-
+either = "1.6.1"
 
 [dev-dependencies]
 parser = { path = "../parser"}

@@ -43,4 +43,3 @@ fn test_calling_a_function() {
 
     insta::assert_snapshot!(input, output);
 }
-
