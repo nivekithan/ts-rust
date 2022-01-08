@@ -39,8 +39,7 @@ impl<'a> BasicValueEnum<'a> {
                 LLVMTypeKind::LLVMDoubleTypeKind
                 | LLVMTypeKind::LLVMPointerTypeKind
                 | LLVMTypeKind::LLVMIntegerTypeKind => true,
-                ty => {
-                    println!("{:?}", ty);
+                _ => {
                     return false;
                 }
             };

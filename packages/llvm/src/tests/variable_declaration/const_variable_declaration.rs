@@ -101,8 +101,6 @@ fn test_const_unary_bang() {
 
             let input = ast_input + main_input.as_str();
 
-            println!("{}", input);
-
             return input;
         }),
 

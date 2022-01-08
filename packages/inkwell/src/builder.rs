@@ -363,9 +363,6 @@ impl<'a> Builder<'a> {
                     let return_type = fn_type.get_return_type();
 
                     if let BasicTypeEnum::VoidType(_) = return_type {
-                        // TODO: Remove debug
-                        println!("Return type is void");
-                        // ---- ENd
                         name = ""
                     };
 

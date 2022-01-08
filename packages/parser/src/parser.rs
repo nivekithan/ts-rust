@@ -115,13 +115,13 @@ impl<'a> Parser<'a> {
 
             Token::Ident { name } => {
                 if let Some(_) = context.get(name) {
-                    return self.parse_variable_assignment(context);
+                    return self.parse_naked_ident(context);
                 } else {
                     return Err(format!("Unknown variable {}", name));
                 }
             }
 
-            tok => return Err(format!("Unknown token: {:?}", tok)),
+            _ => return self.parse_naked_expression(context),
         }
     }
 
@@ -336,6 +336,96 @@ impl<'a> Parser<'a> {
                 ))
             }
         }
+    }
+
+    /*
+     * While parsing if we come across a ident which is in context (i.e it is defined before) then
+     * either that is variable reassignment or some expression whose returned value is not
+     * assigned to some variable
+     *
+     * This function will check what case that is and pass the control flow to either
+     * parse_variable_assignment() or parse_naked_expression()
+     *
+     * I could not come up with a function name that explains its function
+     *
+     **/
+    pub(crate) fn parse_naked_ident(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
+        let cur_tok = self.get_cur_token()?;
+        let mut lookup_parser = self.clone();
+        match cur_tok {
+            Token::Ident { name: _ } => 'outer: loop {
+                let next_tok = lookup_parser.next();
+
+                if VariableAssignmentOperator::is_lexer_assignment_operator(next_tok) {
+                    return self.parse_variable_assignment(context);
+                }
+
+                if next_tok == &Token::BoxOpenBracket {
+                    while lookup_parser.next() != &Token::BoxCloseBracket {
+                        continue;
+                    }
+
+                    continue 'outer;
+                }
+
+                return self.parse_naked_expression(context);
+            },
+
+            tok => return Err(format!("Expected tok to be of ident but got {:?}", tok)),
+        }
+    }
+
+    /*
+     * This function parses the expression and binds the expression value to a temporary
+     * variable that is code like below will be converted to
+     *
+     * ```
+     * 5 + 5
+     *
+     * foo();
+     * ```
+     * something like this
+     *
+     * ```
+     * const |temp1 = 5 + 5;
+     * const |temp2 = foo();
+     * ```
+     *
+     * Since variable in typescript cannot begin with '|' it wont lead to any
+     * variable name conflict
+     *
+     * TODO:
+     *
+     *    -> Hopefully in future when can add code that will ignore expression that has no
+     * sideeffect
+     *
+     **/
+
+    pub(crate) fn parse_naked_expression(
+        &mut self,
+        context: &mut SymbolContext,
+    ) -> Result<Ast, String> {
+        let exp = self.parse_expression(1, context)?;
+        self.skip_semicolon()?;
+        let name = context.get_temp_name();
+
+        let sym_meta = SymbolMetaInsert::create(exp.get_data_type(), true);
+
+        if let Err(_) = context.insert(name.as_str(), sym_meta) {
+            return Err(format!(
+                "[INTERNAL ERROR](parser.parse_naked_expression) There is already a temp variable with name {}",
+                name
+            ));
+        }
+
+        self.skip_semicolon()?;
+
+        // let name_with_suffix = format!("{}{}", name, suffix);
+        return Ok(Ast::new_variable_declaration(
+            name.as_str(),
+            exp,
+            VariableDeclarationKind::Const,
+        ));
     }
 
     pub(crate) fn parse_variable_assignment(
@@ -590,6 +680,36 @@ impl<'a> Parser<'a> {
             }
         }
     }
+
+    pub(crate) fn clone(&self) -> Parser<'a> {
+        return Parser {
+            content: self.content,
+            cur_pos: self.cur_pos,
+        };
+    }
+
+    // pub(crate) fn lookup_next(&self) -> Option<&Token> {
+    //     return self.lookup_with_offset(1);
+    // }
+
+    // pub(crate) fn lookup_with_offset(&self, offset: usize) -> Option<&Token> {
+    //     match self.cur_pos {
+    //         None => {
+    //             let value = offset - 1;
+    //             return Some(&self.content[value]);
+    //         }
+
+    //         Some(cur_pos) => {
+    //             let value = cur_pos + offset;
+
+    //             if value > self.content.len() - 1 {
+    //                 return None;
+    //             }
+
+    //             return Some(&self.content[value]);
+    //         }
+    //     }
+    // }
 
     pub(crate) fn assert_cur_token(&self, token_type: &Token) -> Result<(), String> {
         let cur_token = self.get_cur_token()?;

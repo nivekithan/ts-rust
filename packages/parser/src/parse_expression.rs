@@ -118,10 +118,6 @@ impl<'a> Parser<'a> {
 
                 let cur_tok = self.get_cur_token().unwrap();
 
-                if cur_tok == &Token::Eof {
-                    println!("Contents : {:?}", self.content);
-                }
-
                 assert_eq!(cur_tok, &Token::CurveCloseBracket);
                 self.next(); // consumes )
 

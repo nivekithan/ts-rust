@@ -1,0 +1,20 @@
+---
+source: packages/llvm/src/tests/naked_expression.rs
+expression: output
+
+---
+; ModuleID = 'main'
+source_filename = "main"
+
+define void @main() {
+entry:
+  %"|_temp0" = alloca double, align 8
+  store double 1.000000e+01, double* %"|_temp0", align 8
+  ret void
+}
+
+define void @__typescript__personality() {
+entry:
+  ret void
+}
+

@@ -40,6 +40,8 @@ pub struct SymbolContext<'a> {
 
     pub suffix: String,
     pub counter: usize,
+
+    temp_counter: usize,
 }
 
 impl<'a> SymbolContext<'a> {
@@ -51,6 +53,8 @@ impl<'a> SymbolContext<'a> {
 
             suffix: String::from("_"),
             counter: 0,
+
+            temp_counter: 0,
         };
     }
 
@@ -62,6 +66,8 @@ impl<'a> SymbolContext<'a> {
 
             suffix: String::from("_"),
             counter: 0,
+
+            temp_counter: 0,
         };
     }
 
@@ -103,6 +109,7 @@ impl<'a> SymbolContext<'a> {
             function_symbol: self.function_symbol.clone(),
             suffix,
             counter: 0,
+            temp_counter: 0,
         };
         return new_context;
     }
@@ -137,5 +144,13 @@ impl<'a> SymbolContext<'a> {
                 }
             }
         }
+    }
+
+    pub fn get_temp_name(&mut self) -> String {
+        let temp_counter = self.temp_counter;
+        let temp_name = format!("|{}temp{}", self.suffix, temp_counter);
+        self.temp_counter += 1;
+
+        return temp_name;
     }
 }

@@ -1,5 +1,5 @@
 use indexmap::IndexMap;
-use lexer::token::KeywordKind;
+use lexer::token::{KeywordKind, Token};
 
 use crate::{data_type::DataType, expression::Expression, Ast};
 
@@ -83,5 +83,19 @@ impl BlockWithCondition {
             condition,
             block: Box::new(block),
         };
+    }
+}
+
+impl VariableAssignmentOperator {
+    pub fn is_lexer_assignment_operator(token: &Token) -> bool {
+        match token {
+            Token::Assign
+            | Token::MinusAssign
+            | Token::PlusAssign
+            | Token::SlashAssign
+            | Token::StarAssign => true,
+
+            _ => false,
+        }
     }
 }
