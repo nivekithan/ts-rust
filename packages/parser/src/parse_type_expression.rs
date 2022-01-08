@@ -37,6 +37,8 @@ impl<'a> Parser<'a> {
                         DataType::Boolean
                     } else if name == "number" {
                         DataType::Float
+                    } else if name == "void" {
+                        DataType::Void
                     } else {
                         return Err(format!("Unknown ident name : {:?}", name));
                     }
@@ -99,6 +101,11 @@ impl<'a> Parser<'a> {
         &mut self,
         left: DataType,
     ) -> Result<Result<DataType, DataType>, String> {
+        // There is no non_prefix_type when left is Datatype::Void
+        if left == DataType::Void {
+            return Ok(Err(left));
+        }
+
         let cur_tok = self.get_cur_token()?;
 
         match cur_tok {

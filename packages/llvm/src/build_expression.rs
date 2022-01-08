@@ -19,6 +19,9 @@ use inkwell::{
 
 use crate::utils::get_personality_fn;
 
+/*
+ * It will return None if expression is Void
+ *  */
 pub(crate) fn build_expression<'a>(
     expression: &Expression,
     context: &'a Context,
@@ -27,7 +30,7 @@ pub(crate) fn build_expression<'a>(
     symbol_table: &mut HashMap<String, PointerValue<'a>>,
     module: &'a Module,
     name: Option<String>,
-) -> BasicValueEnum<'a> {
+) -> Option<BasicValueEnum<'a>> {
     let name = match name {
         Some(name) => name,
         None => function_value.get_unique_reg_name(),
@@ -38,12 +41,12 @@ pub(crate) fn build_expression<'a>(
     match expression {
         Expression::FloatLiteralExp { name: _, value } => {
             let double_value = context.f64_type().const_float(*value);
-            return BasicValueEnum::FloatValue(double_value);
+            return Some(BasicValueEnum::FloatValue(double_value));
         }
 
         Expression::BooleanLiteralExp { name: _, value } => {
             let bool_as_int_value = context.i1_type().const_int(*value as u64, false);
-            return BasicValueEnum::IntValue(bool_as_int_value);
+            return Some(BasicValueEnum::IntValue(bool_as_int_value));
         }
 
         Expression::StringLiteralExp { value } => {
@@ -69,7 +72,7 @@ pub(crate) fn build_expression<'a>(
                 builder.build_store(index_pointer, char_value);
             }
 
-            return BasicValueEnum::PointerValue(base_pointer);
+            return Some(BasicValueEnum::PointerValue(base_pointer));
         }
 
         /*
@@ -103,7 +106,7 @@ pub(crate) fn build_expression<'a>(
                     _ => panic!("Update Function build_expression -> Expression::IdentExp, Unsupported datatype"),
                 };
 
-                return load_value;
+                return Some(load_value);
             } else {
                 panic!("Unknown variable")
             }
@@ -118,7 +121,8 @@ pub(crate) fn build_expression<'a>(
                 symbol_table,
                 module,
                 None,
-            );
+            )
+            .unwrap();
 
             match arg_value {
                 BasicValueEnum::FloatValue(value) => {
@@ -129,7 +133,7 @@ pub(crate) fn build_expression<'a>(
                         _ => todo!(),
                     };
 
-                    return BasicValueEnum::FloatValue(evaluated_float_value);
+                    return Some(BasicValueEnum::FloatValue(evaluated_float_value));
                 }
 
                 BasicValueEnum::IntValue(value) => {
@@ -141,7 +145,7 @@ pub(crate) fn build_expression<'a>(
                         _ => todo!(),
                     };
 
-                    return BasicValueEnum::IntValue(evaluated_int_value);
+                    return Some(BasicValueEnum::IntValue(evaluated_int_value));
                 }
 
                 _ => todo!(),
@@ -161,7 +165,8 @@ pub(crate) fn build_expression<'a>(
                 symbol_table,
                 module,
                 None,
-            );
+            )
+            .unwrap();
             let right_value = build_expression(
                 right.as_ref(),
                 context,
@@ -170,7 +175,8 @@ pub(crate) fn build_expression<'a>(
                 symbol_table,
                 module,
                 None,
-            );
+            )
+            .unwrap();
 
             if let BasicValueEnum::FloatValue(lhs) = left_value {
                 if let BasicValueEnum::FloatValue(rhs) = right_value {
@@ -231,13 +237,13 @@ pub(crate) fn build_expression<'a>(
                                 _ => unreachable!(),
                             };
 
-                            return BasicValueEnum::IntValue(int_value);
+                            return Some(BasicValueEnum::IntValue(int_value));
                         }
 
                         _ => todo!(),
                     };
 
-                    return BasicValueEnum::FloatValue(evaluated_float_value);
+                    return Some(BasicValueEnum::FloatValue(evaluated_float_value));
                 } else {
                     todo!()
                 }
@@ -258,7 +264,7 @@ pub(crate) fn build_expression<'a>(
                             _ => todo!(),
                         };
 
-                        return BasicValueEnum::IntValue(evaluated_int_value);
+                        return Some(BasicValueEnum::IntValue(evaluated_int_value));
                     } else {
                         todo!()
                     }
@@ -290,7 +296,8 @@ pub(crate) fn build_expression<'a>(
                     symbol_table,
                     module,
                     None,
-                );
+                )
+                .unwrap();
 
                 let indices = vec![
                     context.i64_type().const_int(0, true),
@@ -307,7 +314,7 @@ pub(crate) fn build_expression<'a>(
                 builder.build_store(index_pointer, value);
             }
 
-            return BasicValueEnum::PointerValue(base_pointer);
+            return Some(BasicValueEnum::PointerValue(base_pointer));
         }
 
         Expression::ArrayMemberAccess { array, argument } => {
@@ -319,7 +326,8 @@ pub(crate) fn build_expression<'a>(
                 symbol_table,
                 module,
                 None,
-            );
+            )
+            .unwrap();
 
             if let BasicValueEnum::PointerValue(pointer) = array_value {
                 let member_access_value = build_expression(
@@ -330,7 +338,8 @@ pub(crate) fn build_expression<'a>(
                     symbol_table,
                     module,
                     None,
-                );
+                )
+                .unwrap();
 
                 if let BasicValueEnum::FloatValue(float_value) = member_access_value {
                     let converted_int_value = builder.build_fp_to_si(
@@ -350,7 +359,7 @@ pub(crate) fn build_expression<'a>(
 
                     let element_type = array_type.get_element_type();
                     let loaded_value = builder.build_load(index_pointer, element_type, name);
-                    return loaded_value;
+                    return Some(loaded_value);
                 } else {
                     panic!("Expected building expression in field 'argument' to give BasicValueEnum::FloatValue but got {:?}", member_access_value);
                 }
@@ -378,7 +387,8 @@ pub(crate) fn build_expression<'a>(
                         symbol_table,
                         module,
                         None,
-                    );
+                    )
+                    .unwrap();
 
                     let indices = vec![
                         context.i32_type().const_int(1, true),
@@ -395,7 +405,7 @@ pub(crate) fn build_expression<'a>(
                     builder.build_store(index_pointer, exp);
                 }
 
-                return BasicValueEnum::PointerValue(base_pointer);
+                return Some(BasicValueEnum::PointerValue(base_pointer));
             } else {
                 unreachable!();
             }
@@ -413,7 +423,8 @@ pub(crate) fn build_expression<'a>(
                 symbol_table,
                 module,
                 None,
-            );
+            )
+            .unwrap();
 
             if let BasicValueEnum::PointerValue(container_pointer) = container_value {
                 let container_data_type = container.get_data_type();
@@ -437,7 +448,7 @@ pub(crate) fn build_expression<'a>(
 
                     let field_type = structure_type.get_field_type(index);
                     let loaded_value = builder.build_load(member_pointer, field_type, name);
-                    return loaded_value;
+                    return Some(loaded_value);
                 } else {
                     unreachable!();
                 }
@@ -486,7 +497,8 @@ pub(crate) fn build_expression<'a>(
                         symbol_table,
                         module,
                         None,
-                    );
+                    )
+                    .unwrap();
                     return value;
                 })
                 .collect();
@@ -498,7 +510,13 @@ pub(crate) fn build_expression<'a>(
 
             // let basic_value = value.try_as_basic_value().unwrap();
 
-            return value;
+            if value.is_void() {
+                return None;
+            } else {
+                return Some(value.to_basic_value_enum().unwrap());
+            }
+
+            // return value;
         }
     }
 }

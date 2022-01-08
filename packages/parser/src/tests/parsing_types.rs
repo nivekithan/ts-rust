@@ -38,6 +38,17 @@ fn test_number_type_declaration() {
 }
 
 #[test]
+fn test_void_type() {
+    let input = "void";
+
+    let tokens = convert_to_token(input);
+    let mut parser = Parser::new(&tokens);
+    let data_type = parser.parse_type_declaration(1);
+
+    assert_eq!(data_type, Ok(DataType::Void));
+}
+
+#[test]
 fn test_grouped_type_declaration() {
     let input = "(string)";
 

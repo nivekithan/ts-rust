@@ -34,7 +34,8 @@ pub(crate) fn consume_if_block<'a>(
         symbol_table,
         module,
         None,
-    );
+    )
+    .unwrap();
 
     if let BasicValueEnum::IntValue(cond_value) = if_block_condition {
         let width = cond_value.get_type().get_bit_width();
@@ -184,7 +185,8 @@ pub(crate) fn consume_if_block<'a>(
                         symbol_table,
                         module,
                         None,
-                    );
+                    )
+                    .unwrap();
 
                     if let BasicValueEnum::IntValue(cond_value) = conditional_value {
                         let next_branch = get_next_block(i);

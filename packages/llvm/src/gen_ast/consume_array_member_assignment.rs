@@ -32,7 +32,8 @@ pub(crate) fn consume_array_member_assignments<'a>(
         symbol_table,
         module,
         None,
-    );
+    )
+    .unwrap();
 
     if let BasicValueEnum::FloatValue(member_access_value) = member_access_value {
         let converted_member_access_value = builder.build_fp_to_si(
@@ -60,7 +61,8 @@ pub(crate) fn consume_array_member_assignments<'a>(
             symbol_table,
             module,
             None,
-        );
+        )
+        .unwrap();
 
         build_assignment(
             &member_var_ptr,

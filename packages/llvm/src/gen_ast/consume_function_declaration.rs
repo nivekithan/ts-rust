@@ -68,16 +68,25 @@ pub(crate) fn consume_function_declaration<'a>(
         if let Ast::Declaration(dec) = cur_ast {
             match dec {
                 Declaration::ReturnStatement { return_exp } => {
-                    let value = build_expression(
-                        return_exp,
-                        context,
-                        &builder,
-                        &mut function_value,
-                        &mut symbol_table,
-                        module,
-                        None,
-                    );
-                    builder.build_return(Some(&value));
+                    // If the return_exp is Option::None then we have to return void
+
+                    if let Some(return_exp) = return_exp {
+                        let value = build_expression(
+                            return_exp,
+                            context,
+                            &builder,
+                            &mut function_value,
+                            &mut symbol_table,
+                            module,
+                            None,
+                        );
+                        match value {
+                            Some(value) => builder.build_return(Some(&value)),
+                            None => builder.build_return(None),
+                        };
+                    } else {
+                        builder.build_return(None);
+                    }
                 }
 
                 _ => consume_single_ast(

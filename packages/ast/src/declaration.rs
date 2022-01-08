@@ -58,7 +58,7 @@ pub enum Declaration {
     },
 
     ReturnStatement {
-        return_exp: Expression,
+        return_exp: Option<Expression>, // if Option is Option::None then the fn is returning void
     },
 }
 

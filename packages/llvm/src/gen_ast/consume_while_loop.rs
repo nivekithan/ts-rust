@@ -42,7 +42,8 @@ pub(crate) fn consume_while_loop<'a>(
         symbol_table,
         module,
         None,
-    );
+    )
+    .unwrap();
 
     if let BasicValueEnum::IntValue(cond_value) = condition_value {
         builder.build_conditional_branch(cond_value, &while_block_bb, &exit_block_bb);

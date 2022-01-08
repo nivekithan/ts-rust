@@ -82,7 +82,23 @@ impl<'a> Parser<'a> {
 
                 KeywordKind::Return => {
                     self.next(); // consumes return
-                    let return_exp = self.parse_expression(1, context)?;
+
+                    let return_exp = {
+                        /*
+                         * If token next to return is semicolon `;` then the
+                         * function is returning void
+                         * */
+                        let cur_tok = self.get_cur_token()?;
+                        if cur_tok == &Token::SemiColon {
+                            self.next(); // consumes ;
+                            None
+                        } else {
+                            let return_exp = self.parse_expression(1, context)?;
+                            self.skip_semicolon()?; // consumes ;
+                            Some(return_exp)
+                        }
+                    };
+
                     let expected_data_type = {
                         let return_type = context.get_return_type();
                         match return_type {
@@ -95,9 +111,15 @@ impl<'a> Parser<'a> {
                         }
                     };
 
-                    let actual_data_type = &return_exp.get_data_type();
+                    let actual_data_type = {
+                        if let Some(exp) = &return_exp {
+                            exp.get_data_type()
+                        } else {
+                            DataType::Void
+                        }
+                    };
 
-                    if expected_data_type != actual_data_type {
+                    if expected_data_type != &actual_data_type {
                         return Err(format!("Expected the return_type declared in function declaration does not match the data_type of expression which the function is returning"));
                     }
 
@@ -278,7 +300,13 @@ impl<'a> Parser<'a> {
                         let expected_data_type = match self.get_cur_token()? {
                             Token::Colon => {
                                 self.next(); // consumes :
-                                self.parse_type_declaration(1)?
+                                let data_type = self.parse_type_declaration(1)?;
+
+                                if data_type == DataType::Void {
+                                    return Err(format!("Void type can be only used as return type in function but ident {:?} is explicitly declared as void", name));
+                                }
+
+                                data_type
                             }
 
                             _ => DataType::Unknown,
@@ -291,6 +319,30 @@ impl<'a> Parser<'a> {
                         let expression = self.parse_expression(1, context)?;
 
                         let expression_data_type = expression.get_data_type();
+
+                        /*
+                         * We cannot allow following type of code
+                         *
+                         * ```
+                         *  function foo(x : number) : void {
+                         *  return;
+                         * }
+                         *
+                         * const x = foo(1);
+                         *
+                         * ```
+                         *
+                         * Where a variable x is assigned to return_value of fn whose return_type is void
+                         *
+                         * In future when we add support for `undefined` datatype we can allow this
+                         *
+                         *  */
+                        if expression_data_type == DataType::Void {
+                            return Err(format!(
+                                "Cannot assign expression with datatype as void to variable {:?}",
+                                name
+                            ));
+                        }
 
                         if expected_data_type != DataType::Unknown
                             && expected_data_type != expression_data_type

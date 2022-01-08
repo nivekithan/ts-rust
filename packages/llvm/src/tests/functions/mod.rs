@@ -43,3 +43,30 @@ fn test_calling_a_function() {
 
     insta::assert_snapshot!(input, output);
 }
+
+#[test]
+fn test_calling_a_function_with_void_return_type() {
+    let input = "
+    function foo(x : number) : void {
+        return;
+    }
+    
+    foo(5);";
+
+    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+
+    insta::assert_snapshot!(input, output);
+}
+
+#[test]
+#[should_panic]
+fn test_assigning_a_variable_to_function_that_returns_void() {
+    let input = "
+    function foo(x : number) : void {
+        return;
+    }
+    
+    const x = foo(5);";
+
+    write_llvm_ir(convert_to_ast(convert_to_token(input)));
+}

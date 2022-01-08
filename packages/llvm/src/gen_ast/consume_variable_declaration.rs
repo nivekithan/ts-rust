@@ -24,6 +24,26 @@ pub(crate) fn consume_variable_declaration<'a>(
 ) {
     let data_type = exp.get_data_type();
 
+    /*
+     * If the variable datatype is void then its a temporary variable by parser.parse_naked_expression()
+     *
+     * So in that case we only have to call the function there is no need to store
+     * variable and its pointer value in symbol_table
+     *
+     * */
+    if let DataType::Void = data_type {
+        consume_fn_with_return_type_void(
+            ident_name,
+            exp,
+            context,
+            builder,
+            function_value,
+            symbol_table,
+            module,
+        );
+        return;
+    }
+
     let pointer = match data_type {
         DataType::Float => {
             let pointer = builder.build_alloca(context.f64_type(), ident_name.as_str());
@@ -35,7 +55,8 @@ pub(crate) fn consume_variable_declaration<'a>(
                 symbol_table,
                 module,
                 None,
-            );
+            )
+            .unwrap();
             builder.build_store(pointer.clone(), value_of_exp);
 
             pointer
@@ -51,7 +72,8 @@ pub(crate) fn consume_variable_declaration<'a>(
                 symbol_table,
                 module,
                 None,
-            );
+            )
+            .unwrap();
             builder.build_store(pointer.clone(), value_of_exp);
 
             pointer
@@ -66,7 +88,8 @@ pub(crate) fn consume_variable_declaration<'a>(
                 symbol_table,
                 module,
                 Some(ident_name.to_string()),
-            );
+            )
+            .unwrap();
             if let BasicValueEnum::PointerValue(pointer) = value {
                 if let Expression::StringLiteralExp { value: _ } = exp {
                     pointer
@@ -121,7 +144,8 @@ pub(crate) fn consume_variable_declaration<'a>(
                 symbol_table,
                 module,
                 Some(ident_name.to_string()),
-            );
+            )
+            .unwrap();
 
             if let BasicValueEnum::PointerValue(pointer) = value {
                 pointer
@@ -139,7 +163,8 @@ pub(crate) fn consume_variable_declaration<'a>(
                 symbol_table,
                 module,
                 Some(ident_name.to_string()),
-            );
+            )
+            .unwrap();
 
             if let BasicValueEnum::PointerValue(pointer) = value {
                 pointer
@@ -147,6 +172,8 @@ pub(crate) fn consume_variable_declaration<'a>(
                 panic!("Expected function build_expression for DataType::ObjectType to return BasicValueEnum::PointerValue")
             }
         }
+
+        DataType::Void => unreachable!(),
 
         DataType::FunctionType {
             arguments: _,
@@ -157,4 +184,24 @@ pub(crate) fn consume_variable_declaration<'a>(
     };
 
     symbol_table.insert(ident_name.to_owned(), pointer);
+}
+
+fn consume_fn_with_return_type_void<'a>(
+    ident_name: &String,
+    exp: &Expression,
+    context: &'a Context,
+    builder: &'a Builder,
+    function_value: &mut FunctionValue,
+    symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    module: &'a Module,
+) {
+    build_expression(
+        exp,
+        context,
+        builder,
+        function_value,
+        symbol_table,
+        module,
+        Some(ident_name.to_string()),
+    );
 }

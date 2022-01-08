@@ -131,7 +131,7 @@ impl Ast {
         });
     }
 
-    pub fn new_return_statement(exp: Expression) -> Ast {
+    pub fn new_return_statement(exp: Option<Expression>) -> Ast {
         return Ast::Declaration(Declaration::ReturnStatement { return_exp: exp });
     }
 }

@@ -13,6 +13,7 @@ impl<'a> LLVMUtils<'a> for DataType {
         match self {
             DataType::Float => context.f64_type().as_basic_type_enum(),
             DataType::Boolean => context.i1_type().as_basic_type_enum(),
+            DataType::Void => context.void_type().as_basic_type_enum(),
 
             _ => panic!("Cannot convert data_type {:?} to BasicTypeEnum", self),
         }

@@ -297,7 +297,7 @@ impl<'a> Builder<'a> {
         then_block: &BasicBlock<'a>,
         catch_block: &BasicBlock<'a>,
         mut name: &str,
-    ) -> BasicValueEnum<'a> {
+    ) -> ReturnedValue<'a> {
         unsafe {
             let fn_type = fn_value.get_type();
             let return_type = fn_type.get_return_type();
@@ -319,7 +319,7 @@ impl<'a> Builder<'a> {
                 c_name.as_ptr(),
             );
 
-            return BasicValueEnum::new(value);
+            return ReturnedValue::new(value);
         }
     }
 

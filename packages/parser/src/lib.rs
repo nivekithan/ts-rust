@@ -107,12 +107,12 @@ mod test {
         let expected_output = vec![
             Ast::new_function_declaration(
                 indexmap! {"x_".to_string() => DataType::Float},
-                Box::new(vec![Ast::new_return_statement(
+                Box::new(vec![Ast::new_return_statement(Some(
                     Expression::FloatLiteralExp {
                         name: "1".to_string(),
                         value: 1.0,
                     },
-                )]),
+                ))]),
                 "foo_".to_string(),
                 DataType::Float,
             ),

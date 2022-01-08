@@ -29,7 +29,8 @@ pub(crate) fn consume_variable_assignment<'a>(
         symbol_table,
         module,
         None,
-    );
+    )
+    .unwrap();
 
     build_assignment(
         &var_ptr,
