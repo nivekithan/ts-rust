@@ -484,6 +484,7 @@ pub(crate) fn build_expression<'a>(
                     true,
                     &function_value.get_unique_reg_name(),
                 );
+                catch_builder.build_return(None);
                 catch_block
             };
             let calling_fn_value = symbol_table.get(fn_name).unwrap().clone();

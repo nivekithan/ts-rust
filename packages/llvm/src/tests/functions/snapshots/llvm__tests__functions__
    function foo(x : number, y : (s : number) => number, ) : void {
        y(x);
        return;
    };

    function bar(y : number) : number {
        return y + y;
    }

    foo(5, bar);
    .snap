@@ -17,6 +17,7 @@ Block_0:                                          ; preds = %entry
 Block_1:                                          ; preds = %entry
   %"0" = landingpad i64
           cleanup
+  ret void
 }
 
 define void @__typescript__personality() {
@@ -40,6 +41,7 @@ Block_0:                                          ; preds = %main
 Block_1:                                          ; preds = %main
   %"3" = landingpad i64
           cleanup
+  ret void
 }
 
 define double @bar_(double %0) {
