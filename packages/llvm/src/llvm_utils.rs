@@ -30,7 +30,7 @@ impl<'a> LLVMUtils<'a> for DataType {
                     .collect();
 
                 let fn_type = return_type.fn_type(&arguments, false);
-                let ptr_type = fn_type.ptr_type(AddressSpace::Global);
+                let ptr_type = fn_type.ptr_type(AddressSpace::Generic);
                 return ptr_type.as_basic_type_enum();
             }
 

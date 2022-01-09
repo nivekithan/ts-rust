@@ -24,13 +24,13 @@ entry:
   ret void
 }
 
-define void @foo_(double %0, double (double) addrspace(1)* %1) personality void ()* @__typescript__personality {
+define void @foo_(double %0, double (double)* %1) personality void ()* @__typescript__personality {
 main:
   %x_ = alloca double, align 8
   store double %0, double* %x_, align 8
   %"|_temp0" = alloca double, align 8
   %"4" = load double, double* %x_, align 8
-  %"2" = invoke addrspace(1) double %1(double %"4")
+  %"2" = invoke double %1(double %"4")
           to label %Block_0 unwind label %Block_1
 
 Block_0:                                          ; preds = %main

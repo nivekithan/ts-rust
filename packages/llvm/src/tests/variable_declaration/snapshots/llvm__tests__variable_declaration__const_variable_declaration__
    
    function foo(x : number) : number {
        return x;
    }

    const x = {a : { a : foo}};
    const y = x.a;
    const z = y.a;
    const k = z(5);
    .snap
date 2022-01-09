@@ -1,0 +1,46 @@
+---
+source: packages/llvm/src/tests/variable_declaration/const_variable_declaration.rs
+expression: output
+
+---
+; ModuleID = 'main'
+source_filename = "main"
+
+define void @main() personality void ()* @__typescript__personality {
+entry:
+  %x_ = alloca <{ <{ double (double)* }>* }>, align 8
+  %"0" = alloca <{ double (double)* }>, align 8
+  %"2" = getelementptr <{ double (double)* }>, <{ double (double)* }>* %"0", i32 1, i32 0
+  store double (double)* @foo_, double (double)** %"2", align 8
+  %"3" = getelementptr <{ <{ double (double)* }>* }>, <{ <{ double (double)* }>* }>* %x_, i32 1, i32 0
+  store <{ double (double)* }>* %"0", <{ double (double)* }>** %"3", align 8
+  %"5" = getelementptr <{ <{ double (double)* }>* }>, <{ <{ double (double)* }>* }>* %x_, i32 1, i32 0
+  %y_ = load <{ double (double)* }>*, <{ double (double)* }>** %"5", align 8
+  %"7" = getelementptr <{ double (double)* }>, <{ double (double)* }>* %y_, i32 1, i32 0
+  %z_ = load double (double)*, double (double)** %"7", align 8
+  %k_ = alloca double, align 8
+  %"8" = invoke double %z_(double 5.000000e+00)
+          to label %Block_0 unwind label %Block_1
+
+Block_0:                                          ; preds = %entry
+  store double %"8", double* %k_, align 8
+  ret void
+
+Block_1:                                          ; preds = %entry
+  %"9" = landingpad i64
+          cleanup
+}
+
+define void @__typescript__personality() {
+entry:
+  ret void
+}
+
+define double @foo_(double %0) {
+main:
+  %x_ = alloca double, align 8
+  store double %0, double* %x_, align 8
+  %"1" = load double, double* %x_, align 8
+  ret double %"1"
+}
+
