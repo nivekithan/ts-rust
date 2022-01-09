@@ -34,6 +34,20 @@ impl<'a> LLVMUtils<'a> for DataType {
                 return ptr_type.as_basic_type_enum();
             }
 
+            DataType::ObjectType { entries } => {
+                let mut field_types: Vec<BasicTypeEnum> = Vec::new();
+
+                for (_, datatype) in entries {
+                    let basic_type = datatype.to_basic_type(context);
+                    field_types.push(basic_type);
+                }
+
+                let struct_type = context.struct_type(&field_types, true);
+                return struct_type
+                    .ptr_type(AddressSpace::Generic)
+                    .as_basic_type_enum();
+            }
+
             _ => panic!("Cannot convert data_type {:?} to BasicTypeEnum", self),
         }
     }

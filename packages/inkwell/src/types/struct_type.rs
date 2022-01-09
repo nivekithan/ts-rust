@@ -3,7 +3,8 @@ use std::convert::TryInto;
 use llvm_sys::{core::LLVMStructGetTypeAtIndex, prelude::LLVMTypeRef};
 
 use super::{
-    enums::BasicTypeEnum,
+    enums::{AddressSpace, BasicTypeEnum},
+    ptr_type::PointerType,
     traits::{AsTypeRef, BasicTypeTrait},
     Type,
 };
@@ -27,6 +28,10 @@ impl<'a> StructType<'a> {
             let type_ref = LLVMStructGetTypeAtIndex(self.as_type_ref(), index.try_into().unwrap());
             return BasicTypeEnum::new(type_ref);
         }
+    }
+
+    pub fn ptr_type(&self, address_space: AddressSpace) -> PointerType<'a> {
+        return self.struct_type.ptr_type(address_space);
     }
 }
 

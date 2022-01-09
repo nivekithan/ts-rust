@@ -147,6 +147,8 @@ impl<'a> Parser<'a> {
                     }
                 }
 
+                self.next(); // consumes }
+
                 return Ok(DataType::ObjectType {
                     entries: data_type_entries,
                 });

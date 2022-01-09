@@ -106,3 +106,19 @@ fn test_passing_a_callback_function() {
 
     insta::assert_snapshot!(input, output);
 }
+
+#[test]
+fn test_passing_object_to_function() {
+    let input = "
+    function foo(x : {a : number}) : number {
+        return x.a;
+    };
+
+    const y = foo({a : 5});
+    
+    ";
+
+    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+
+    insta::assert_snapshot!(input, output);
+}
