@@ -1,6 +1,10 @@
 use core::panic;
 
-use ast::expression::{BinaryOperator, UnaryOperator};
+use ast::{
+    data_type::DataType,
+    expression::{BinaryOperator, UnaryOperator},
+};
+use indexmap::IndexMap;
 use lexer::token::Token;
 
 pub(crate) fn convert_token_to_unary_operator(token: &Token) -> UnaryOperator {
@@ -39,4 +43,14 @@ pub(crate) fn convert_token_to_binary_operator(token: &Token) -> BinaryOperator 
     };
 
     return operator;
+}
+
+pub fn convert_index_map_to_vec(index_map: &IndexMap<String, DataType>) -> Vec<DataType> {
+    let mut vec_str: Vec<DataType> = Vec::new();
+
+    for (_, data_type) in index_map {
+        vec_str.push(data_type.clone());
+    }
+
+    return vec_str;
 }

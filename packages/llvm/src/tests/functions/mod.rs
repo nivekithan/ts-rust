@@ -70,3 +70,19 @@ fn test_assigning_a_variable_to_function_that_returns_void() {
 
     write_llvm_ir(convert_to_ast(convert_to_token(input)));
 }
+
+#[test]
+fn test_assigning_a_function_to_variable() {
+    let input = "
+    function foo(x : number) : void {
+        return;
+    }
+    
+    const x = foo;
+    x()
+    ";
+
+    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+
+    insta::assert_snapshot!(input, output);
+}

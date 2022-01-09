@@ -2,7 +2,7 @@ use ast::data_type::DataType;
 use indexmap::IndexMap;
 use lexer::token::Token;
 
-use crate::parser::Parser;
+use crate::{parser::Parser, utils::convert_index_map_to_vec};
 
 impl<'a> Parser<'a> {
     pub(crate) fn parse_type_declaration(&mut self, precedence: usize) -> Result<DataType, String> {
@@ -117,7 +117,7 @@ impl<'a> Parser<'a> {
                     let return_type = Box::new(self.parse_type_declaration(1)?);
 
                     return Ok(DataType::FunctionType {
-                        arguments,
+                        arguments: convert_index_map_to_vec(&arguments),
                         return_type,
                     });
                 }

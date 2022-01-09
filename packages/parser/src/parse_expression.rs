@@ -346,12 +346,12 @@ impl<'a> Parser<'a> {
 
                     while self.get_cur_token()?.clone() != Token::CurveCloseBracket {
                         let parameter = self.parse_expression(1, context)?;
-                        let argument_index = arguments.get_index(index);
+                        let argument_index = arguments.get(index);
 
                         match argument_index {
                             None => return Err(format!("Function only takes only {} arguments but you are passing more than that", index)),
 
-                            Some((_, data_type)) => {
+                            Some(data_type) => {
                                 let parameter_data_type = parameter.get_data_type();
 
                                 if parameter_data_type == *data_type {

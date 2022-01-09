@@ -113,10 +113,7 @@ fn test_function_type() {
     let mut parser = Parser::new(&tokens);
     let data_type = parser.parse_type_declaration(1);
 
-    let mut arguments: IndexMap<String, DataType> = IndexMap::new();
-
-    arguments.insert("a".to_string(), DataType::String);
-    arguments.insert("b".to_string(), DataType::String);
+    let arguments = vec![DataType::String, DataType::String];
 
     assert_eq!(
         data_type,

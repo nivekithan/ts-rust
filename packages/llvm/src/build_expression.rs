@@ -4,6 +4,7 @@ use ast::{
     data_type::DataType,
     expression::{BinaryOperator, Expression, UnaryOperator},
 };
+use either::Either;
 use indexmap::IndexMap;
 use inkwell::{
     builder::Builder,
@@ -86,6 +87,10 @@ pub(crate) fn build_expression<'a>(
             name: variable_name,
             data_type,
         } => {
+            // TODO: REMOVE DEBUG
+            println!("{}", variable_name);
+            println!("{:?}", symbol_table);
+            // -------
             if let Some(pointer) = symbol_table.get(variable_name) {
                 let load_value = match data_type {
                     DataType::Float => builder.build_load(
@@ -102,6 +107,7 @@ pub(crate) fn build_expression<'a>(
 
                     DataType::ArrayType{base_type : _ } => BasicValueEnum::PointerValue(pointer.clone()),
                     DataType::ObjectType { entries : _ } => BasicValueEnum::PointerValue(pointer.clone()),
+                    DataType::FunctionType{arguments : _, return_type : _} => BasicValueEnum::PointerValue(pointer.clone()),
 
                     _ => panic!("Update Function build_expression -> Expression::IdentExp, Unsupported datatype"),
                 };
@@ -484,7 +490,7 @@ pub(crate) fn build_expression<'a>(
                 );
                 catch_block
             };
-            let calling_fn_value = module.get_fn_value(&fn_name);
+            let calling_fn_value = symbol_table.get(fn_name).unwrap().clone();
 
             let args: Vec<BasicValueEnum> = parameters
                 .iter()
@@ -503,8 +509,13 @@ pub(crate) fn build_expression<'a>(
                 })
                 .collect();
 
-            let value =
-                builder.build_invoke_2(&calling_fn_value, &args, &then_block, &catch_block, name);
+            let value = builder.build_invoke_2(
+                Either::Right(&calling_fn_value),
+                &args,
+                &then_block,
+                &catch_block,
+                name,
+            );
 
             builder.position_at_end(&then_block);
 

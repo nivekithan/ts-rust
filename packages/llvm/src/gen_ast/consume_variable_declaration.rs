@@ -178,7 +178,24 @@ pub(crate) fn consume_variable_declaration<'a>(
         DataType::FunctionType {
             arguments: _,
             return_type: _,
-        } => unreachable!(),
+        } => {
+            let value = build_expression(
+                exp,
+                context,
+                builder,
+                function_value,
+                symbol_table,
+                module,
+                Some(ident_name.to_string()),
+            )
+            .unwrap();
+
+            if let BasicValueEnum::PointerValue(pointer) = value {
+                pointer
+            } else {
+                panic!("Expected function build_expression for DataType::FunctionType to return BasicValueEnum::PointerValue")
+            }
+        }
 
         DataType::Unknown => unreachable!(),
     };

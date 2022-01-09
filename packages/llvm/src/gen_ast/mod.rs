@@ -216,6 +216,7 @@ pub(crate) fn consume_ast_in_module<'a>(
                         return_type,
                         context,
                         module,
+                        symbol_table,
                     );
                 }
 

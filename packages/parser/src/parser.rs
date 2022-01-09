@@ -10,7 +10,10 @@ use ast::{
 use indexmap::IndexMap;
 use lexer::token::{KeywordKind, Token};
 
-use crate::symbol_table::{FunctionSymbol, SymbolContext, SymbolMetaInsert};
+use crate::{
+    symbol_table::{FunctionSymbol, SymbolContext, SymbolMetaInsert},
+    utils::convert_index_map_to_vec,
+};
 
 pub struct Parser<'a> {
     pub(crate) content: &'a Vec<Token>,
@@ -691,7 +694,7 @@ impl<'a> Parser<'a> {
                 name.as_str(),
                 SymbolMetaInsert::create(
                     DataType::FunctionType {
-                        arguments: arguments.clone(),
+                        arguments: convert_index_map_to_vec(&arguments),
                         return_type: Box::new(return_type.clone()),
                     },
                     true,

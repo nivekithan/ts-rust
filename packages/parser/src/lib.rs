@@ -1,4 +1,3 @@
-mod compiler_provided_fn;
 mod parse_block;
 mod parse_expression;
 mod parse_type_expression;
@@ -11,15 +10,12 @@ mod tests;
 
 use crate::{parser::Parser, symbol_table::SymbolContext};
 use ast::Ast;
-use compiler_provided_fn::insert_compiler_provided_fn;
 use lexer::token::Token;
 
 pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
     let mut parser = Parser::new(&input);
     let mut asts: Vec<Ast> = vec![];
     let mut context = SymbolContext::create_global_context();
-
-    insert_compiler_provided_fn(&mut context);
 
     while parser.get_cur_token().unwrap() != &Token::Eof {
         let next_ast = parser.next_ast(&mut context);

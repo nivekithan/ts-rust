@@ -292,34 +292,70 @@ impl<'a> Builder<'a> {
 
     pub fn build_invoke_2(
         &self,
-        fn_value: &FunctionValue<'a>,
+        fn_value: Either<&FunctionValue<'a>, &PointerValue<'a>>,
         args: &[BasicValueEnum<'a>],
         then_block: &BasicBlock<'a>,
         catch_block: &BasicBlock<'a>,
         mut name: &str,
     ) -> ReturnedValue<'a> {
         unsafe {
-            let fn_type = fn_value.get_type();
-            let return_type = fn_type.get_return_type();
-            if let BasicTypeEnum::VoidType(_) = &return_type {
-                name = ""
-            };
+            if let Either::Left(fn_value) = fn_value {
+                let fn_type = fn_value.get_type();
+                let return_type = fn_type.get_return_type();
+                if let BasicTypeEnum::VoidType(_) = &return_type {
+                    name = ""
+                };
 
-            let c_name = to_c_str(name);
-            let mut args: Vec<LLVMValueRef> = args.iter().map(|v| v.as_value_ref()).collect();
+                let c_name = to_c_str(name);
+                let mut args: Vec<LLVMValueRef> = args.iter().map(|v| v.as_value_ref()).collect();
 
-            let value = LLVMBuildInvoke2(
-                self.builder,
-                fn_type.as_type_ref(),
-                fn_value.as_value_ref(),
-                args.as_mut_ptr(),
-                args.len() as u32,
-                then_block.basic_block,
-                catch_block.basic_block,
-                c_name.as_ptr(),
-            );
+                let value = LLVMBuildInvoke2(
+                    self.builder,
+                    fn_type.as_type_ref(),
+                    fn_value.as_value_ref(),
+                    args.as_mut_ptr(),
+                    args.len() as u32,
+                    then_block.basic_block,
+                    catch_block.basic_block,
+                    c_name.as_ptr(),
+                );
 
-            return ReturnedValue::new(value);
+                return ReturnedValue::new(value);
+            } else if let Either::Right(pointer_value) = fn_value {
+                let is_valid_type = pointer_value.get_type().into_element_type().is_fn_type();
+
+                if is_valid_type {
+                    let fn_type = FunctionType::new(
+                        pointer_value.get_type().into_element_type().as_type_ref(),
+                    );
+
+                    let return_type = fn_type.get_return_type();
+
+                    if let BasicTypeEnum::VoidType(_) = return_type {
+                        name = ""
+                    };
+
+                    let c_name = to_c_str(name);
+                    let mut args: Vec<LLVMValueRef> =
+                        args.iter().map(|v| v.as_value_ref()).collect();
+                    let value = LLVMBuildInvoke2(
+                        self.builder,
+                        fn_type.as_type_ref(),
+                        pointer_value.as_value_ref(),
+                        args.as_mut_ptr(),
+                        args.len() as u32,
+                        then_block.basic_block,
+                        catch_block.basic_block,
+                        c_name.as_ptr(),
+                    );
+
+                    return ReturnedValue::new(value);
+                } else {
+                    todo!();
+                }
+            } else {
+                todo!();
+            }
         }
     }
 

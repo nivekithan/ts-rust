@@ -84,11 +84,12 @@ pub enum Expression {
         fn_name: String,
         parameters: Vec<Expression>,
         return_type: DataType,
-    }, // Function {
-       //     return_type: DataType,
-       //     arguments: Vec<DataType>,
-       //     block: Box<Vec<Ast>>,
-       // }
+    },
+    // Function {
+    //     return_type: DataType,
+    //     arguments: Vec<DataType>,
+    //     block: Box<Vec<Ast>>,
+    // }
 }
 
 impl Expression {

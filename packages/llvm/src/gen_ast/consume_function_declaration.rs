@@ -17,7 +17,12 @@ pub(crate) fn consume_function_declaration<'a>(
     return_type: &DataType,
     context: &'a Context,
     module: &'a Module,
+    symbol_table: &mut HashMap<String, PointerValue<'a>>,
 ) {
+    // TODO: REMOVE DEBUG
+    println!("{}", ident_name);
+
+    // ---------
     let mut number_of_arguments = 0;
     let llvm_return_type = return_type.to_basic_type(context);
     let param_types: Vec<BasicTypeEnum> = arguments
@@ -30,6 +35,8 @@ pub(crate) fn consume_function_declaration<'a>(
     let fn_type = llvm_return_type.fn_type(&param_types, false);
 
     let mut function_value = module.add_function(ident_name, fn_type, None);
+
+    symbol_table.insert(ident_name.to_string(), function_value.to_pointer_value());
 
     /*
      * When we declare a function with arguments llvm assigns registers with name from 0 to ...

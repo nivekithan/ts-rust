@@ -9,7 +9,7 @@ use llvm_sys::{
 
 use crate::{enums::Linkage, types::fn_type::FunctionType};
 
-use super::{enums::BasicValueEnum, traits::AsValueRef, Value};
+use super::{enums::BasicValueEnum, ptr_value::PointerValue, traits::AsValueRef, Value};
 
 #[derive(PartialEq, Eq, Clone, Copy, Hash)]
 
@@ -68,6 +68,12 @@ impl<'a> FunctionValue<'a> {
 
         unsafe {
             return Some(BasicValueEnum::new(LLVMGetParam(self.as_value_ref(), nth)));
+        }
+    }
+
+    pub fn to_pointer_value(&self) -> PointerValue<'a> {
+        unsafe {
+            return PointerValue::new(self.as_value_ref());
         }
     }
 
