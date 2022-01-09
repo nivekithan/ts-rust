@@ -3,8 +3,7 @@ use inkwell::{
     context::Context,
     types::{
         enums::{AddressSpace, BasicTypeEnum},
-        traits::{AsTypeRef, BasicTypeTrait},
-        utils::print_type_ref,
+        traits::BasicTypeTrait,
     },
 };
 
@@ -31,22 +30,7 @@ impl<'a> LLVMUtils<'a> for DataType {
                     .collect();
 
                 let fn_type = return_type.fn_type(&arguments, false);
-                //TODO: Remove Debug
-                unsafe {
-                    println!("Hello ");
-                    print_type_ref(fn_type.as_type_ref());
-                }
-                // ------
-
                 let ptr_type = fn_type.ptr_type(AddressSpace::Global);
-
-                //TODO: Remove Debug
-                unsafe {
-                    println!("Hello ---- ");
-                    print_type_ref(ptr_type.as_type_ref());
-                }
-                // ------
-
                 return ptr_type.as_basic_type_enum();
             }
 

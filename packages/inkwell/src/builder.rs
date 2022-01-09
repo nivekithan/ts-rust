@@ -20,7 +20,6 @@ use crate::{
         fn_type::FunctionType,
         int_type::IntType,
         traits::{AsTypeRef, BasicTypeTrait},
-        utils::print_type_ref,
     },
     utils::to_c_str,
     values::{
@@ -324,10 +323,6 @@ impl<'a> Builder<'a> {
                 return ReturnedValue::new(value);
             } else if let Either::Right(pointer_value) = fn_value {
                 let is_valid_type = pointer_value.get_type().into_element_type().is_fn_type();
-
-                // TODO: Remove DEBUG
-                print_type_ref(pointer_value.get_type().as_type_ref());
-                // ------
 
                 if is_valid_type {
                     let fn_type = FunctionType::new(

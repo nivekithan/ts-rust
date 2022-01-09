@@ -64,6 +64,25 @@ pub(crate) fn consume_function_declaration<'a>(
         let llvm_type = data_type.to_basic_type(context);
 
         if let BasicTypeEnum::PointerType(_) = llvm_type {
+            /*
+             * Since typescript does not have pointers, pointers in parameters corresponds to
+             *    => String
+             *    => Object
+             *    => Array
+             *    => Function
+             *
+             * types in typescript
+             *
+             *
+             *  There is no reason for us to allocate pointers in stack
+             * and store the pointer in `symbol_table` since they are pointer themselves
+             * so we can directly store pointers in `symbol_table`
+             *
+             *
+             * NOTE: As of now only function pointers are supported
+             *
+             * */
+
             let param_value = function_value.get_nth_param(i as u32).unwrap();
             if let BasicValueEnum::PointerValue(param_value) = param_value {
                 symbol_table.insert(name.to_string(), param_value);
