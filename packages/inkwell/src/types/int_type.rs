@@ -37,11 +37,7 @@ impl<'a> IntType<'a> {
         }
     }
 
-    pub fn fn_type(
-        self,
-        param_types: &[BasicTypeEnum<'a>],
-        variadic_arg: bool,
-    ) -> FunctionType<'a> {
+    pub fn fn_type(self, param_types: &[BasicTypeEnum], variadic_arg: bool) -> FunctionType<'a> {
         return self.int_type.fn_type(param_types, variadic_arg);
     }
 

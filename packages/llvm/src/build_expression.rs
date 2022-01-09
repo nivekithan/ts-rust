@@ -87,10 +87,6 @@ pub(crate) fn build_expression<'a>(
             name: variable_name,
             data_type,
         } => {
-            // TODO: REMOVE DEBUG
-            println!("{}", variable_name);
-            println!("{:?}", symbol_table);
-            // -------
             if let Some(pointer) = symbol_table.get(variable_name) {
                 let load_value = match data_type {
                     DataType::Float => builder.build_load(

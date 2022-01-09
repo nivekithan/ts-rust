@@ -7,7 +7,12 @@ use llvm_sys::{
 
 use crate::{enums::InlineAsmSyntax, utils::to_c_str, values::ptr_value::PointerValue};
 
-use super::{enums::BasicTypeEnum, traits::AsTypeRef, Type};
+use super::{
+    enums::{AddressSpace, BasicTypeEnum},
+    ptr_type::PointerType,
+    traits::AsTypeRef,
+    Type,
+};
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub struct FunctionType<'a> {
@@ -28,6 +33,9 @@ impl<'a> FunctionType<'a> {
             let return_type = LLVMGetReturnType(self.as_type_ref());
             return BasicTypeEnum::new(return_type);
         }
+    }
+    pub fn ptr_type(&self, address_space: AddressSpace) -> PointerType<'a> {
+        self.fn_type.ptr_type(address_space)
     }
 
     pub fn create_inline_asm(

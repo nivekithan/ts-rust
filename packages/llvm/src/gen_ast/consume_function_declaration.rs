@@ -3,7 +3,10 @@ use std::collections::HashMap;
 use ast::{data_type::DataType, declaration::Declaration, Ast};
 use indexmap::IndexMap;
 use inkwell::{
-    context::Context, module::Module, types::enums::BasicTypeEnum, values::ptr_value::PointerValue,
+    context::Context,
+    module::Module,
+    types::enums::BasicTypeEnum,
+    values::{enums::BasicValueEnum, ptr_value::PointerValue},
 };
 
 use crate::{build_expression::build_expression, llvm_utils::LLVMUtils};
@@ -19,10 +22,6 @@ pub(crate) fn consume_function_declaration<'a>(
     module: &'a Module,
     symbol_table: &mut HashMap<String, PointerValue<'a>>,
 ) {
-    // TODO: REMOVE DEBUG
-    println!("{}", ident_name);
-
-    // ---------
     let mut number_of_arguments = 0;
     let llvm_return_type = return_type.to_basic_type(context);
     let param_types: Vec<BasicTypeEnum> = arguments
@@ -63,12 +62,22 @@ pub(crate) fn consume_function_declaration<'a>(
      * */
     for (i, (name, data_type)) in arguments.iter().enumerate() {
         let llvm_type = data_type.to_basic_type(context);
-        let arg_pointer = builder.build_alloca(llvm_type, name);
 
-        let param_value = function_value.get_nth_param(i as u32).unwrap();
-        builder.build_store(arg_pointer, param_value);
+        if let BasicTypeEnum::PointerType(_) = llvm_type {
+            let param_value = function_value.get_nth_param(i as u32).unwrap();
+            if let BasicValueEnum::PointerValue(param_value) = param_value {
+                symbol_table.insert(name.to_string(), param_value);
+            } else {
+                todo!();
+            }
+        } else {
+            let arg_pointer = builder.build_alloca(llvm_type, name);
 
-        symbol_table.insert(name.to_string(), arg_pointer);
+            let param_value = function_value.get_nth_param(i as u32).unwrap();
+            builder.build_store(arg_pointer, param_value);
+
+            symbol_table.insert(name.to_string(), arg_pointer);
+        }
     }
 
     for cur_ast in blocks.as_ref() {

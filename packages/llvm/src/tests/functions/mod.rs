@@ -30,6 +30,7 @@ fn test_using_parameters() {
     insta::assert_snapshot!(input, output);
 }
 
+
 #[test]
 fn test_calling_a_function() {
     let input = "
@@ -80,6 +81,26 @@ fn test_assigning_a_function_to_variable() {
     
     const x = foo;
     x()
+    ";
+
+    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+
+    insta::assert_snapshot!(input, output);
+}
+
+#[test]
+fn test_passing_a_callback_function() {
+    let input = "
+    function foo(x : number, y : (s : number) => number, ) : void {
+        y(x);
+        return;
+    };
+
+    function bar(y : number) : number {
+        return y + y;
+    }
+
+    foo(5, bar);
     ";
 
     let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));

@@ -24,11 +24,7 @@ impl<'a> FloatType<'a> {
         };
     }
 
-    pub fn fn_type(
-        self,
-        param_types: &[BasicTypeEnum<'a>],
-        variadic_arg: bool,
-    ) -> FunctionType<'a> {
+    pub fn fn_type(self, param_types: &[BasicTypeEnum], variadic_arg: bool) -> FunctionType<'a> {
         return self.float_type.fn_type(param_types, variadic_arg);
     }
 

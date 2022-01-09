@@ -10,13 +10,19 @@ pub mod utils;
 pub mod void_type;
 
 use llvm_sys::{
-    core::{LLVMArrayType, LLVMFunctionType, LLVMGetTypeKind},
+    core::{LLVMArrayType, LLVMFunctionType, LLVMGetTypeKind, LLVMPointerType},
     prelude::LLVMTypeRef,
     LLVMTypeKind,
 };
 use std::marker::PhantomData;
 
-use self::{array_type::ArrayType, enums::BasicTypeEnum, fn_type::FunctionType, traits::AsTypeRef};
+use self::{
+    array_type::ArrayType,
+    enums::{AddressSpace, BasicTypeEnum},
+    fn_type::FunctionType,
+    ptr_type::PointerType,
+    traits::AsTypeRef,
+};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub(crate) struct Type<'a> {
@@ -36,7 +42,7 @@ impl<'a> Type<'a> {
 
     pub(crate) fn fn_type(
         self,
-        param_types: &[BasicTypeEnum<'a>],
+        param_types: &[BasicTypeEnum],
         variadic_arg: bool,
     ) -> FunctionType<'a> {
         let mut param_types: Vec<LLVMTypeRef> = param_types
@@ -57,6 +63,12 @@ impl<'a> Type<'a> {
     pub(crate) fn array_type(self, size: u32) -> ArrayType<'a> {
         unsafe {
             return ArrayType::new(LLVMArrayType(self.ty, size));
+        }
+    }
+
+    pub(crate) fn ptr_type(self, address_space: AddressSpace) -> PointerType<'a> {
+        unsafe {
+            return PointerType::new(LLVMPointerType(self.ty, address_space as u32));
         }
     }
 
