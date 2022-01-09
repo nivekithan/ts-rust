@@ -18,7 +18,7 @@ use inkwell::{
     values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
-use crate::utils::get_personality_fn;
+use crate::{utils::get_personality_fn, llvm_utils::LLVMUtils};
 
 /*
  * It will return None if expression is Void
@@ -557,6 +557,7 @@ fn convert_index_map_to_struct_type<'a>(
         match data_type {
             DataType::Boolean => all_field.push(context.i1_type().as_basic_type_enum()),
             DataType::Float => all_field.push(context.f64_type().as_basic_type_enum()),
+            DataType::ObjectType{entries : _} => all_field.push(data_type.to_basic_type(context)),
 
             _ => {
                 return Err(format!(

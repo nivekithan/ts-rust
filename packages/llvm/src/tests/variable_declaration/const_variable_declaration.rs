@@ -582,3 +582,32 @@ fn binary_greater_than_or_equal() {
 
     exp_test.test();
 }
+
+
+#[test]
+fn literal_object_declaration() {
+    let input = "
+
+    const x = {a : 5};
+    const y = x.a;
+    ";
+
+    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+
+    insta::assert_snapshot!(input, output);
+}
+
+
+#[test]
+fn literal_object_nested_object_declaration() {
+    let input = "
+
+    const x = {a : {a : 5}};
+    const y = x.a;
+    const z = y.a;
+    ";
+
+    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    
+    insta::assert_snapshot!(input, output);
+}
