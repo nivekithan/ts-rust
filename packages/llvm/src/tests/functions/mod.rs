@@ -30,7 +30,6 @@ fn test_using_parameters() {
     insta::assert_snapshot!(input, output);
 }
 
-
 #[test]
 fn test_calling_a_function() {
     let input = "
