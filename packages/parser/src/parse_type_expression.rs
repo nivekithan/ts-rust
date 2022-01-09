@@ -49,14 +49,78 @@ impl<'a> Parser<'a> {
             }
 
             Token::CurveOpenBracket => {
-                self.next(); // consumes (
+                let is_grouped_expression = {
+                    let mut look_up_parser = self.clone();
+                    while look_up_parser.get_cur_token()? != &Token::CurveCloseBracket {
+                        look_up_parser.next();
+                    }
 
-                let grouped_data_type = self.parse_type_declaration(1)?;
+                    look_up_parser.next(); // consumes )
 
-                self.assert_cur_token(&Token::CurveCloseBracket)?;
+                    if look_up_parser.get_cur_token()? == &Token::FunctionArrow {
+                        false
+                    } else {
+                        true
+                    }
+                };
 
-                self.next(); // consumes )
-                return Ok(grouped_data_type);
+                if is_grouped_expression {
+                    self.next(); // consumes (
+
+                    let grouped_data_type = self.parse_type_declaration(1)?;
+
+                    self.assert_cur_token(&Token::CurveCloseBracket)?;
+
+                    self.next(); // consumes )
+                    return Ok(grouped_data_type);
+                } else {
+                    self.next(); // consumes (
+
+                    let mut arguments: IndexMap<String, DataType> = IndexMap::new();
+
+                    let mut can_continue = true;
+
+                    while self.get_cur_token()? != &Token::CurveCloseBracket && can_continue {
+                        if let Token::Ident { name: arg_name } = self.get_cur_token()?.clone() {
+                            self.next(); // consumes Ident
+
+                            self.assert_cur_token(&Token::Colon)?;
+                            self.next(); // consumes :
+
+                            let arg_type = self.parse_type_declaration(1)?;
+
+                            if arguments.contains_key(&arg_name) {
+                                return Err(format!("In function declaration each argument must have different names but name : {} is repeated", arg_name));
+                            } else {
+                                arguments.insert(arg_name.to_string(), arg_type);
+                            }
+
+                            if let Token::Comma = self.get_cur_token()? {
+                                self.next(); // consumes ,
+                            } else {
+                                can_continue = false;
+                            }
+                        } else {
+                            return Err(format!(
+                                "Expected tok to be Ident but got {:?}",
+                                self.get_cur_token()?
+                            ));
+                        }
+                    }
+
+                    self.assert_cur_token(&Token::CurveCloseBracket)?;
+                    self.next(); // consumes )
+
+                    self.assert_cur_token(&Token::FunctionArrow)?;
+                    self.next(); // consumes =>
+
+                    let return_type = Box::new(self.parse_type_declaration(1)?);
+
+                    return Ok(DataType::FunctionType {
+                        arguments,
+                        return_type,
+                    });
+                }
             }
 
             Token::AngleOpenBracket => {

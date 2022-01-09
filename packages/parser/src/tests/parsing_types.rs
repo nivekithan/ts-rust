@@ -104,3 +104,25 @@ fn test_object_type() {
         })
     );
 }
+
+#[test]
+fn test_function_type() {
+    let input = "(a : string, b : string) => number";
+
+    let tokens = convert_to_token(input);
+    let mut parser = Parser::new(&tokens);
+    let data_type = parser.parse_type_declaration(1);
+
+    let mut arguments: IndexMap<String, DataType> = IndexMap::new();
+
+    arguments.insert("a".to_string(), DataType::String);
+    arguments.insert("b".to_string(), DataType::String);
+
+    assert_eq!(
+        data_type,
+        Ok(DataType::FunctionType {
+            arguments,
+            return_type: Box::new(DataType::Float)
+        })
+    );
+}
