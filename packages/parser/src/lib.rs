@@ -14,17 +14,17 @@ use std::collections::HashMap;
 use crate::{parser::Parser, symbol_table::SymbolContext};
 use ast::Ast;
 use lexer::token::Token;
-use resolver::Resolver;
+use resolver::{Resolver, ResolverData};
 use symbol_table::SymbolMetaInsert;
 
 pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
-    let resolver = Resolver::new();
-    return convert_to_ast_with_resolver(input, resolver).0;
+    let mut resolver = Resolver::new();
+    return convert_to_ast_with_resolver(input, &mut resolver).0;
 }
 
 pub fn convert_to_ast_with_resolver<'a>(
     input: Vec<Token>,
-    resolver: Resolver,
+    resolver: &'a mut Resolver,
 ) -> (Vec<Ast>, HashMap<String, SymbolMetaInsert>) {
     let mut parser = Parser::new(&input, resolver);
     let mut asts: Vec<Ast> = vec![];
@@ -37,6 +37,13 @@ pub fn convert_to_ast_with_resolver<'a>(
 
     return (asts, context.symbols);
 }
+
+pub fn parse_main<'a>(input : Vec<Token>, resolver : &'a mut Resolver) {
+    let (ast, symbols) = convert_to_ast_with_resolver(input, resolver);
+    let data = ResolverData{ast, symbol_table : symbols};
+    resolver.set_main(data);
+}
+
 
 #[cfg(test)]
 mod test {

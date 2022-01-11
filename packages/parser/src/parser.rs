@@ -19,27 +19,15 @@ use crate::{
 pub struct Parser<'a> {
     pub(crate) content: &'a Vec<Token>,
     pub(crate) cur_pos: Option<usize>,
-    resolver: Resolver,
+    resolver: &'a mut Resolver,
 }
 
 impl<'a> Parser<'a> {
-    pub fn new(content: &'a Vec<Token>, resolver: Resolver) -> Parser<'a> {
+    pub fn new(content: &'a Vec<Token>, resolver: &'a mut Resolver) -> Parser<'a> {
         let mut parser: Parser<'a> = Parser {
             content,
             cur_pos: None,
             resolver,
-        };
-
-        parser.next();
-
-        return parser;
-    }
-    #[allow(dead_code)]
-    pub fn with_empty_resolver(content: &'a Vec<Token>) -> Parser<'a> {
-        let mut parser = Parser {
-            content,
-            cur_pos: None,
-            resolver: Resolver::new(),
         };
 
         parser.next();
@@ -448,7 +436,7 @@ impl<'a> Parser<'a> {
      *
      **/
     pub(crate) fn parse_naked_ident(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
-        let cur_tok = self.get_cur_token()?;
+        let cur_tok = &self.get_cur_token()?.clone();
         let mut lookup_parser = self.lookup_parser();
         match cur_tok {
             Token::Ident { name: _ } => 'outer: loop {
@@ -795,7 +783,13 @@ impl<'a> Parser<'a> {
             }
         };
 
-        let external_file_context = &self.resolver.get_symbols(&file_name).clone();
+        let external_file_data = {
+            if !self.resolver.contains_data(&file_name) {
+                self.resolver.parse_data(&file_name);
+            }
+            &self.resolver.get_data(&file_name).clone()
+        };
+        let external_file_symbols = &external_file_data.symbol_table;
 
         self.assert_cur_token(&Token::AngleOpenBracket)?;
         self.next(); // consumes {
@@ -804,7 +798,7 @@ impl<'a> Parser<'a> {
 
         while self.get_cur_token()?.clone() != Token::AngleCloseBracket {
             if let Token::Ident { name } = self.get_cur_token()? {
-                let symbol_meta = external_file_context.get(name).unwrap();
+                let symbol_meta = external_file_symbols.get(name).unwrap();
                 let can_export = symbol_meta.can_export;
 
                 if !can_export {
@@ -874,11 +868,11 @@ impl<'a> Parser<'a> {
     /*
      * Clones the parser except resolver
      *  */
-    pub(crate) fn lookup_parser(&self) -> Parser<'a> {
+    pub(crate) fn lookup_parser(&mut self) -> Parser {
         return Parser {
             content: self.content,
             cur_pos: self.cur_pos,
-            resolver: Resolver::new(),
+            resolver: self.resolver,
         };
     }
 
