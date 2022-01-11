@@ -377,6 +377,12 @@ fn is_keyword(word: &String) -> IsKeyword {
         return IsKeyword::Yes(KeywordKind::Function);
     } else if word == "return" {
         return IsKeyword::Yes(KeywordKind::Return);
+    } else if word == "import" {
+        return IsKeyword::Yes(KeywordKind::Import);
+    } else if word == "from" {
+        return IsKeyword::Yes(KeywordKind::From);
+    } else if word == "export" {
+        return IsKeyword::Yes(KeywordKind::Export);
     } else {
         return IsKeyword::No;
     }

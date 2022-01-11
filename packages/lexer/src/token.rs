@@ -74,6 +74,10 @@ pub enum KeywordKind {
 
     Function,
     Return,
+
+    Import,
+    From,
+    Export,
 }
 
 #[derive(Debug, PartialEq, Clone)]

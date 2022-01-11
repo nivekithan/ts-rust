@@ -144,7 +144,11 @@ fn test_keyword() {
     continue
     
     function
-    return";
+    return
+    
+    import
+    from
+    export";
 
     let expected_output: Vec<Token> = vec![
         Keyword(KeywordKind::Const),
@@ -159,6 +163,9 @@ fn test_keyword() {
         Keyword(KeywordKind::Continue),
         Keyword(KeywordKind::Function),
         Keyword(KeywordKind::Return),
+        Keyword(KeywordKind::Import),
+        Keyword(KeywordKind::From),
+        Keyword(KeywordKind::Export),
         Eof,
     ];
 
