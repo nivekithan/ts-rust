@@ -53,6 +53,13 @@ impl Ast {
             right,
         });
     }
+
+    pub fn new_import_declaration(ident: IndexMap<String, DataType>, from: &str) -> Ast {
+        return Ast::Declaration(Declaration::ImportDeclaration {
+            ident,
+            from: from.to_string(),
+        });
+    }
     pub fn new_variable_declaration(
         ident_name: &str,
         exp: Expression,

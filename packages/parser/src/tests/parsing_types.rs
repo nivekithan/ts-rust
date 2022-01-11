@@ -9,7 +9,7 @@ fn test_string_type_declaration() {
     let input = "string";
 
     let tokens = convert_to_token(input);
-    let mut parser = Parser::new(&tokens);
+    let mut parser = Parser::with_empty_resolver(&tokens);
     let data_type = parser.parse_type_declaration(1);
 
     assert_eq!(data_type, Ok(DataType::String));
@@ -20,7 +20,7 @@ fn test_boolean_type_declaration() {
     let input = "boolean";
 
     let tokens = convert_to_token(input);
-    let mut parser = Parser::new(&tokens);
+    let mut parser = Parser::with_empty_resolver(&tokens);
     let data_type = parser.parse_type_declaration(1);
 
     assert_eq!(data_type, Ok(DataType::Boolean));
@@ -31,7 +31,7 @@ fn test_number_type_declaration() {
     let input = "number";
 
     let tokens = convert_to_token(input);
-    let mut parser = Parser::new(&tokens);
+    let mut parser = Parser::with_empty_resolver(&tokens);
     let data_type = parser.parse_type_declaration(1);
 
     assert_eq!(data_type, Ok(DataType::Float));
@@ -42,7 +42,7 @@ fn test_void_type() {
     let input = "void";
 
     let tokens = convert_to_token(input);
-    let mut parser = Parser::new(&tokens);
+    let mut parser = Parser::with_empty_resolver(&tokens);
     let data_type = parser.parse_type_declaration(1);
 
     assert_eq!(data_type, Ok(DataType::Void));
@@ -53,7 +53,7 @@ fn test_grouped_type_declaration() {
     let input = "(string)";
 
     let tokens = convert_to_token(input);
-    let mut parser = Parser::new(&tokens);
+    let mut parser = Parser::with_empty_resolver(&tokens);
     let data_type = parser.parse_type_declaration(1);
 
     assert_eq!(data_type, Ok(DataType::String));
@@ -64,7 +64,7 @@ fn test_array_type() {
     let input = "string[][]";
 
     let tokens = convert_to_token(input);
-    let mut parser = Parser::new(&tokens);
+    let mut parser = Parser::with_empty_resolver(&tokens);
     let data_type = parser.parse_type_declaration(1);
 
     assert_eq!(
@@ -82,7 +82,7 @@ fn test_object_type() {
     let input = "{a : string, b : number , c : string[], d : boolean}";
 
     let tokens = convert_to_token(input);
-    let mut parser = Parser::new(&tokens);
+    let mut parser = Parser::with_empty_resolver(&tokens);
     let data_type = parser.parse_type_declaration(1);
 
     let mut data_type_entries: IndexMap<String, DataType> = IndexMap::new();
@@ -110,7 +110,7 @@ fn test_function_type() {
     let input = "(a : string, b : string) => number";
 
     let tokens = convert_to_token(input);
-    let mut parser = Parser::new(&tokens);
+    let mut parser = Parser::with_empty_resolver(&tokens);
     let data_type = parser.parse_type_declaration(1);
 
     let arguments = vec![DataType::String, DataType::String];

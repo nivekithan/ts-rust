@@ -18,7 +18,7 @@ use inkwell::{
     values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
-use crate::{llvm_utils::LLVMUtils};
+use crate::llvm_utils::LLVMUtils;
 
 /*
  * It will return None if expression is Void

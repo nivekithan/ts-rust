@@ -7,18 +7,23 @@ pub struct SymbolMeta {
     pub is_const: bool,
     pub is_override_available: bool,
     pub suffix: String,
+    pub can_export: bool,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+
 pub struct SymbolMetaInsert {
-    data_type: DataType,
-    is_const: bool,
+    pub data_type: DataType,
+    pub is_const: bool,
+    pub can_export: bool,
 }
 
 impl SymbolMetaInsert {
-    pub fn create(data_type: DataType, is_const: bool) -> Self {
+    pub fn create(data_type: DataType, is_const: bool, can_export: bool) -> Self {
         return SymbolMetaInsert {
             data_type,
             is_const,
+            can_export,
         };
     }
 }
@@ -33,8 +38,9 @@ impl FunctionSymbol {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct SymbolContext<'a> {
-    symbols: HashMap<String, SymbolMetaInsert>,
+    pub symbols: HashMap<String, SymbolMetaInsert>,
     parent: Option<Box<&'a SymbolContext<'a>>>,
     function_symbol: Option<FunctionSymbol>,
 
@@ -84,6 +90,7 @@ impl<'a> SymbolContext<'a> {
                     is_const: meta_insert.is_const,
                     is_override_available: is_override,
                     suffix: self.get_suffix(name),
+                    can_export: meta_insert.can_export,
                 };
 
                 return Some(meta);

@@ -8,9 +8,10 @@ use ast::{
     Ast,
 };
 use indexmap::IndexMap;
-use lexer::token::{KeywordKind, Token};
+use lexer::token::{KeywordKind, LiteralKind, Token};
 
 use crate::{
+    resolver::Resolver,
     symbol_table::{FunctionSymbol, SymbolContext, SymbolMetaInsert},
     utils::convert_index_map_to_vec,
 };
@@ -18,13 +19,27 @@ use crate::{
 pub struct Parser<'a> {
     pub(crate) content: &'a Vec<Token>,
     pub(crate) cur_pos: Option<usize>,
+    resolver: Resolver,
 }
 
 impl<'a> Parser<'a> {
-    pub fn new(content: &'a Vec<Token>) -> Parser<'a> {
+    pub fn new(content: &'a Vec<Token>, resolver: Resolver) -> Parser<'a> {
+        let mut parser: Parser<'a> = Parser {
+            content,
+            cur_pos: None,
+            resolver,
+        };
+
+        parser.next();
+
+        return parser;
+    }
+    #[allow(dead_code)]
+    pub fn with_empty_resolver(content: &'a Vec<Token>) -> Parser<'a> {
         let mut parser = Parser {
             content,
             cur_pos: None,
+            resolver: Resolver::new(),
         };
 
         parser.next();
@@ -45,7 +60,33 @@ impl<'a> Parser<'a> {
         match first_token {
             Token::Keyword(keyword_kind) => match keyword_kind {
                 KeywordKind::Const | KeywordKind::Let => {
-                    return self.parse_variable_declaration(context);
+                    return self.parse_variable_declaration(context, false);
+                }
+
+                KeywordKind::Import => {
+                    return self.parse_import_declaration(context);
+                }
+
+                KeywordKind::Export => {
+                    self.next(); // consumes export
+                    let cur_tok = self.get_cur_token()?;
+
+                    if let Token::Keyword(keyword_kind) = cur_tok {
+                        match keyword_kind {
+                            KeywordKind::Const | KeywordKind::Let => {
+                                return self.parse_variable_declaration(context, true);
+                            }
+
+                            KeywordKind::Function => {
+                                return self.parse_function_declaration(context, false);
+                            }
+
+                            _ => return Err(format!("Expected tok next to export to be `const` or `let` or `function` but instead got {:?}", cur_tok))
+
+                        }
+                    } else {
+                        return Err(format!("Expected tok next to export to be `const` or `let` or `function` but instead got {:?}", cur_tok));
+                    }
                 }
 
                 KeywordKind::If => {
@@ -80,7 +121,7 @@ impl<'a> Parser<'a> {
                 }
 
                 KeywordKind::Function => {
-                    return self.parse_function_declaration(context);
+                    return self.parse_function_declaration(context, false);
                 }
 
                 KeywordKind::Return => {
@@ -273,6 +314,7 @@ impl<'a> Parser<'a> {
     pub(crate) fn parse_variable_declaration(
         &mut self,
         context: &mut SymbolContext,
+        can_export: bool,
     ) -> Result<Ast, String> {
         let cur_tok = self.get_cur_token()?;
         let suffix = &context.suffix.clone();
@@ -356,7 +398,8 @@ impl<'a> Parser<'a> {
                             ));
                         }
 
-                        let sym_meta = SymbolMetaInsert::create(expression_data_type, is_const);
+                        let sym_meta =
+                            SymbolMetaInsert::create(expression_data_type, is_const, can_export);
 
                         if let Err(_) = context.insert(name.as_str(), sym_meta) {
                             return Err(format!(
@@ -406,7 +449,7 @@ impl<'a> Parser<'a> {
      **/
     pub(crate) fn parse_naked_ident(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
         let cur_tok = self.get_cur_token()?;
-        let mut lookup_parser = self.clone();
+        let mut lookup_parser = self.lookup_parser();
         match cur_tok {
             Token::Ident { name: _ } => 'outer: loop {
                 let next_tok = lookup_parser.next();
@@ -464,7 +507,7 @@ impl<'a> Parser<'a> {
         self.skip_semicolon()?;
         let name = context.get_temp_name();
 
-        let sym_meta = SymbolMetaInsert::create(exp.get_data_type(), true);
+        let sym_meta = SymbolMetaInsert::create(exp.get_data_type(), true, false);
 
         if let Err(_) = context.insert(name.as_str(), sym_meta) {
             return Err(format!(
@@ -617,6 +660,7 @@ impl<'a> Parser<'a> {
     pub(crate) fn parse_function_declaration(
         &mut self,
         context: &mut SymbolContext,
+        can_export: bool,
     ) -> Result<Ast, String> {
         self.assert_cur_token(&Token::Keyword(KeywordKind::Function))?;
         self.next(); // consumes keyword function
@@ -684,7 +728,7 @@ impl<'a> Parser<'a> {
                 let arg_name_without_suffix =
                     arg_name_cloned.strip_suffix(&context.suffix).unwrap();
 
-                let sym_meta = SymbolMetaInsert::create(arg_data_type.clone(), false);
+                let sym_meta = SymbolMetaInsert::create(arg_data_type.clone(), false, false);
                 function_block_context.insert(arg_name_without_suffix, sym_meta)?;
             }
 
@@ -698,6 +742,7 @@ impl<'a> Parser<'a> {
                         return_type: Box::new(return_type.clone()),
                     },
                     true,
+                    can_export,
                 ),
             )?;
 
@@ -715,6 +760,96 @@ impl<'a> Parser<'a> {
                 self.get_cur_token()?
             ));
         }
+    }
+    /*
+     * Assumes the current token to be `keyword import` in
+     *
+     * import {<ident>, <ident> } from "<filename>";
+     *
+     * consumes till `;`
+     *
+     * */
+    pub(crate) fn parse_import_declaration(
+        &mut self,
+        context: &mut SymbolContext,
+    ) -> Result<Ast, String> {
+        self.assert_cur_token(&Token::Keyword(KeywordKind::Import))?;
+        self.next(); // consumes import
+
+        let file_name = {
+            let mut lookup_parser = self.lookup_parser();
+
+            while lookup_parser.get_cur_token()?.clone() != Token::Keyword(KeywordKind::From) {
+                lookup_parser.next();
+            }
+
+            lookup_parser.next(); // consumes from
+
+            if let Token::Literal(LiteralKind::String { name }) = lookup_parser.get_cur_token()? {
+                name.clone()
+            } else {
+                return Err(format!(
+                    "Expect tok to be of string literal but got {:?}",
+                    lookup_parser.get_cur_token()?
+                ));
+            }
+        };
+
+        let external_file_context = &self.resolver.get_symbols(&file_name).clone();
+
+        self.assert_cur_token(&Token::AngleOpenBracket)?;
+        self.next(); // consumes {
+
+        let mut context_data_type: IndexMap<String, DataType> = IndexMap::new();
+
+        while self.get_cur_token()?.clone() != Token::AngleCloseBracket {
+            if let Token::Ident { name } = self.get_cur_token()? {
+                let symbol_meta = external_file_context.get(name).unwrap();
+                let can_export = symbol_meta.can_export;
+
+                if !can_export {
+                    return Err(format!(
+                        "Cannot import a variable {} from {} where it is not exported",
+                        name, file_name
+                    ));
+                }
+
+                context.insert(
+                    name,
+                    SymbolMetaInsert::create(symbol_meta.data_type.clone(), true, false),
+                )?;
+
+                let name_with_suffix = format!("{}{}", name, context.suffix);
+
+                context_data_type.insert(name_with_suffix, symbol_meta.data_type.clone());
+
+                self.next(); // consumes ident
+
+                if self.get_cur_token()? == &Token::Comma {
+                    self.next(); // consumes ,
+                } else {
+                    self.assert_cur_token(&Token::AngleCloseBracket)?;
+                }
+            }
+        }
+
+        self.next(); // consumes }
+
+        self.assert_cur_token(&Token::Keyword(KeywordKind::From))?;
+        self.next();
+
+        if let Token::Literal(LiteralKind::String { name: _ }) = self.get_cur_token()? {
+            self.next(); // consumes string literal
+        } else {
+            return Err(format!(
+                "Expected string literal but got {:?}",
+                self.get_cur_token()?
+            ));
+        }
+
+        self.skip_semicolon()?;
+
+        return Ok(Ast::new_import_declaration(context_data_type, &file_name));
     }
 
     pub(crate) fn next(&mut self) -> &Token {
@@ -736,10 +871,14 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub(crate) fn clone(&self) -> Parser<'a> {
+    /*
+     * Clones the parser except resolver
+     *  */
+    pub(crate) fn lookup_parser(&self) -> Parser<'a> {
         return Parser {
             content: self.content,
             cur_pos: self.cur_pos,
+            resolver: Resolver::new(),
         };
     }
 

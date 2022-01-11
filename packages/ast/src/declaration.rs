@@ -11,6 +11,11 @@ pub enum VariableDeclarationKind {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Declaration {
+    ImportDeclaration {
+        ident: IndexMap<String, DataType>,
+        from: String,
+    },
+
     VariableDeclaration {
         ident_name: String,
         exp: Expression,

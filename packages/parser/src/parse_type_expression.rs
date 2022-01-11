@@ -50,7 +50,7 @@ impl<'a> Parser<'a> {
 
             Token::CurveOpenBracket => {
                 let is_grouped_expression = {
-                    let mut look_up_parser = self.clone();
+                    let mut look_up_parser = self.lookup_parser();
                     while look_up_parser.get_cur_token()? != &Token::CurveCloseBracket {
                         look_up_parser.next();
                     }
