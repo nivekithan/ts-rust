@@ -6,22 +6,14 @@ expression: output
 ; ModuleID = 'main'
 source_filename = "main"
 
-define void @main() personality void ()* @__typescript__personality {
+define void @main() {
 entry:
   %y_ = alloca double, align 8
-  %"2" = alloca <{ double }>, align 8
-  %"4" = getelementptr <{ double }>, <{ double }>* %"2", i32 1, i32 0
-  store double 5.000000e+00, double* %"4", align 8
-  %"0" = invoke double @foo_(<{ double }>* %"2")
-          to label %Block_0 unwind label %Block_1
-
-Block_0:                                          ; preds = %entry
+  %"1" = alloca <{ double }>, align 8
+  %"3" = getelementptr <{ double }>, <{ double }>* %"1", i32 1, i32 0
+  store double 5.000000e+00, double* %"3", align 8
+  %"0" = call double @foo_(<{ double }>* %"1")
   store double %"0", double* %y_, align 8
-  ret void
-
-Block_1:                                          ; preds = %entry
-  %"1" = landingpad i64
-          cleanup
   ret void
 }
 

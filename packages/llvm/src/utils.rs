@@ -5,7 +5,7 @@ use inkwell::{module::Module, values::fn_value::FunctionValue};
  * Both fn `get_personality_fn` and `create_personality_fn` are just an  temporary hacky solution
  * so that I can make builder.build_invoke_2 work without llvm throwing error
  * */
-
+#[allow(dead_code)]
 pub(crate) fn get_personality_fn<'a>(module: &'a Module<'a>) -> FunctionValue<'a> {
     let personality_fn_name = "__typescript__personality";
     let fn_value = module.get_fn_value(personality_fn_name);

@@ -6,7 +6,7 @@ expression: output
 ; ModuleID = 'main'
 source_filename = "main"
 
-define void @main() personality void ()* @__typescript__personality {
+define void @main() {
 entry:
   %x_ = alloca <{ <{ double (double)* }>* }>, align 8
   %"0" = alloca <{ double (double)* }>, align 8
@@ -19,16 +19,8 @@ entry:
   %"7" = getelementptr <{ double (double)* }>, <{ double (double)* }>* %y_, i32 1, i32 0
   %z_ = load double (double)*, double (double)** %"7", align 8
   %k_ = alloca double, align 8
-  %"8" = invoke double %z_(double 5.000000e+00)
-          to label %Block_0 unwind label %Block_1
-
-Block_0:                                          ; preds = %entry
+  %"8" = call double %z_(double 5.000000e+00)
   store double %"8", double* %k_, align 8
-  ret void
-
-Block_1:                                          ; preds = %entry
-  %"9" = landingpad i64
-          cleanup
   ret void
 }
 

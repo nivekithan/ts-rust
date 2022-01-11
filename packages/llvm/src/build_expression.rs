@@ -18,7 +18,7 @@ use inkwell::{
     values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
 
-use crate::{llvm_utils::LLVMUtils, utils::get_personality_fn};
+use crate::{llvm_utils::LLVMUtils};
 
 /*
  * It will return None if expression is Void
@@ -464,29 +464,6 @@ pub(crate) fn build_expression<'a>(
             fn_name,
             return_type: _,
         } => {
-            let then_block_name = function_value.get_unique_block_name();
-            let then_block = context.append_basic_block(function_value, &then_block_name);
-
-            let catch_block_name = function_value.get_unique_block_name();
-            let catch_block = {
-                let catch_block = context.append_basic_block(function_value, &catch_block_name);
-                let personality_fn = get_personality_fn(module);
-
-                function_value.set_personality_fn(&personality_fn);
-
-                let catch_builder = context.create_builder();
-
-                catch_builder.position_at_end(&catch_block);
-                catch_builder.build_landing_pad(
-                    &context.i64_type().as_basic_type_enum(),
-                    &personality_fn,
-                    &vec![],
-                    true,
-                    &function_value.get_unique_reg_name(),
-                );
-                catch_builder.build_return(None);
-                catch_block
-            };
             let calling_fn_value = symbol_table.get(fn_name).unwrap().clone();
 
             let args: Vec<BasicValueEnum> = parameters
@@ -506,15 +483,7 @@ pub(crate) fn build_expression<'a>(
                 })
                 .collect();
 
-            let value = builder.build_invoke_2(
-                Either::Right(&calling_fn_value),
-                &args,
-                &then_block,
-                &catch_block,
-                name,
-            );
-
-            builder.position_at_end(&then_block);
+            let value = builder.build_call2(Either::Right(&calling_fn_value), &args, name);
 
             // let basic_value = value.try_as_basic_value().unwrap();
 

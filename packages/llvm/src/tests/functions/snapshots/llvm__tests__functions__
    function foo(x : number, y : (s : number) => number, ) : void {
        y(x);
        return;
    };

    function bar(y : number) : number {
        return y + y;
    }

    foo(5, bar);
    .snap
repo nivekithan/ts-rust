@@ -6,17 +6,9 @@ expression: output
 ; ModuleID = 'main'
 source_filename = "main"
 
-define void @main() personality void ()* @__typescript__personality {
+define void @main() {
 entry:
-  invoke void @foo_(double 5.000000e+00, double (double)* @bar_)
-          to label %Block_0 unwind label %Block_1
-
-Block_0:                                          ; preds = %entry
-  ret void
-
-Block_1:                                          ; preds = %entry
-  %"0" = landingpad i64
-          cleanup
+  call void @foo_(double 5.000000e+00, double (double)* @bar_)
   ret void
 }
 
@@ -25,22 +17,14 @@ entry:
   ret void
 }
 
-define void @foo_(double %0, double (double)* %1) personality void ()* @__typescript__personality {
+define void @foo_(double %0, double (double)* %1) {
 main:
   %x_ = alloca double, align 8
   store double %0, double* %x_, align 8
   %"|_temp0" = alloca double, align 8
-  %"4" = load double, double* %x_, align 8
-  %"2" = invoke double %1(double %"4")
-          to label %Block_0 unwind label %Block_1
-
-Block_0:                                          ; preds = %main
+  %"3" = load double, double* %x_, align 8
+  %"2" = call double %1(double %"3")
   store double %"2", double* %"|_temp0", align 8
-  ret void
-
-Block_1:                                          ; preds = %main
-  %"3" = landingpad i64
-          cleanup
   ret void
 }
 
