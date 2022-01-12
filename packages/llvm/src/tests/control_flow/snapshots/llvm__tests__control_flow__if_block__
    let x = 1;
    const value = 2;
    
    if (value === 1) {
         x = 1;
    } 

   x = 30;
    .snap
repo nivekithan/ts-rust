@@ -25,8 +25,3 @@ Block_1:                                          ; preds = %Block_0, %entry
   ret void
 }
 
-define void @__typescript__personality() {
-entry:
-  ret void
-}
-

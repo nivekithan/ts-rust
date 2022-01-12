@@ -17,11 +17,6 @@ entry:
   ret void
 }
 
-define void @__typescript__personality() {
-entry:
-  ret void
-}
-
 define double @foo_(<{ double }>* %0) {
 main:
   %"3" = getelementptr <{ double }>, <{ double }>* %0, i32 1, i32 0

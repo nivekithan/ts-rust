@@ -11,11 +11,6 @@ entry:
   ret void
 }
 
-define void @__typescript__personality() {
-entry:
-  ret void
-}
-
 define double @foo_(double %0, double %1, i1 %2) {
 main:
   %x_ = alloca double, align 8

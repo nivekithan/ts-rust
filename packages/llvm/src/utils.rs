@@ -12,6 +12,7 @@ pub(crate) fn get_personality_fn<'a>(module: &'a Module<'a>) -> FunctionValue<'a
     return fn_value;
 }
 
+#[allow(dead_code)]
 pub(crate) fn create_personality_fn<'a>(module: &Module<'a>) {
     let personality_fn_name = "__typescript__personality";
 

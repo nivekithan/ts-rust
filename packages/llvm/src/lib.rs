@@ -1,7 +1,6 @@
 use ast::Ast;
 use codegen::Codegen;
 use inkwell::context::Context;
-use utils::create_personality_fn;
 
 mod build_assignment;
 mod build_expression;
@@ -22,8 +21,6 @@ pub fn write_llvm_ir(content: Vec<Ast>) -> String {
     let builder = context.create_builder();
     let main_fn_type = context.void_type().fn_type(&[], false);
     let mut main_fn = module.add_function("main", main_fn_type, None);
-
-    create_personality_fn(&module);
 
     let entry = context.append_basic_block(&main_fn, "entry");
     builder.position_at_end(&entry);
