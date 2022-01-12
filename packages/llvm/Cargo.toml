@@ -11,8 +11,8 @@ inkwell = { path = "../inkwell"}
 lexer = {path = "../lexer"}
 indexmap = "1.7.0"
 either = "1.6.1"
+parser = { path = "../parser"}
 
 [dev-dependencies]
-parser = { path = "../parser"}
 insta = "1.7.2"
 test-utils = {path = "../test-utils"}

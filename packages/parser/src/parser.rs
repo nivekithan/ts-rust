@@ -66,7 +66,7 @@ impl<'a> Parser<'a> {
                             }
 
                             KeywordKind::Function => {
-                                return self.parse_function_declaration(context, false);
+                                return self.parse_function_declaration(context, true);
                             }
 
                             _ => return Err(format!("Expected tok next to export to be `const` or `let` or `function` but instead got {:?}", cur_tok))

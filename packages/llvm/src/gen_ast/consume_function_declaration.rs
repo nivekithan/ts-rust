@@ -23,12 +23,12 @@ pub(crate) fn consume_function_declaration<'a>(
     symbol_table: &mut HashMap<String, PointerValue<'a>>,
 ) {
     let mut number_of_arguments = 0;
-    let llvm_return_type = return_type.to_basic_type(context);
+    let llvm_return_type = return_type.force_to_basic_type(context);
     let param_types: Vec<BasicTypeEnum> = arguments
         .iter()
         .map(|(_, data_type)| {
             number_of_arguments += 1;
-            return data_type.to_basic_type(context);
+            return data_type.force_to_basic_type(context);
         })
         .collect();
     let fn_type = llvm_return_type.fn_type(&param_types, false);
@@ -61,7 +61,7 @@ pub(crate) fn consume_function_declaration<'a>(
      *
      * */
     for (i, (name, data_type)) in arguments.iter().enumerate() {
-        let llvm_type = data_type.to_basic_type(context);
+        let llvm_type = data_type.force_to_basic_type(context);
 
         if let BasicTypeEnum::PointerType(_) = llvm_type {
             /*

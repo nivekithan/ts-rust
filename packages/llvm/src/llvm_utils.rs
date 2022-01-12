@@ -8,11 +8,21 @@ use inkwell::{
 };
 
 pub(crate) trait LLVMUtils<'a> {
-    fn to_basic_type(&self, context: &'a Context) -> BasicTypeEnum<'a>;
+    fn force_to_basic_type(&self, context: &'a Context) -> BasicTypeEnum<'a>;
 }
 
 impl<'a> LLVMUtils<'a> for DataType {
-    fn to_basic_type(&self, context: &'a Context) -> BasicTypeEnum<'a> {
+    /*
+     * Forcefully converts datatype to Basictype
+     *
+     *   DataType::Float => BasicType::FloatType
+     *   DataType::Boolean => BasicType::Int
+     *   DataType::Void => BasicType::Void
+     *   DataType::FunctionType => BasicType::Pointer
+     *   DataType::ObjectType :: BasicType::Pointer
+     *   DataType::
+     *  */
+    fn force_to_basic_type(&self, context: &'a Context) -> BasicTypeEnum<'a> {
         match self {
             DataType::Float => context.f64_type().as_basic_type_enum(),
             DataType::Boolean => context.i1_type().as_basic_type_enum(),
@@ -21,11 +31,11 @@ impl<'a> LLVMUtils<'a> for DataType {
                 return_type,
                 arguments,
             } => {
-                let return_type = return_type.to_basic_type(context);
+                let return_type = return_type.force_to_basic_type(context);
                 let arguments: Vec<BasicTypeEnum> = arguments
                     .iter()
                     .map(|data_type| {
-                        return data_type.to_basic_type(context);
+                        return data_type.force_to_basic_type(context);
                     })
                     .collect();
 
@@ -38,7 +48,7 @@ impl<'a> LLVMUtils<'a> for DataType {
                 let mut field_types: Vec<BasicTypeEnum> = Vec::new();
 
                 for (_, datatype) in entries {
-                    let basic_type = datatype.to_basic_type(context);
+                    let basic_type = datatype.force_to_basic_type(context);
                     field_types.push(basic_type);
                 }
 

@@ -2,6 +2,7 @@ mod consume_array_member_assignment;
 mod consume_do_while_loop;
 mod consume_function_declaration;
 mod consume_if_block;
+mod consume_import_declaration;
 mod consume_variable_assignment;
 mod consume_variable_declaration;
 mod consume_while_loop;
@@ -25,7 +26,10 @@ use crate::gen_ast::{
     consume_while_loop::consume_while_loop,
 };
 
-use self::consume_function_declaration::consume_function_declaration;
+use self::{
+    consume_function_declaration::consume_function_declaration,
+    consume_import_declaration::consume_import_declaration,
+};
 
 pub(crate) fn consume_single_ast<'a>(
     ast: &Ast,
@@ -218,6 +222,10 @@ pub(crate) fn consume_ast_in_module<'a>(
                         module,
                         symbol_table,
                     );
+                }
+
+                Declaration::ImportDeclaration { from: _, ident } => {
+                    consume_import_declaration(ident, context, symbol_table, module)
                 }
 
                 _ => consume_single_ast(

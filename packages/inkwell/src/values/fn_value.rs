@@ -89,6 +89,7 @@ impl<'a> FunctionValue<'a> {
         unsafe {
             let llvm_linkage = match linkage {
                 Linkage::External => LLVMLinkage::LLVMExternalLinkage,
+                Linkage::Private => LLVMLinkage::LLVMPrivateLinkage,
             };
 
             LLVMSetLinkage(self.as_value_ref(), llvm_linkage);

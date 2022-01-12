@@ -2,7 +2,7 @@ mod parse_block;
 mod parse_expression;
 mod parse_type_expression;
 mod parser;
-mod resolver;
+pub mod resolver;
 mod symbol_table;
 mod utils;
 
@@ -38,12 +38,14 @@ pub fn convert_to_ast_with_resolver<'a>(
     return (asts, context.symbols);
 }
 
-pub fn parse_main<'a>(input : Vec<Token>, resolver : &'a mut Resolver) {
+pub fn parse_main<'a>(input: Vec<Token>, resolver: &'a mut Resolver) {
     let (ast, symbols) = convert_to_ast_with_resolver(input, resolver);
-    let data = ResolverData{ast, symbol_table : symbols};
+    let data = ResolverData {
+        ast,
+        symbol_table: symbols,
+    };
     resolver.set_main(data);
 }
-
 
 #[cfg(test)]
 mod test {

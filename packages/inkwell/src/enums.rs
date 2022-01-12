@@ -38,6 +38,7 @@ impl RealCompareOperator {
 
 pub enum Linkage {
     External,
+    Private,
 }
 
 pub enum InlineAsmSyntax {

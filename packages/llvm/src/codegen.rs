@@ -38,7 +38,5 @@ impl<'a> Codegen<'a> {
             &mut self.symbol_table,
             module,
         );
-
-        builder.build_return(None);
     }
 }

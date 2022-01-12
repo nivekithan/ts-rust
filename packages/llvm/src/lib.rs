@@ -1,6 +1,10 @@
+use std::collections::HashMap;
+
 use ast::Ast;
 use codegen::Codegen;
-use inkwell::context::Context;
+use inkwell::{context::Context, enums::Linkage};
+use parser::resolver::Resolver as ParserResolver;
+use resolver::Resolver;
 
 mod build_assignment;
 mod build_expression;
@@ -8,27 +12,64 @@ mod codegen;
 mod enums;
 mod gen_ast;
 mod llvm_utils;
+mod resolver;
 mod utils;
 
 #[cfg(test)]
 mod tests;
 
 pub fn write_llvm_ir(content: Vec<Ast>) -> String {
-    let mut codgen = Codegen::new(&content);
-
     let context = Context::create();
-    let module = context.create_module("main");
+    return write_llvm_module_ir(content, &context, "main", true);
+}
+
+pub fn write_llvm_module_ir<'a>(
+    content: Vec<Ast>,
+    context: &'a Context,
+    module_name: &str,
+    is_main_file: bool,
+) -> String {
+    let mut codegen = Codegen::new(&content);
+    let module = context.create_module(module_name);
     let builder = context.create_builder();
     let main_fn_type = context.void_type().fn_type(&[], false);
-    let mut main_fn = module.add_function("main", main_fn_type, None);
+    let linkage_type = {
+        if is_main_file {
+            None
+        } else {
+            Some(Linkage::Private)
+        }
+    };
+    let mut main_fn = module.add_function("main", main_fn_type, linkage_type);
 
     let entry = context.append_basic_block(&main_fn, "entry");
     builder.position_at_end(&entry);
 
-    codgen.consume(&context, &builder, &module, &mut main_fn);
+    codegen.consume(&context, &builder, &module, &mut main_fn);
+    builder.build_return(None);
 
     let content = module.get_string_representation().to_string();
     return content;
+}
+
+pub fn consume_parser_resolver(parser_resolver: ParserResolver) -> Resolver {
+    let context = Context::create();
+
+    let main_data = parser_resolver.get_main().clone().unwrap();
+    let main_content = write_llvm_module_ir(main_data.ast, &context, "main", true);
+    let mut dependencies: HashMap<String, String> = HashMap::new();
+
+    let parser_dependencies = parser_resolver.get_dependencies();
+    parser_dependencies.iter().for_each(|file_name| {
+        let data = parser_resolver.get_data(file_name);
+        let dependent_content = write_llvm_module_ir(data.ast.clone(), &context, file_name, false);
+        dependencies.insert(file_name.to_string(), dependent_content);
+    });
+
+    return Resolver {
+        dependencies,
+        main: Some(main_content),
+    };
 }
 
 #[cfg(test)]
@@ -37,7 +78,9 @@ mod test_1 {
 
     use either::Either;
     use inkwell::{
-        context::Context, enums::InlineAsmSyntax, types::traits::BasicTypeTrait,
+        context::Context,
+        enums::{InlineAsmSyntax},
+        types::traits::BasicTypeTrait,
         values::traits::BasicValueTrait,
     };
 

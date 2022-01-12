@@ -1,4 +1,12 @@
-use inkwell::{module::Module, values::fn_value::FunctionValue};
+use ast::data_type::DataType;
+use inkwell::{
+    context::Context,
+    module::Module,
+    types::{enums::BasicTypeEnum, fn_type::FunctionType},
+    values::fn_value::FunctionValue,
+};
+
+use crate::llvm_utils::LLVMUtils;
 
 /*
  *
@@ -26,4 +34,28 @@ pub(crate) fn create_personality_fn<'a>(module: &Module<'a>) {
     builder.position_at_end(&entry_bb);
 
     builder.build_return(None);
+}
+
+pub(crate) fn convert_function_data_type_to_llvm_function_type<'a>(
+    data_type: &DataType,
+    context: &'a Context,
+) -> FunctionType<'a> {
+    if let DataType::FunctionType {
+        arguments,
+        return_type,
+    } = data_type
+    {
+        let return_type = return_type.force_to_basic_type(context);
+        let arguments: Vec<BasicTypeEnum> = arguments
+            .iter()
+            .map(|data_type| return data_type.force_to_basic_type(context))
+            .collect();
+        let fn_type = return_type.fn_type(&arguments, false);
+        return fn_type;
+    } else {
+        panic!(
+            "Expected data type to be DataType::FunctionType but got {:?}",
+            data_type
+        );
+    }
 }

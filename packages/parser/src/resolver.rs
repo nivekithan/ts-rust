@@ -54,7 +54,6 @@ impl Resolver {
             symbol_table: symbols,
         };
         self.map.insert(file_name.to_string(), resolver_data);
-        self.dependencies.remove(file_name);
     }
 
     pub fn get_data(&self, file_name: &str) -> &ResolverData {
@@ -71,5 +70,15 @@ impl Resolver {
 
     pub fn get_main(&self) -> &Option<ResolverData> {
         return &self.main_data;
+    }
+
+    pub fn get_dependencies(&self) -> Vec<String> {
+        return self
+            .dependencies
+            .iter()
+            .map(|(name, _)| {
+                return name.to_string();
+            })
+            .collect();
     }
 }

@@ -527,11 +527,13 @@ fn convert_index_map_to_struct_type<'a>(
         match data_type {
             DataType::Boolean => all_field.push(context.i1_type().as_basic_type_enum()),
             DataType::Float => all_field.push(context.f64_type().as_basic_type_enum()),
-            DataType::ObjectType { entries: _ } => all_field.push(data_type.to_basic_type(context)),
+            DataType::ObjectType { entries: _ } => {
+                all_field.push(data_type.force_to_basic_type(context))
+            }
             DataType::FunctionType {
                 arguments: _,
                 return_type: _,
-            } => all_field.push(data_type.to_basic_type(context)),
+            } => all_field.push(data_type.force_to_basic_type(context)),
 
             _ => {
                 return Err(format!(
