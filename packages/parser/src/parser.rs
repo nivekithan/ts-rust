@@ -1,4 +1,5 @@
 use core::panic;
+use std::collections::HashMap;
 
 use ast::{
     data_type::DataType,
@@ -782,13 +783,19 @@ impl<'a> Parser<'a> {
             }
         };
 
-        let external_file_data = {
-            if !self.resolver.contains_data(&file_name) {
-                self.resolver.parse_data(&file_name);
+        let external_file_symbols = &{
+            if &file_name == "compilerInternal" {
+                Parser::get_internal_compiler_provider_fn()
+            } else {
+                let external_file_data = {
+                    if !self.resolver.contains_data(&file_name) {
+                        self.resolver.parse_data(&file_name);
+                    }
+                    self.resolver.get_data(&file_name).clone()
+                };
+                external_file_data.symbol_table
             }
-            &self.resolver.get_data(&file_name).clone()
         };
-        let external_file_symbols = &external_file_data.symbol_table;
 
         self.assert_cur_token(&Token::AngleOpenBracket)?;
         self.next(); // consumes {
@@ -864,9 +871,22 @@ impl<'a> Parser<'a> {
         }
     }
 
-    /*
-     * Clones the parser except resolver
-     *  */
+    pub(crate) fn get_internal_compiler_provider_fn() -> HashMap<String, SymbolMetaInsert> {
+        let mut internal_index_map: HashMap<String, SymbolMetaInsert> = HashMap::new();
+
+        let syscall_1: SymbolMetaInsert = SymbolMetaInsert {
+            data_type: DataType::FunctionType {
+                return_type: Box::new(DataType::Void),
+                arguments: vec![DataType::Float, DataType::String, DataType::Float],
+            },
+            is_const: true,
+            can_export: true,
+        };
+        internal_index_map.insert("syscall_1".to_string(), syscall_1);
+
+        return internal_index_map;
+    }
+
     pub(crate) fn lookup_parser(&mut self) -> Parser {
         return Parser {
             content: self.content,
