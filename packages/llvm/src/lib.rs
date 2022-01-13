@@ -13,10 +13,10 @@ mod enums;
 mod gen_ast;
 mod llvm_utils;
 mod resolver;
-mod utils;
-
+mod symbol_table;
 #[cfg(test)]
 mod tests;
+mod utils;
 
 pub fn write_llvm_ir(content: Vec<Ast>) -> String {
     let context = Context::create();
@@ -49,6 +49,12 @@ pub fn write_llvm_module_ir<'a>(
     builder.build_return(None);
 
     let content = module.get_string_representation().to_string();
+
+    if cfg!(test) {
+        if let Err(err_str) = module.verify() {
+            println!("{}", err_str.to_string());
+        }
+    }
     return content;
 }
 
@@ -56,13 +62,17 @@ pub fn consume_parser_resolver(parser_resolver: ParserResolver) -> Resolver {
     let context = Context::create();
 
     let main_data = parser_resolver.get_main().clone().unwrap();
+
     let main_content = write_llvm_module_ir(main_data.ast, &context, "main", true);
+
     let mut dependencies: HashMap<String, String> = HashMap::new();
 
     let parser_dependencies = parser_resolver.get_dependencies();
     parser_dependencies.iter().for_each(|file_name| {
         let data = parser_resolver.get_data(file_name);
+
         let dependent_content = write_llvm_module_ir(data.ast.clone(), &context, file_name, false);
+
         dependencies.insert(file_name.to_string(), dependent_content);
     });
 
@@ -78,9 +88,7 @@ mod test_1 {
 
     use either::Either;
     use inkwell::{
-        context::Context,
-        enums::{InlineAsmSyntax},
-        types::traits::BasicTypeTrait,
+        context::Context, enums::InlineAsmSyntax, types::traits::BasicTypeTrait,
         values::traits::BasicValueTrait,
     };
 

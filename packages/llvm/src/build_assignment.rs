@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use ast::declaration::VariableAssignmentOperator;
 use inkwell::{
     builder::Builder,
@@ -7,6 +5,8 @@ use inkwell::{
     types::traits::BasicTypeTrait,
     values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
 };
+
+use crate::symbol_table::SymbolTable;
 
 /*
  * When given a pointerValue, assignmentOperator, BasicValue
@@ -22,7 +22,7 @@ pub(crate) fn build_assignment<'a>(
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
-    _symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    _symbol_table: &mut SymbolTable<'a>,
 ) {
     let var_ptr = var_ptr.clone();
     let value = value.clone();

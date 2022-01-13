@@ -1,14 +1,12 @@
-use std::collections::HashMap;
-
 use ast::{expression::Expression, Ast};
 use inkwell::{
     builder::Builder,
     context::Context,
     module::Module,
-    values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
+    values::{enums::BasicValueEnum, fn_value::FunctionValue},
 };
 
-use crate::build_expression::build_expression;
+use crate::{build_expression::build_expression, symbol_table::SymbolTable};
 
 use super::consume_ast_in_loop;
 
@@ -18,7 +16,7 @@ pub(crate) fn consume_while_loop<'a>(
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
-    symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    symbol_table: &mut SymbolTable<'a>,
     module: &'a Module,
 ) {
     let condition_checker_block_name = function_value.get_unique_block_name();

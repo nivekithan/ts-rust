@@ -35,7 +35,7 @@ pub fn convert_to_ast_with_resolver<'a>(
         asts.push(next_ast);
     }
 
-    return (asts, context.symbols);
+    return (asts, context.global_symbols);
 }
 
 pub fn parse_main<'a>(input: Vec<Token>, resolver: &'a mut Resolver) {

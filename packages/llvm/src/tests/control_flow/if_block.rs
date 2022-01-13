@@ -86,3 +86,20 @@ fn test_if_else_if_else_block() {
 
     insta::assert_snapshot!(output);
 }
+
+#[test]
+fn test_var_dec_in_if_block() {
+    let input = "
+    const x = 1;
+    
+    if (x === 1) {
+        const y = 2;
+    } else {
+        const y = 3;
+    }
+";
+
+    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+
+    insta::assert_snapshot!(output);
+}

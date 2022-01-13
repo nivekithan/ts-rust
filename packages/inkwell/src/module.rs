@@ -1,6 +1,7 @@
-use std::marker::PhantomData;
+use std::{marker::PhantomData, mem::MaybeUninit};
 
 use llvm_sys::{
+    analysis::{LLVMVerifierFailureAction, LLVMVerifyModule},
     core::{
         LLVMAddFunction, LLVMDisposeModule, LLVMGetModuleContext, LLVMGetNamedFunction,
         LLVMPrintModuleToString,
@@ -73,6 +74,21 @@ impl<'a> Module<'a> {
         unsafe {
             let context_ref = LLVMGetModuleContext(self.module);
             return Context::new_without_drop(context_ref);
+        }
+    }
+
+    pub fn verify(&self) -> Result<(), LLVMString> {
+        unsafe {
+            let mut err_str = MaybeUninit::uninit();
+
+            let action = LLVMVerifierFailureAction::LLVMReturnStatusAction;
+            let code = LLVMVerifyModule(self.module, action, err_str.as_mut_ptr());
+            let err_str = err_str.assume_init();
+            if code == 1 && !err_str.is_null() {
+                return Err(LLVMString::new(err_str));
+            }
+
+            return Ok(());
         }
     }
 }

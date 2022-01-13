@@ -699,9 +699,8 @@ impl<'a> Parser<'a> {
 
             self.assert_cur_token(&Token::AngleOpenBracket)?;
 
-            let function_block_context = &mut SymbolContext::create_function_context(
-                FunctionSymbol::new(return_type.clone()),
-            );
+            let function_block_context =
+                &mut context.create_function_context(FunctionSymbol::new(return_type.clone()));
 
             for (arg_name, arg_data_type) in &arguments {
                 /*
@@ -722,7 +721,7 @@ impl<'a> Parser<'a> {
 
             let block = self.parse_block_with_context(function_block_context)?;
 
-            context.insert(
+            context.insert_global_variable(
                 name.as_str(),
                 SymbolMetaInsert::create(
                     DataType::FunctionType {
@@ -808,7 +807,7 @@ impl<'a> Parser<'a> {
                     ));
                 }
 
-                context.insert(
+                context.insert_global_variable(
                     name,
                     SymbolMetaInsert::create(symbol_meta.data_type.clone(), true, false),
                 )?;

@@ -1,25 +1,20 @@
-use std::collections::HashMap;
-
 use ast::Ast;
 use inkwell::{
-    builder::Builder,
-    context::Context,
-    module::Module,
-    values::{fn_value::FunctionValue, ptr_value::PointerValue},
+    builder::Builder, context::Context, module::Module, values::fn_value::FunctionValue,
 };
 
-use crate::gen_ast::consume_ast_in_module;
+use crate::{gen_ast::consume_ast_in_module, symbol_table::SymbolTable};
 
 pub struct Codegen<'a> {
     content: &'a Vec<Ast>,
-    symbol_table: HashMap<String, PointerValue<'a>>,
+    symbol_table: SymbolTable<'a>,
 }
 
 impl<'a> Codegen<'a> {
     pub fn new(content: &Vec<Ast>) -> Codegen {
         return Codegen {
             content,
-            symbol_table: HashMap::new(),
+            symbol_table: SymbolTable::new(),
         };
     }
 

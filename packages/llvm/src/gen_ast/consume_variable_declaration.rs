@@ -1,17 +1,15 @@
 use ast::expression::Expression;
 
-use std::collections::HashMap;
-
 use ast::data_type::DataType;
 use inkwell::{
     builder::Builder,
     context::Context,
     module::Module,
     types::traits::BasicTypeTrait,
-    values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
+    values::{enums::BasicValueEnum, fn_value::FunctionValue},
 };
 
-use crate::build_expression::build_expression;
+use crate::{build_expression::build_expression, symbol_table::SymbolTable};
 
 pub(crate) fn consume_variable_declaration<'a>(
     ident_name: &String,
@@ -19,7 +17,7 @@ pub(crate) fn consume_variable_declaration<'a>(
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
-    symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    symbol_table: &mut SymbolTable<'a>,
     module: &'a Module,
 ) {
     let data_type = exp.get_data_type();
@@ -200,7 +198,7 @@ pub(crate) fn consume_variable_declaration<'a>(
         DataType::Unknown => unreachable!(),
     };
 
-    symbol_table.insert(ident_name.to_owned(), pointer);
+    symbol_table.insert_local(ident_name.to_owned(), pointer);
 }
 
 fn consume_fn_with_return_type_void<'a>(
@@ -209,7 +207,7 @@ fn consume_fn_with_return_type_void<'a>(
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
-    symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    symbol_table: &mut SymbolTable<'a>,
     module: &'a Module,
 ) {
     build_expression(

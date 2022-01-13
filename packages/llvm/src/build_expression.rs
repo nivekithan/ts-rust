@@ -1,4 +1,4 @@
-use std::{collections::HashMap, convert::TryInto};
+use std::convert::TryInto;
 
 use ast::{
     data_type::DataType,
@@ -15,10 +15,10 @@ use inkwell::{
         array_type::ArrayType, enums::BasicTypeEnum, struct_type::StructType,
         traits::BasicTypeTrait,
     },
-    values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
+    values::{enums::BasicValueEnum, fn_value::FunctionValue},
 };
 
-use crate::llvm_utils::LLVMUtils;
+use crate::{llvm_utils::LLVMUtils, symbol_table::SymbolTable};
 
 /*
  * It will return None if expression is Void
@@ -28,7 +28,7 @@ pub(crate) fn build_expression<'a>(
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
-    symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    symbol_table: &mut SymbolTable<'a>,
     module: &'a Module,
     name: Option<String>,
 ) -> Option<BasicValueEnum<'a>> {

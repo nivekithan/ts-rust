@@ -1,15 +1,10 @@
-use std::collections::HashMap;
-
 use ast::{data_type::DataType, declaration::Declaration, Ast};
 use indexmap::IndexMap;
 use inkwell::{
-    context::Context,
-    module::Module,
-    types::enums::BasicTypeEnum,
-    values::{enums::BasicValueEnum, ptr_value::PointerValue},
+    context::Context, module::Module, types::enums::BasicTypeEnum, values::enums::BasicValueEnum,
 };
 
-use crate::{build_expression::build_expression, llvm_utils::LLVMUtils};
+use crate::{build_expression::build_expression, llvm_utils::LLVMUtils, symbol_table::SymbolTable};
 
 use super::consume_single_ast;
 
@@ -20,7 +15,7 @@ pub(crate) fn consume_function_declaration<'a>(
     return_type: &DataType,
     context: &'a Context,
     module: &'a Module,
-    symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    symbol_table: &mut SymbolTable<'a>,
 ) {
     let mut number_of_arguments = 0;
     let llvm_return_type = return_type.force_to_basic_type(context);
@@ -35,7 +30,7 @@ pub(crate) fn consume_function_declaration<'a>(
 
     let mut function_value = module.add_function(ident_name, fn_type, None);
 
-    symbol_table.insert(ident_name.to_string(), function_value.to_pointer_value());
+    symbol_table.insert_global(ident_name.to_string(), function_value.to_pointer_value());
 
     /*
      * When we declare a function with arguments llvm assigns registers with name from 0 to ...
@@ -53,7 +48,8 @@ pub(crate) fn consume_function_declaration<'a>(
     let builder = context.create_builder();
     builder.position_at_end(&entry_block);
 
-    let mut symbol_table: HashMap<String, PointerValue> = HashMap::new();
+    let mut new_symbol_table = SymbolTable::new();
+    new_symbol_table.global_variables = symbol_table.global_variables.clone();
 
     /*
      * We have to store parameters in stack so that it can be
@@ -85,7 +81,7 @@ pub(crate) fn consume_function_declaration<'a>(
 
             let param_value = function_value.get_nth_param(i as u32).unwrap();
             if let BasicValueEnum::PointerValue(param_value) = param_value {
-                symbol_table.insert(name.to_string(), param_value);
+                new_symbol_table.insert_local(name.to_string(), param_value);
             } else {
                 todo!();
             }
@@ -95,7 +91,7 @@ pub(crate) fn consume_function_declaration<'a>(
             let param_value = function_value.get_nth_param(i as u32).unwrap();
             builder.build_store(arg_pointer, param_value);
 
-            symbol_table.insert(name.to_string(), arg_pointer);
+            new_symbol_table.insert_local(name.to_string(), arg_pointer);
         }
     }
 
@@ -111,7 +107,7 @@ pub(crate) fn consume_function_declaration<'a>(
                             context,
                             &builder,
                             &mut function_value,
-                            &mut symbol_table,
+                            &mut new_symbol_table,
                             module,
                             None,
                         );
@@ -129,7 +125,7 @@ pub(crate) fn consume_function_declaration<'a>(
                     context,
                     &builder,
                     &mut function_value,
-                    &mut symbol_table,
+                    &mut new_symbol_table,
                     module,
                 ),
             }

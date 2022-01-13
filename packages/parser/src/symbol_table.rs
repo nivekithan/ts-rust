@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use ast::data_type::DataType;
 
+#[derive(Debug, PartialEq)]
 pub struct SymbolMeta {
     pub data_type: DataType,
     pub is_const: bool,
@@ -40,7 +41,8 @@ impl FunctionSymbol {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct SymbolContext<'a> {
-    pub symbols: HashMap<String, SymbolMetaInsert>,
+    symbols: HashMap<String, SymbolMetaInsert>,
+    pub global_symbols: HashMap<String, SymbolMetaInsert>,
     parent: Option<Box<&'a SymbolContext<'a>>>,
     function_symbol: Option<FunctionSymbol>,
 
@@ -54,6 +56,7 @@ impl<'a> SymbolContext<'a> {
     pub fn create_global_context() -> Self {
         return SymbolContext {
             symbols: HashMap::new(),
+            global_symbols: HashMap::new(),
             parent: None,
             function_symbol: None,
 
@@ -64,9 +67,10 @@ impl<'a> SymbolContext<'a> {
         };
     }
 
-    pub fn create_function_context(function_symbol: FunctionSymbol) -> Self {
+    pub fn create_function_context(&self, function_symbol: FunctionSymbol) -> Self {
         return SymbolContext {
             symbols: HashMap::new(),
+            global_symbols: self.global_symbols.clone(),
             parent: None,
             function_symbol: Some(function_symbol),
 
@@ -81,10 +85,22 @@ impl<'a> SymbolContext<'a> {
         let context_available = self.get_context_for_name(name);
 
         match context_available {
-            None => return None,
+            None => {
+                let meta_insert = self.global_symbols.get(&name.to_string()).unwrap();
+                let meta = SymbolMeta {
+                    data_type: meta_insert.data_type.clone(),
+                    is_const: true,
+                    is_override_available: false,
+                    suffix: self.get_suffix(name),
+                    can_export: false,
+                };
+
+                return Some(meta);
+            }
             Some(context) => {
                 let is_override = context.suffix != self.suffix;
                 let meta_insert = context.symbols.get(&name.to_string()).unwrap();
+
                 let meta = SymbolMeta {
                     data_type: meta_insert.data_type.clone(),
                     is_const: meta_insert.is_const,
@@ -92,9 +108,26 @@ impl<'a> SymbolContext<'a> {
                     suffix: self.get_suffix(name),
                     can_export: meta_insert.can_export,
                 };
-
                 return Some(meta);
             }
+        }
+    }
+
+    pub fn insert_global_variable(
+        &mut self,
+        name: &str,
+        sym_meta: SymbolMetaInsert,
+    ) -> Result<(), String> {
+        let key = name.to_string();
+
+        if self.global_symbols.contains_key(&key) {
+            return Err(format!(
+                "There is already a global varaible with key {}",
+                name
+            ));
+        } else {
+            self.global_symbols.insert(key, sym_meta);
+            return Ok(());
         }
     }
 
@@ -112,6 +145,7 @@ impl<'a> SymbolContext<'a> {
     pub fn create_child_context(&'a self, suffix: String) -> SymbolContext<'a> {
         let new_context = SymbolContext {
             symbols: HashMap::new(),
+            global_symbols: HashMap::new(),
             parent: Some(Box::new(self)),
             function_symbol: self.function_symbol.clone(),
             suffix,
@@ -122,8 +156,13 @@ impl<'a> SymbolContext<'a> {
     }
 
     pub fn get_suffix(&self, name: &str) -> String {
-        let context_available = self.get_context_for_name(name).unwrap();
-        return context_available.suffix.clone();
+        let context_available = self.get_context_for_name(name);
+
+        if let Some(context) = context_available {
+            return context.suffix.clone();
+        } else {
+            return "_".to_string();
+        }
     }
 
     pub fn get_return_type(&self) -> Option<&DataType> {

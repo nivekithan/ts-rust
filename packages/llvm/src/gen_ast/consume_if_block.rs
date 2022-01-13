@@ -1,17 +1,16 @@
-use std::collections::HashMap;
-
 use ast::{declaration::BlockWithCondition, Ast};
 use inkwell::{
     basic_block::BasicBlock,
     builder::Builder,
     context::Context,
     module::Module,
-    values::{enums::BasicValueEnum, fn_value::FunctionValue, ptr_value::PointerValue},
+    values::{enums::BasicValueEnum, fn_value::FunctionValue},
 };
 
 use crate::{
     build_expression::build_expression,
     enums::{NextElsIfBlock, TypeOfIfBlock},
+    symbol_table::SymbolTable,
 };
 
 use super::consume_generic_ast;
@@ -23,7 +22,7 @@ pub(crate) fn consume_if_block<'a>(
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
-    symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    symbol_table: &mut SymbolTable<'a>,
     module: &'a Module,
 ) {
     let if_block_condition = build_expression(

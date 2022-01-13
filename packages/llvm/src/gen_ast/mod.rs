@@ -6,24 +6,23 @@ mod consume_import_declaration;
 mod consume_variable_assignment;
 mod consume_variable_declaration;
 mod consume_while_loop;
-use std::collections::HashMap;
 
 use ast::{declaration::Declaration, Ast};
 use inkwell::{
-    basic_block::BasicBlock,
-    builder::Builder,
-    context::Context,
-    module::Module,
-    values::{fn_value::FunctionValue, ptr_value::PointerValue},
+    basic_block::BasicBlock, builder::Builder, context::Context, module::Module,
+    values::fn_value::FunctionValue,
 };
 use lexer::token::KeywordKind;
 
-use crate::gen_ast::{
-    consume_array_member_assignment::consume_array_member_assignments,
-    consume_do_while_loop::consume_do_while_loop, consume_if_block::consume_if_block,
-    consume_variable_assignment::consume_variable_assignment,
-    consume_variable_declaration::consume_variable_declaration,
-    consume_while_loop::consume_while_loop,
+use crate::{
+    gen_ast::{
+        consume_array_member_assignment::consume_array_member_assignments,
+        consume_do_while_loop::consume_do_while_loop, consume_if_block::consume_if_block,
+        consume_variable_assignment::consume_variable_assignment,
+        consume_variable_declaration::consume_variable_declaration,
+        consume_while_loop::consume_while_loop,
+    },
+    symbol_table::SymbolTable,
 };
 
 use self::{
@@ -36,7 +35,7 @@ pub(crate) fn consume_single_ast<'a>(
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
-    symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    symbol_table: &mut SymbolTable<'a>,
     module: &'a Module,
 ) {
     match ast {
@@ -147,7 +146,7 @@ pub(crate) fn consume_generic_ast<'a>(
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
-    symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    symbol_table: &mut SymbolTable<'a>,
     module: &'a Module,
 ) {
     for cur_ast in asts.iter() {
@@ -167,7 +166,7 @@ pub(crate) fn consume_ast_in_loop<'a>(
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
-    symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    symbol_table: &mut SymbolTable<'a>,
     exit_block: &BasicBlock,
     continue_block: &BasicBlock,
     module: &'a Module,
@@ -201,7 +200,7 @@ pub(crate) fn consume_ast_in_module<'a>(
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
-    symbol_table: &mut HashMap<String, PointerValue<'a>>,
+    symbol_table: &mut SymbolTable<'a>,
     module: &'a Module,
 ) {
     for cur_ast in asts.iter() {
