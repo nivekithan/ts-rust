@@ -3,6 +3,7 @@ use std::collections::HashMap;
 pub struct Resolver<T> {
     pub main: Option<T>,
     pub dependencies: HashMap<String, T>,
+    pub compiler_provided: Option<T>,
 }
 
 impl<T> Resolver<T> {
@@ -10,6 +11,7 @@ impl<T> Resolver<T> {
         return Resolver {
             main: None,
             dependencies: HashMap::new(),
+            compiler_provided: None,
         };
     }
 

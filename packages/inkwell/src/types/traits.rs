@@ -20,6 +20,7 @@ pub trait BasicTypeTrait<'a>: AsTypeRef {
 }
 pub trait FloatMathTypeTrait<'a>: BasicTypeTrait<'a> {
     type ValueType: FloatMathValueTrait<'a>;
+    type MathConvType: IntMathTypeTrait<'a>;
 }
 
 pub trait IntMathTypeTrait<'a>: BasicTypeTrait<'a> {

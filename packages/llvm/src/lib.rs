@@ -2,6 +2,7 @@ use std::{collections::HashMap, path::Path};
 
 use ast::Ast;
 use codegen::Codegen;
+use compiler_provided_fn::get_compiler_provided_module;
 use inkwell::{
     context::Context,
     enums::Linkage,
@@ -17,6 +18,7 @@ use resolver::Resolver;
 mod build_assignment;
 mod build_expression;
 mod codegen;
+mod compiler_provided_fn;
 mod enums;
 mod gen_ast;
 mod llvm_utils;
@@ -90,6 +92,7 @@ pub fn compile_parser_resolver_to_llvm_ir(parser_resolver: ParserResolver) -> Re
     return Resolver {
         dependencies,
         main: Some(main_content.get_string_representation().to_string()),
+        compiler_provided: None,
     };
 }
 pub fn compile_parser_resolver_to_llvm_module<'a>(
@@ -115,6 +118,7 @@ pub fn compile_parser_resolver_to_llvm_module<'a>(
     return Resolver {
         dependencies,
         main: Some(main_module),
+        compiler_provided: Some(get_compiler_provided_module(context)),
     };
 }
 
@@ -122,6 +126,10 @@ pub fn link_llvm_module_resolver<'a>(resolver: Resolver<Module<'a>>) -> Module<'
     let main = resolver.main.unwrap();
 
     for (_, module) in resolver.dependencies {
+        main.link_module(module).unwrap();
+    }
+
+    if let Some(module) = resolver.compiler_provided {
         main.link_module(module).unwrap();
     }
 
@@ -149,6 +157,10 @@ pub fn write_assembly_file_to_path<'a>(module: &Module<'a>, path: &Path) {
     target_machine
         .write_to_file(module, FileType::Assembly, path)
         .unwrap();
+
+    // TODO: Remove Debug
+    println!("Finished");
+    // ---------
 }
 
 #[cfg(test)]

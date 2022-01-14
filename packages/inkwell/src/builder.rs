@@ -19,7 +19,7 @@ use crate::{
         enums::BasicTypeEnum,
         fn_type::FunctionType,
         int_type::IntType,
-        traits::{AsTypeRef, BasicTypeTrait},
+        traits::{AsTypeRef, BasicTypeTrait, FloatMathTypeTrait, IntMathTypeTrait},
     },
     utils::to_c_str,
     values::{
@@ -235,6 +235,26 @@ impl<'a> Builder<'a> {
                 c_name.as_ptr(),
             );
             return IntValue::new(value);
+        }
+    }
+
+    pub fn build_float_to_signed_int<F: FloatMathValueTrait<'a>>(
+        &self,
+        float_value: F,
+        int_type: <F::BaseType as FloatMathTypeTrait<'a>>::MathConvType,
+        name: &str,
+    ) -> <<F::BaseType as FloatMathTypeTrait<'a>>::MathConvType as IntMathTypeTrait<'a>>::ValueType
+    {
+        unsafe {
+            let c_string = to_c_str(name);
+
+            let value = LLVMBuildFPToSI(
+                self.builder,
+                float_value.as_value_ref(),
+                int_type.as_type_ref(),
+                c_string.as_ptr(),
+            );
+            return <<F::BaseType as FloatMathTypeTrait<'a>>::MathConvType as IntMathTypeTrait>::ValueType::new(value);
         }
     }
 

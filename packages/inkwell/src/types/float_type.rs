@@ -4,6 +4,7 @@ use super::{
     array_type::ArrayType,
     enums::BasicTypeEnum,
     fn_type::FunctionType,
+    int_type::IntType,
     traits::{AsTypeRef, BasicTypeTrait, FloatMathTypeTrait},
     Type,
 };
@@ -49,4 +50,5 @@ impl<'a> BasicTypeTrait<'a> for FloatType<'a> {}
 
 impl<'a> FloatMathTypeTrait<'a> for FloatType<'a> {
     type ValueType = FloatValue<'a>;
+    type MathConvType = IntType<'a>;
 }
