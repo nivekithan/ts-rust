@@ -157,10 +157,6 @@ pub fn write_assembly_file_to_path<'a>(module: &Module<'a>, path: &Path) {
     target_machine
         .write_to_file(module, FileType::Assembly, path)
         .unwrap();
-
-    // TODO: Remove Debug
-    println!("Finished");
-    // ---------
 }
 
 #[cfg(test)]
