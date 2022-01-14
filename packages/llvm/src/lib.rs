@@ -65,6 +65,33 @@ pub fn compile_to_llvm_module<'a>(
     return module;
 }
 
+pub fn compile_parser_resolver_to_llvm_ir(parser_resolver: ParserResolver) -> Resolver<String> {
+    let context = Context::create();
+
+    let main_data = parser_resolver.get_main().clone().unwrap();
+
+    let main_content = compile_to_llvm_module(main_data.ast, &context, "main", true);
+
+    let mut dependencies: HashMap<String, String> = HashMap::new();
+
+    let parser_dependencies = parser_resolver.get_dependencies();
+    parser_dependencies.iter().for_each(|file_name| {
+        let data = parser_resolver.get_data(file_name);
+
+        let dependent_content =
+            compile_to_llvm_module(data.ast.clone(), &context, file_name, false);
+
+        dependencies.insert(
+            file_name.to_string(),
+            dependent_content.get_string_representation().to_string(),
+        );
+    });
+
+    return Resolver {
+        dependencies,
+        main: Some(main_content.get_string_representation().to_string()),
+    };
+}
 pub fn compile_parser_resolver_to_llvm_module<'a>(
     parser_resolver: ParserResolver,
     context: &'a Context,

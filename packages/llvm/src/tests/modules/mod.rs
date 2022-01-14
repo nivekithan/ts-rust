@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 
-use inkwell::context::Context;
 use lexer::convert_to_token;
 use parser::{parse_main, resolver::Resolver as ParserResolver};
 
-use crate::{compile_parser_resolver_to_llvm_module, link_llvm_module_resolver};
+use crate::compile_parser_resolver_to_llvm_ir;
 
 #[test]
 fn test_simple_import() {
@@ -28,25 +27,35 @@ fn test_simple_import() {
     let mut parser_resolver = ParserResolver::from(dependent_files.clone());
     parse_main(convert_to_token(main_file), &mut parser_resolver);
 
-    let context = Context::create();
+    let llvm_resolver = compile_parser_resolver_to_llvm_ir(parser_resolver);
 
-    let llvm_resolver = compile_parser_resolver_to_llvm_module(parser_resolver, &context);
-    let linked_module = link_llvm_module_resolver(llvm_resolver);
+    let main_content = &llvm_resolver.main;
 
-    let main_content = linked_module.get_string_representation().to_string();
+    if let Some(main_content) = main_content {
+        insta::assert_snapshot!(main_file, main_content);
+    } else {
+        insta::assert_snapshot!(main_file, "");
+    }
 
-    let input = format!(
-        "
-Main file:
-{}
+    let keys: Vec<String> = {
+        let mut keys: Vec<String> = llvm_resolver
+            .dependencies
+            .iter()
+            .map(|(name, _)| {
+                return name.to_string();
+            })
+            .collect();
 
-Foo File:
-{}
-",
-        main_file, foo_file
-    );
+        keys.sort_unstable();
 
-    insta::assert_snapshot!(input, main_content);
+        keys
+    };
+
+    for file_name in keys {
+        let content = llvm_resolver.dependencies.get(&file_name).unwrap();
+        let dependent_source_code = dependent_files.get(&file_name).unwrap();
+        insta::assert_snapshot!(dependent_source_code.as_str(), content);
+    }
 }
 
 #[test]
@@ -76,27 +85,37 @@ fn test_complex_import() {
     let mut dependent_files: HashMap<String, String> = HashMap::new();
     dependent_files.insert("foo".to_string(), foo_file.to_string());
     dependent_files.insert("boo".to_string(), boo_file.to_string());
+
     let mut parser_resolver = ParserResolver::from(dependent_files.clone());
     parse_main(convert_to_token(main_file), &mut parser_resolver);
 
-    let context = Context::create();
+    let llvm_resolver = compile_parser_resolver_to_llvm_ir(parser_resolver);
 
-    let llvm_resolver = compile_parser_resolver_to_llvm_module(parser_resolver, &context);
-    let linked_module = link_llvm_module_resolver(llvm_resolver);
+    let main_content = &llvm_resolver.main;
 
-    let main_content = linked_module.get_string_representation().to_string();
+    if let Some(main_content) = main_content {
+        insta::assert_snapshot!(main_file, main_content);
+    } else {
+        insta::assert_snapshot!(main_file, "");
+    }
 
-    //     let input = format!(
-    // "
-    // Main file:
-    // {}
+    let keys: Vec<String> = {
+        let mut keys: Vec<String> = llvm_resolver
+            .dependencies
+            .iter()
+            .map(|(name, _)| {
+                return name.to_string();
+            })
+            .collect();
 
-    // Foo File:
-    // {}
+        keys.sort_unstable();
 
-    // Boo File:
-    // {}
-    // ", main_file, foo_file, boo_file);
+        keys
+    };
 
-    insta::assert_snapshot!(main_content);
+    for file_name in keys {
+        let content = llvm_resolver.dependencies.get(&file_name).unwrap();
+        let dependent_source_code = dependent_files.get(&file_name).unwrap();
+        insta::assert_snapshot!(dependent_source_code.as_str(), content);
+    }
 }

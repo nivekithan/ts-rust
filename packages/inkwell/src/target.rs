@@ -10,7 +10,7 @@ use llvm_sys::target::{
 };
 use llvm_sys::target_machine::{
     LLVMCodeGenFileType, LLVMCodeGenOptLevel, LLVMCodeModel, LLVMCreateTargetMachine,
-    LLVMGetDefaultTargetTriple, LLVMGetTargetFromName, LLVMGetTargetFromTriple, LLVMRelocMode,
+    LLVMGetDefaultTargetTriple, LLVMGetTargetFromTriple, LLVMRelocMode,
     LLVMTargetMachineEmitToFile, LLVMTargetMachineRef, LLVMTargetRef,
 };
 use once_cell::sync::Lazy;
