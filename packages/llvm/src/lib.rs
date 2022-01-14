@@ -1,8 +1,16 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::Path};
 
 use ast::Ast;
 use codegen::Codegen;
-use inkwell::{context::Context, enums::Linkage, module::Module};
+use inkwell::{
+    context::Context,
+    enums::Linkage,
+    module::Module,
+    target::{
+        CodeModel, FileType, InitializationConfig, RelocMode, Target, TargetMachine, TargetTriple,
+    },
+    types::enums::OptimizationLevel,
+};
 use parser::resolver::Resolver as ParserResolver;
 use resolver::Resolver;
 
@@ -91,6 +99,29 @@ pub fn link_llvm_module_resolver<'a>(resolver: Resolver<Module<'a>>) -> Module<'
     }
 
     return main;
+}
+
+pub fn write_assembly_file_to_path<'a>(module: &Module<'a>, path: &Path) {
+    Target::initialize_x86(&InitializationConfig::default());
+
+    let opt = OptimizationLevel::Default;
+    let reloc = RelocMode::Default;
+    let model = CodeModel::Default;
+    let target = Target::from_triple(&TargetTriple::get_default_triple()).unwrap();
+    let target_machine = target
+        .create_target_machine(
+            &TargetTriple::get_default_triple(),
+            TargetMachine::get_host_cpu_name().to_str().unwrap(),
+            TargetMachine::get_host_cpu_features().to_str().unwrap(),
+            opt,
+            reloc,
+            model,
+        )
+        .unwrap();
+
+    target_machine
+        .write_to_file(module, FileType::Assembly, path)
+        .unwrap();
 }
 
 #[cfg(test)]

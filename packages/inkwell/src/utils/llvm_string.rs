@@ -7,7 +7,7 @@ use std::{
     os::raw::c_char,
 };
 
-use llvm_sys::core::LLVMDisposeMessage;
+use llvm_sys::core::{LLVMCreateMessage, LLVMDisposeMessage};
 
 /// An owned LLVM String. Also known as a LLVM Message
 #[derive(Eq)]
@@ -29,10 +29,10 @@ impl LLVMString {
         (*self).to_string_lossy().into_owned()
     }
 
-    // /// This method will allocate a c string through LLVM
-    // pub(crate) fn create_from_c_str(string: &CStr) -> LLVMString {
-    //     unsafe { LLVMString::new(LLVMCreateMessage(string.as_ptr() as *const _)) }
-    // }
+    /// This method will allocate a c string through LLVM
+    pub(crate) fn create_from_c_str(string: &CStr) -> LLVMString {
+        unsafe { LLVMString::new(LLVMCreateMessage(string.as_ptr() as *const _)) }
+    }
 
     // /// This method will allocate a c string through LLVM
     // pub(crate) fn create_from_str(string: &str) -> LLVMString {

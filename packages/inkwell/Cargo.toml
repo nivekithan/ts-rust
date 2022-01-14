@@ -8,3 +8,5 @@ edition = "2018"
 [dependencies]
 llvm-sys = "120"
 either = "1.6.1"
+once_cell = "1.4.1"
+parking_lot = "0.11"

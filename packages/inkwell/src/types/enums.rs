@@ -93,3 +93,16 @@ impl TryFrom<u32> for AddressSpace {
         }
     }
 }
+
+/// Defines the optimization level used to compile a `Module`.
+///
+/// # Remarks
+/// See also: https://llvm.org/doxygen/CodeGen_8h_source.html
+#[repr(u32)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+pub enum OptimizationLevel {
+    None = 0,
+    Less = 1,
+    Default = 2,
+    Aggressive = 3,
+}
