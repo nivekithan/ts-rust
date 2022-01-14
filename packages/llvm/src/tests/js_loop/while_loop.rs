@@ -1,7 +1,7 @@
 use lexer::convert_to_token;
 use parser::convert_to_ast;
 
-use crate::write_llvm_ir;
+use crate::compile_to_llvm_ir;
 
 #[test]
 fn test_while_loop() {
@@ -12,7 +12,7 @@ fn test_while_loop() {
         x -= 1;    
     }";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(output);
 }
@@ -26,7 +26,7 @@ fn test_while_loop_with_break() {
         break;
     }";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(input, output);
 }
@@ -40,7 +40,7 @@ fn test_while_loop_with_continue() {
         continue;
     }";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(input, output);
 }

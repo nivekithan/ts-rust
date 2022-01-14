@@ -1,4 +1,4 @@
-use std::{marker::PhantomData, mem::MaybeUninit};
+use std::{marker::PhantomData, mem::forget, mem::MaybeUninit};
 
 use llvm_sys::{
     analysis::{LLVMVerifierFailureAction, LLVMVerifyModule},
@@ -6,6 +6,7 @@ use llvm_sys::{
         LLVMAddFunction, LLVMDisposeModule, LLVMGetModuleContext, LLVMGetNamedFunction,
         LLVMPrintModuleToString,
     },
+    linker::LLVMLinkModules2,
     prelude::LLVMModuleRef,
 };
 
@@ -89,6 +90,19 @@ impl<'a> Module<'a> {
             }
 
             return Ok(());
+        }
+    }
+
+    pub fn link_module(&self, other: Self) -> Result<(), String> {
+        unsafe {
+            let code = LLVMLinkModules2(self.module, other.module);
+            forget(other);
+
+            if code == 1 {
+                return Err(format!("Something gone wrong while linking module"));
+            } else {
+                return Ok(());
+            }
         }
     }
 }

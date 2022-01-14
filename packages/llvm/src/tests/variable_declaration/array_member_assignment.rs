@@ -3,7 +3,7 @@ use lexer::convert_to_token;
 use parser::convert_to_ast;
 use test_utils::{DatatypeOrFn, ExpressionTest};
 
-use crate::write_llvm_ir;
+use crate::compile_to_llvm_ir;
 
 #[test]
 fn test_array_member_assign() {
@@ -38,7 +38,7 @@ fn test_array_member_assign() {
         ],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),

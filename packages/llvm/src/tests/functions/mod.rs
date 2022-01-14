@@ -1,7 +1,7 @@
 use lexer::convert_to_token;
 use parser::convert_to_ast;
 
-use crate::write_llvm_ir;
+use crate::compile_to_llvm_ir;
 
 #[test]
 fn test_simple_fn_declaration() {
@@ -12,7 +12,7 @@ fn test_simple_fn_declaration() {
         return !false;
     }";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(input, output);
 }
@@ -25,7 +25,7 @@ fn test_using_parameters() {
         return x + a;
     }";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(input, output);
 }
@@ -39,7 +39,7 @@ fn test_calling_a_function() {
     
     let y = foo(5);";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(input, output);
 }
@@ -53,7 +53,7 @@ fn test_calling_a_function_with_void_return_type() {
     
     foo(5);";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(input, output);
 }
@@ -68,7 +68,7 @@ fn test_assigning_a_variable_to_function_that_returns_void() {
     
     const x = foo(5);";
 
-    write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 }
 
 #[test]
@@ -82,7 +82,7 @@ fn test_assigning_a_function_to_variable() {
     x()
     ";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(input, output);
 }
@@ -96,7 +96,7 @@ fn test_passing_a_string_to_function() {
     
     foo(\"1233\");
     ";
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(input, output);
 }
@@ -116,7 +116,7 @@ fn test_passing_a_callback_function() {
     foo(5, bar);
     ";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(input, output);
 }
@@ -132,7 +132,7 @@ fn test_passing_object_to_function() {
     
     ";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(input, output);
 }

@@ -1,7 +1,7 @@
 use lexer::convert_to_token;
 use parser::convert_to_ast;
 
-use crate::write_llvm_ir;
+use crate::compile_to_llvm_ir;
 
 #[test]
 fn test_if_block() {
@@ -16,7 +16,7 @@ fn test_if_block() {
    x = 30;
     ";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(input, output);
 }
@@ -36,7 +36,7 @@ fn test_if_else_block() {
    x = 30;
     ";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(input, output);
 }
@@ -58,7 +58,7 @@ fn test_if_else_if_block() {
    x = 30;
     ";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(input, output);
 }
@@ -82,7 +82,7 @@ fn test_if_else_if_else_block() {
    x = 30;
     ";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(output);
 }
@@ -99,7 +99,7 @@ fn test_var_dec_in_if_block() {
     }
 ";
 
-    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     insta::assert_snapshot!(output);
 }

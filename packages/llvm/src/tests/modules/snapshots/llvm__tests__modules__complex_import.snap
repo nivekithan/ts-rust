@@ -1,0 +1,39 @@
+---
+source: packages/llvm/src/tests/modules/mod.rs
+expression: main_content
+
+---
+; ModuleID = 'main'
+source_filename = "main"
+
+define void @main() {
+entry:
+  %y_ = alloca double, align 8
+  %"0" = call double @foo_(double 5.000000e+00)
+  store double %"0", double* %y_, align 8
+  %z_ = alloca double, align 8
+  %"3" = load double, double* %y_, align 8
+  %"2" = call double @boo_(double %"3")
+  store double %"2", double* %z_, align 8
+  ret void
+}
+
+define double @boo_(double %0) {
+main:
+  %x_ = alloca double, align 8
+  store double %0, double* %x_, align 8
+  %"3" = load double, double* %x_, align 8
+  %"1" = fmul double 5.000000e+00, %"3"
+  ret double %"1"
+}
+
+define double @foo_(double %0) {
+main:
+  %x_ = alloca double, align 8
+  store double %0, double* %x_, align 8
+  %"3" = load double, double* %x_, align 8
+  %"2" = call double @boo_(double %"3")
+  %"1" = fadd double %"2", 5.000000e+00
+  ret double %"1"
+}
+

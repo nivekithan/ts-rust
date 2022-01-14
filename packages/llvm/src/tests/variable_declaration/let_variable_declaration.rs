@@ -3,7 +3,7 @@ use lexer::convert_to_token;
 use parser::convert_to_ast;
 use test_utils::{DatatypeOrFn, ExpressionTest};
 
-use crate::write_llvm_ir;
+use crate::compile_to_llvm_ir;
 
 #[test]
 fn test_all_let() {
@@ -26,7 +26,7 @@ fn test_all_let() {
         )],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -54,7 +54,7 @@ fn explicit_float_type_let() {
         )],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -82,7 +82,7 @@ fn explicit_boolean_type_let() {
         )],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -110,7 +110,7 @@ fn test_let_unary_bang() {
         )],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -138,7 +138,7 @@ fn unary_plus() {
         )],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -166,7 +166,7 @@ fn unary_minus() {
         )],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -200,7 +200,7 @@ fn binary_float_plus() {
         ],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -234,7 +234,7 @@ fn binary_float_minus() {
         ],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -268,7 +268,7 @@ fn binary_float_star() {
         ],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -302,7 +302,7 @@ fn binary_float_slash() {
         ],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -336,7 +336,7 @@ fn binary_strict_equality_bool() {
         ],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -370,7 +370,7 @@ fn binary_strict_equality_float() {
         ],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -404,7 +404,7 @@ fn binary_strict_not_equal_bool() {
         ],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -437,7 +437,7 @@ fn binary_strict_not_equal_float() {
         ],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -471,7 +471,7 @@ fn binary_less_than() {
         ],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -505,7 +505,7 @@ fn binary_less_than_or_equal() {
         ],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -539,7 +539,7 @@ fn binary_greater_than() {
         ],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
@@ -573,7 +573,7 @@ fn binary_greater_than_or_equal() {
         ],
 
         test: Box::new(|_, _, input| {
-            let output = write_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
+            let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input.as_str())));
 
             insta::assert_snapshot!(input, output);
         }),
