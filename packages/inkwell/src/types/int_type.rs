@@ -7,8 +7,9 @@ use crate::values::int_value::IntValue;
 
 use super::{
     array_type::ArrayType,
-    enums::BasicTypeEnum,
+    enums::{AddressSpace, BasicTypeEnum},
     fn_type::FunctionType,
+    ptr_type::PointerType,
     traits::{AsTypeRef, BasicTypeTrait, IntMathTypeTrait},
     Type,
 };
@@ -27,7 +28,7 @@ impl<'a> IntType<'a> {
         };
     }
 
-    pub fn const_int(self, value: u64, sign_extended: bool) -> IntValue<'a> {
+    pub fn const_int(&self, value: u64, sign_extended: bool) -> IntValue<'a> {
         unsafe {
             return IntValue::new(LLVMConstInt(
                 self.as_type_ref(),
@@ -37,18 +38,22 @@ impl<'a> IntType<'a> {
         }
     }
 
-    pub fn fn_type(self, param_types: &[BasicTypeEnum], variadic_arg: bool) -> FunctionType<'a> {
+    pub fn fn_type(&self, param_types: &[BasicTypeEnum], variadic_arg: bool) -> FunctionType<'a> {
         return self.int_type.fn_type(param_types, variadic_arg);
     }
 
-    pub fn array_type(self, size: u32) -> ArrayType<'a> {
+    pub fn array_type(&self, size: u32) -> ArrayType<'a> {
         return self.int_type.array_type(size);
     }
 
-    pub fn get_bit_width(self) -> u32 {
+    pub fn get_bit_width(&self) -> u32 {
         unsafe {
             return LLVMGetIntTypeWidth(self.as_type_ref());
         }
+    }
+
+    pub fn ptr_type(&self, address_space: AddressSpace) -> PointerType<'a> {
+        return self.int_type.ptr_type(address_space);
     }
 }
 

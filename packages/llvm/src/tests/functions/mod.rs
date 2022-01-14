@@ -88,6 +88,20 @@ fn test_assigning_a_function_to_variable() {
 }
 
 #[test]
+fn test_passing_a_string_to_function() {
+    let input = "
+    function foo(x : string) : void {
+        return;
+    };
+    
+    foo(\"1233\");
+    ";
+    let output = write_llvm_ir(convert_to_ast(convert_to_token(input)));
+
+    insta::assert_snapshot!(input, output);
+}
+
+#[test]
 fn test_passing_a_callback_function() {
     let input = "
     function foo(x : number, y : (s : number) => number, ) : void {

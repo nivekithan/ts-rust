@@ -468,7 +468,8 @@ pub(crate) fn build_expression<'a>(
 
             let args: Vec<BasicValueEnum> = parameters
                 .iter()
-                .map(|exp| {
+                .enumerate()
+                .map(|(i, exp)| {
                     let value = build_expression(
                         exp,
                         context,
@@ -479,6 +480,28 @@ pub(crate) fn build_expression<'a>(
                         None,
                     )
                     .unwrap();
+
+                    let argument_data_type = parameters[i].get_data_type();
+
+                    if let DataType::String = argument_data_type {
+                        if let BasicValueEnum::PointerValue(value) = value {
+                            let pointer_array_type = value.get_type().into_array_type().unwrap();
+                            let indicies = &[
+                                context.i64_type().const_int(0, true),
+                                context.i64_type().const_int(0, true),
+                            ];
+
+                            let value = builder.build_gep_2(
+                                pointer_array_type,
+                                &value,
+                                indicies,
+                                function_value.get_unique_reg_name().as_str(),
+                            );
+
+                            return BasicValueEnum::PointerValue(value);
+                        }
+                    }
+
                     return value;
                 })
                 .collect();
@@ -534,7 +557,7 @@ fn convert_index_map_to_struct_type<'a>(
                 arguments: _,
                 return_type: _,
             } => all_field.push(data_type.force_to_basic_type(context)),
-
+            // DataType::String => all_field.push(data_type.force_to_basic_type(context)),
             _ => {
                 return Err(format!(
                     "It is not supported to create a struct field with this data_type {:?}",

@@ -20,6 +20,12 @@ impl<'a> FloatValue<'a> {
             float_value: Value::new(value),
         };
     }
+
+    pub(crate) fn get_type(&self) -> FloatType<'a> {
+        unsafe {
+            return FloatType::new(self.float_value.get_type());
+        }
+    }
 }
 
 impl<'a> AsValueRef for FloatValue<'a> {

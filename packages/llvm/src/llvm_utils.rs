@@ -57,6 +57,10 @@ impl<'a> LLVMUtils<'a> for DataType {
                     .ptr_type(AddressSpace::Generic)
                     .as_basic_type_enum();
             }
+            DataType::String => context
+                .i8_type()
+                .ptr_type(AddressSpace::Generic)
+                .as_basic_type_enum(),
 
             _ => panic!("Cannot convert data_type {:?} to BasicTypeEnum", self),
         }

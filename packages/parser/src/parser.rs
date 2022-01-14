@@ -882,7 +882,7 @@ impl<'a> Parser<'a> {
             is_const: true,
             can_export: true,
         };
-        internal_index_map.insert("syscall_1".to_string(), syscall_1);
+        internal_index_map.insert("syscallPrint".to_string(), syscall_1);
 
         return internal_index_map;
     }

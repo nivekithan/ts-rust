@@ -75,7 +75,6 @@ pub(crate) fn consume_function_declaration<'a>(
              * so we can directly store pointers in `symbol_table`
              *
              *
-             * NOTE: As of now only function pointers are supported
              *
              * */
 

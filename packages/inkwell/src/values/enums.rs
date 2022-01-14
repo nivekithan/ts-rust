@@ -1,3 +1,5 @@
+use crate::types::{enums::BasicTypeEnum, traits::BasicTypeTrait};
+
 use super::{
     float_value::FloatValue,
     int_value::IntValue,
@@ -30,6 +32,14 @@ impl<'a> BasicValueEnum<'a> {
                 "unsupported value kind for generation of BasicValue {:?}",
                 kind
             ),
+        }
+    }
+
+    pub fn get_type(&self) -> BasicTypeEnum {
+        match &self {
+            BasicValueEnum::IntValue(value) => return value.get_type().as_basic_type_enum(),
+            BasicValueEnum::FloatValue(value) => return value.get_type().as_basic_type_enum(),
+            BasicValueEnum::PointerValue(value) => return value.get_type().as_basic_type_enum(),
         }
     }
 
