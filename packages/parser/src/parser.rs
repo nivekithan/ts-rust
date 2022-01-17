@@ -12,8 +12,9 @@ use indexmap::IndexMap;
 use lexer::token::{KeywordKind, LiteralKind, Token};
 
 use crate::{
+    parser_resolver::ParserResolver,
     symbol_table::{FunctionSymbol, SymbolContext, SymbolMetaInsert},
-    utils::convert_index_map_to_vec, parser_resolver::ParserResolver,
+    utils::convert_index_map_to_vec,
 };
 
 pub struct Parser<'a> {

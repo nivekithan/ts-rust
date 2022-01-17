@@ -94,7 +94,7 @@ impl<'a> Parser<'a> {
 
             Token::Ident { name } => {
                 if let Some(sym_meta) = context.get(&name) {
-                    let suffix_name = format!("{}{}", name, context.suffix);
+                    let suffix_name = format!("{}{}", name, context.get_suffix(name));
 
                     let exp = Ok(Expression::IdentExp {
                         name: suffix_name,

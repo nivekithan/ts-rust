@@ -145,7 +145,7 @@ impl<'a> SymbolContext<'a> {
     pub fn create_child_context(&'a self, suffix: String) -> SymbolContext<'a> {
         let new_context = SymbolContext {
             symbols: HashMap::new(),
-            global_symbols: HashMap::new(),
+            global_symbols: self.global_symbols.clone(),
             parent: Some(Box::new(self)),
             function_symbol: self.function_symbol.clone(),
             suffix,

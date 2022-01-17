@@ -20,16 +20,12 @@ impl ParserResolverData {
     }
 }
 
-
 pub struct ParserResolver {
     main_data: Option<ParserResolverData>,
     map: HashMap<String, ParserResolverData>,
     dependencies: HashMap<String, String>,
-    get_new_dependencies : Box<dyn Fn(&str) -> Result<String, ()>>
+    get_new_dependencies: Box<dyn Fn(&str) -> Result<String, ()>>,
 }
-
-
-
 
 impl ParserResolver {
     pub fn new() -> ParserResolver {
@@ -37,16 +33,19 @@ impl ParserResolver {
             main_data: None,
             map: HashMap::new(),
             dependencies: HashMap::new(),
-            get_new_dependencies : Box::new(|_s : &str| {return Err(())}),
+            get_new_dependencies: Box::new(|_s: &str| return Err(())),
         };
     }
 
-    pub fn from(dependencies: HashMap<String, String>, get_new_dependencies : Box<dyn Fn(&str) -> Result<String, ()>>) -> ParserResolver {
+    pub fn from(
+        dependencies: HashMap<String, String>,
+        get_new_dependencies: Box<dyn Fn(&str) -> Result<String, ()>>,
+    ) -> ParserResolver {
         return ParserResolver {
             main_data: None,
             map: HashMap::new(),
             dependencies,
-            get_new_dependencies : get_new_dependencies,
+            get_new_dependencies: get_new_dependencies,
         };
     }
 
@@ -61,19 +60,19 @@ impl ParserResolver {
         self.map.insert(file_name.to_string(), resolver_data);
     }
 
-     fn get_dependent_source_code(&mut self, file_name : &str) -> Option<&String> {
-         if self.dependencies.contains_key(file_name) {
-             return self.dependencies.get(file_name);
-         } else {
-             let new_dependencies = (self.get_new_dependencies)(file_name);
-             if let Ok(s) = new_dependencies {
+    fn get_dependent_source_code(&mut self, file_name: &str) -> Option<&String> {
+        if self.dependencies.contains_key(file_name) {
+            return self.dependencies.get(file_name);
+        } else {
+            let new_dependencies = (self.get_new_dependencies)(file_name);
+            if let Ok(s) = new_dependencies {
                 self.dependencies.insert(file_name.to_string(), s);
                 return self.dependencies.get(file_name);
-             } else {
-                 return None;
-             }
-         }
-     }
+            } else {
+                return None;
+            }
+        }
+    }
 
     pub fn get_data(&self, file_name: &str) -> &ParserResolverData {
         return self.map.get(file_name).unwrap();

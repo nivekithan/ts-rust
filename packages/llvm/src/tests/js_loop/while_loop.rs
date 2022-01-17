@@ -18,6 +18,21 @@ fn test_while_loop() {
 }
 
 #[test]
+fn test_while_loop_1() {
+    let input = "
+    let x = 10;
+    
+    while (x !== 0) {
+       const y = x;
+        x -= 1;    
+    }";
+
+    let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
+
+    insta::assert_snapshot!(output);
+}
+
+#[test]
 fn test_while_loop_with_break() {
     let input = "
     const x = 1;

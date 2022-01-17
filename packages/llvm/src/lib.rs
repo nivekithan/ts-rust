@@ -12,7 +12,7 @@ use inkwell::{
     },
     types::enums::OptimizationLevel,
 };
-use parser::parser_resolver::ParserResolver as ParserResolver;
+use parser::parser_resolver::ParserResolver;
 use resolver::Resolver;
 
 mod build_assignment;

@@ -1,6 +1,6 @@
 
 [workspace]
-members=["./packages/lexer", "./packages/ast", "./packages/parser", "./packages/llvm", "./packages/inkwell", "./packages/test-utils", 
+members=["./packages/lexer", "./packages/ast", "./packages/parser", "./packages/llvm", "./packages/inkwell", "./packages/test-utils", "./packages/driver"
 #  "./packages/ast-to-llvm"
  ]
 

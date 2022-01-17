@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use lexer::convert_to_token;
-use parser::{parse_main, parser_resolver::ParserResolver as ParserResolver};
+use parser::{parse_main, parser_resolver::ParserResolver};
 
 use crate::compile_parser_resolver_to_llvm_ir;
 
@@ -24,7 +24,8 @@ fn test_simple_import() {
     let mut dependent_files: HashMap<String, String> = HashMap::new();
     dependent_files.insert("foo".to_string(), foo_file.to_string());
 
-    let mut parser_resolver = ParserResolver::from(dependent_files.clone(), Box::new(|_s| {return Err(())}));
+    let mut parser_resolver =
+        ParserResolver::from(dependent_files.clone(), Box::new(|_s| return Err(())));
     parse_main(convert_to_token(main_file), &mut parser_resolver);
 
     let llvm_resolver = compile_parser_resolver_to_llvm_ir(parser_resolver);
@@ -86,7 +87,8 @@ fn test_complex_import() {
     dependent_files.insert("foo".to_string(), foo_file.to_string());
     dependent_files.insert("boo".to_string(), boo_file.to_string());
 
-    let mut parser_resolver = ParserResolver::from(dependent_files.clone(), Box::new(|_s| {return Err(())} ));
+    let mut parser_resolver =
+        ParserResolver::from(dependent_files.clone(), Box::new(|_s| return Err(())));
     parse_main(convert_to_token(main_file), &mut parser_resolver);
 
     let llvm_resolver = compile_parser_resolver_to_llvm_ir(parser_resolver);
