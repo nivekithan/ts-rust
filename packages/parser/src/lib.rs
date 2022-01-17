@@ -2,7 +2,7 @@ mod parse_block;
 mod parse_expression;
 mod parse_type_expression;
 mod parser;
-pub mod resolver;
+pub mod parser_resolver;
 mod symbol_table;
 mod utils;
 
@@ -14,17 +14,17 @@ use std::collections::HashMap;
 use crate::{parser::Parser, symbol_table::SymbolContext};
 use ast::Ast;
 use lexer::token::Token;
-use resolver::{Resolver, ResolverData};
+use parser_resolver::{ParserResolver, ParserResolverData};
 use symbol_table::SymbolMetaInsert;
 
 pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
-    let mut resolver = Resolver::new();
+    let mut resolver = ParserResolver::new();
     return convert_to_ast_with_resolver(input, &mut resolver).0;
 }
 
 pub fn convert_to_ast_with_resolver<'a>(
     input: Vec<Token>,
-    resolver: &'a mut Resolver,
+    resolver: &'a mut ParserResolver,
 ) -> (Vec<Ast>, HashMap<String, SymbolMetaInsert>) {
     let mut parser = Parser::new(&input, resolver);
     let mut asts: Vec<Ast> = vec![];
@@ -38,9 +38,9 @@ pub fn convert_to_ast_with_resolver<'a>(
     return (asts, context.global_symbols);
 }
 
-pub fn parse_main<'a>(input: Vec<Token>, resolver: &'a mut Resolver) {
+pub fn parse_main<'a>(input: Vec<Token>, resolver: &'a mut ParserResolver) {
     let (ast, symbols) = convert_to_ast_with_resolver(input, resolver);
-    let data = ResolverData {
+    let data = ParserResolverData {
         ast,
         symbol_table: symbols,
     };

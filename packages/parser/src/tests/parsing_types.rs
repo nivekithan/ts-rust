@@ -2,14 +2,14 @@ use ast::data_type::DataType;
 use indexmap::IndexMap;
 use lexer::convert_to_token;
 
-use crate::{parser::Parser, resolver::Resolver};
+use crate::{parser::Parser, parser_resolver::ParserResolver};
 
 #[test]
 fn test_string_type_declaration() {
     let input = "string";
 
     let tokens = convert_to_token(input);
-    let mut resolver = Resolver::new();
+    let mut resolver = ParserResolver::new();
     let mut parser = Parser::new(&tokens, &mut resolver);
     let data_type = parser.parse_type_declaration(1);
 
@@ -21,7 +21,7 @@ fn test_boolean_type_declaration() {
     let input = "boolean";
 
     let tokens = convert_to_token(input);
-    let mut resolver = Resolver::new();
+    let mut resolver = ParserResolver::new();
     let mut parser = Parser::new(&tokens, &mut resolver);
     let data_type = parser.parse_type_declaration(1);
 
@@ -33,7 +33,7 @@ fn test_number_type_declaration() {
     let input = "number";
 
     let tokens = convert_to_token(input);
-    let mut resolver = Resolver::new();
+    let mut resolver = ParserResolver::new();
     let mut parser = Parser::new(&tokens, &mut resolver);
     let data_type = parser.parse_type_declaration(1);
 
@@ -45,7 +45,7 @@ fn test_void_type() {
     let input = "void";
 
     let tokens = convert_to_token(input);
-    let mut resolver = Resolver::new();
+    let mut resolver = ParserResolver::new();
     let mut parser = Parser::new(&tokens, &mut resolver);
     let data_type = parser.parse_type_declaration(1);
 
@@ -57,7 +57,7 @@ fn test_grouped_type_declaration() {
     let input = "(string)";
 
     let tokens = convert_to_token(input);
-    let mut resolver = Resolver::new();
+    let mut resolver = ParserResolver::new();
     let mut parser = Parser::new(&tokens, &mut resolver);
     let data_type = parser.parse_type_declaration(1);
 
@@ -69,7 +69,7 @@ fn test_array_type() {
     let input = "string[][]";
 
     let tokens = convert_to_token(input);
-    let mut resolver = Resolver::new();
+    let mut resolver = ParserResolver::new();
     let mut parser = Parser::new(&tokens, &mut resolver);
     let data_type = parser.parse_type_declaration(1);
 
@@ -88,7 +88,7 @@ fn test_object_type() {
     let input = "{a : string, b : number , c : string[], d : boolean}";
 
     let tokens = convert_to_token(input);
-    let mut resolver = Resolver::new();
+    let mut resolver = ParserResolver::new();
     let mut parser = Parser::new(&tokens, &mut resolver);
     let data_type = parser.parse_type_declaration(1);
 
@@ -117,7 +117,7 @@ fn test_function_type() {
     let input = "(a : string, b : string) => number";
 
     let tokens = convert_to_token(input);
-    let mut resolver = Resolver::new();
+    let mut resolver = ParserResolver::new();
     let mut parser = Parser::new(&tokens, &mut resolver);
     let data_type = parser.parse_type_declaration(1);
 

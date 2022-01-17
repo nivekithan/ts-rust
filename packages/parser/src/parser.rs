@@ -12,19 +12,18 @@ use indexmap::IndexMap;
 use lexer::token::{KeywordKind, LiteralKind, Token};
 
 use crate::{
-    resolver::Resolver,
     symbol_table::{FunctionSymbol, SymbolContext, SymbolMetaInsert},
-    utils::convert_index_map_to_vec,
+    utils::convert_index_map_to_vec, parser_resolver::ParserResolver,
 };
 
 pub struct Parser<'a> {
     pub(crate) content: &'a Vec<Token>,
     pub(crate) cur_pos: Option<usize>,
-    resolver: &'a mut Resolver,
+    resolver: &'a mut ParserResolver,
 }
 
 impl<'a> Parser<'a> {
-    pub fn new(content: &'a Vec<Token>, resolver: &'a mut Resolver) -> Parser<'a> {
+    pub fn new(content: &'a Vec<Token>, resolver: &'a mut ParserResolver) -> Parser<'a> {
         let mut parser: Parser<'a> = Parser {
             content,
             cur_pos: None,

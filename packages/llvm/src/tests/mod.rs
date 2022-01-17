@@ -2,7 +2,7 @@ use std::{collections::HashMap, path::PathBuf};
 
 use inkwell::context::Context;
 use lexer::convert_to_token;
-use parser::{parse_main, resolver::Resolver as ParserResolver};
+use parser::{parse_main, parser_resolver::ParserResolver as ParserResolver};
 
 use crate::{
     compile_parser_resolver_to_llvm_module, link_llvm_module_resolver, write_assembly_file_to_path,
@@ -26,7 +26,7 @@ fn test_writing_assembly() {
 
     let dependent_files: HashMap<String, String> = HashMap::new();
 
-    let mut parser_resolver = ParserResolver::from(dependent_files.clone());
+    let mut parser_resolver = ParserResolver::from(dependent_files.clone(), Box::new(|_s| {return Err(())}));
     parse_main(convert_to_token(main_file), &mut parser_resolver);
 
     let context = Context::create();
