@@ -9,3 +9,4 @@ edition = "2018"
 lexer = { path = "../lexer"}
 ast = {path = "../ast"}
 indexmap = "1.7.0"
+path-absolutize = "3.0.11"

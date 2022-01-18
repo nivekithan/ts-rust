@@ -24,7 +24,11 @@ fn main() {
         }),
     );
 
-    parse_main(convert_to_token(&main_file_code), &mut parser_resolver);
+    parse_main(
+        convert_to_token(&main_file_code),
+        &mut parser_resolver,
+        main_file_path.to_str().unwrap(),
+    );
     let context = Context::create();
     let llvm_resolver = compile_parser_resolver_to_llvm_module(parser_resolver, &context);
     let final_module = link_llvm_module_resolver(llvm_resolver);

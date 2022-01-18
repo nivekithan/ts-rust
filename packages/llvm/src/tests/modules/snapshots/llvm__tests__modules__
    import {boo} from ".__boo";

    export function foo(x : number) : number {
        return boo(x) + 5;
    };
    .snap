@@ -11,11 +11,14 @@ entry:
   ret void
 }
 
+declare double @boo_(double)
+
 define double @foo_(double %0) {
 main:
   %x_ = alloca double, align 8
   store double %0, double* %x_, align 8
-  %"2" = load double, double* %x_, align 8
+  %"3" = load double, double* %x_, align 8
+  %"2" = call double @boo_(double %"3")
   %"1" = fadd double %"2", 5.000000e+00
   ret double %"1"
 }

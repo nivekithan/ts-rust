@@ -1,14 +1,15 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 use lexer::convert_to_token;
 use parser::{parse_main, parser_resolver::ParserResolver};
+use path_absolutize::Absolutize;
 
 use crate::compile_parser_resolver_to_llvm_ir;
 
 #[test]
 fn test_simple_import() {
     let main_file = "
-    import { foo } from \"foo\";
+    import { foo } from \"./foo\";
 
     const y = foo(5)
 
@@ -21,12 +22,27 @@ fn test_simple_import() {
     };
     ";
 
+    let main_file_absolute_path = PathBuf::from("./main").absolutize().unwrap().to_path_buf();
+
+    let foo_file_path = {
+        let mut foo_file_path = main_file_absolute_path.clone();
+        foo_file_path.push("../foo");
+        foo_file_path.absolutize().unwrap().to_path_buf()
+    };
+
     let mut dependent_files: HashMap<String, String> = HashMap::new();
-    dependent_files.insert("foo".to_string(), foo_file.to_string());
+    dependent_files.insert(
+        foo_file_path.to_str().unwrap().to_string(),
+        foo_file.to_string(),
+    );
 
     let mut parser_resolver =
         ParserResolver::from(dependent_files.clone(), Box::new(|_s| return Err(())));
-    parse_main(convert_to_token(main_file), &mut parser_resolver);
+    parse_main(
+        convert_to_token(main_file),
+        &mut parser_resolver,
+        main_file_absolute_path.to_str().unwrap(),
+    );
 
     let llvm_resolver = compile_parser_resolver_to_llvm_ir(parser_resolver);
 
@@ -62,15 +78,15 @@ fn test_simple_import() {
 #[test]
 fn test_complex_import() {
     let main_file = "
-    import {foo} from \"foo\";
-    import {boo} from \"boo\";
+    import {foo} from \"./foo\";
+    import {boo} from \"./boo\";
 
     const y = foo(5);
     const z = boo(y);
     ";
 
     let foo_file = "
-    import {boo} from \"boo\";
+    import {boo} from \"./boo\";
 
     export function foo(x : number) : number {
         return boo(x) + 5;
@@ -83,13 +99,37 @@ fn test_complex_import() {
     };
     ";
 
+    let main_file_absolute_path = PathBuf::from("./main").absolutize().unwrap().to_path_buf();
+
+    let foo_file_path = {
+        let mut foo_file_path = main_file_absolute_path.clone();
+        foo_file_path.push("../foo");
+        foo_file_path.absolutize().unwrap().to_path_buf()
+    };
+
+    let boo_file_path = {
+        let mut boo_file_path = main_file_absolute_path.clone();
+        boo_file_path.push("../boo");
+        boo_file_path.absolutize().unwrap().to_path_buf()
+    };
+
     let mut dependent_files: HashMap<String, String> = HashMap::new();
-    dependent_files.insert("foo".to_string(), foo_file.to_string());
-    dependent_files.insert("boo".to_string(), boo_file.to_string());
+    dependent_files.insert(
+        foo_file_path.to_str().unwrap().to_string(),
+        foo_file.to_string(),
+    );
+    dependent_files.insert(
+        boo_file_path.to_str().unwrap().to_string(),
+        boo_file.to_string(),
+    );
 
     let mut parser_resolver =
         ParserResolver::from(dependent_files.clone(), Box::new(|_s| return Err(())));
-    parse_main(convert_to_token(main_file), &mut parser_resolver);
+    parse_main(
+        convert_to_token(main_file),
+        &mut parser_resolver,
+        main_file_absolute_path.to_str().unwrap(),
+    );
 
     let llvm_resolver = compile_parser_resolver_to_llvm_ir(parser_resolver);
 

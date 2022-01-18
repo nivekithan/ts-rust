@@ -10,7 +10,7 @@ fn test_string_type_declaration() {
 
     let tokens = convert_to_token(input);
     let mut resolver = ParserResolver::new();
-    let mut parser = Parser::new(&tokens, &mut resolver);
+    let mut parser = Parser::new(&tokens, &mut resolver, None);
     let data_type = parser.parse_type_declaration(1);
 
     assert_eq!(data_type, Ok(DataType::String));
@@ -22,7 +22,7 @@ fn test_boolean_type_declaration() {
 
     let tokens = convert_to_token(input);
     let mut resolver = ParserResolver::new();
-    let mut parser = Parser::new(&tokens, &mut resolver);
+    let mut parser = Parser::new(&tokens, &mut resolver, None);
     let data_type = parser.parse_type_declaration(1);
 
     assert_eq!(data_type, Ok(DataType::Boolean));
@@ -34,7 +34,7 @@ fn test_number_type_declaration() {
 
     let tokens = convert_to_token(input);
     let mut resolver = ParserResolver::new();
-    let mut parser = Parser::new(&tokens, &mut resolver);
+    let mut parser = Parser::new(&tokens, &mut resolver, None);
     let data_type = parser.parse_type_declaration(1);
 
     assert_eq!(data_type, Ok(DataType::Float));
@@ -46,7 +46,7 @@ fn test_void_type() {
 
     let tokens = convert_to_token(input);
     let mut resolver = ParserResolver::new();
-    let mut parser = Parser::new(&tokens, &mut resolver);
+    let mut parser = Parser::new(&tokens, &mut resolver, None);
     let data_type = parser.parse_type_declaration(1);
 
     assert_eq!(data_type, Ok(DataType::Void));
@@ -58,7 +58,7 @@ fn test_grouped_type_declaration() {
 
     let tokens = convert_to_token(input);
     let mut resolver = ParserResolver::new();
-    let mut parser = Parser::new(&tokens, &mut resolver);
+    let mut parser = Parser::new(&tokens, &mut resolver, None);
     let data_type = parser.parse_type_declaration(1);
 
     assert_eq!(data_type, Ok(DataType::String));
@@ -70,7 +70,7 @@ fn test_array_type() {
 
     let tokens = convert_to_token(input);
     let mut resolver = ParserResolver::new();
-    let mut parser = Parser::new(&tokens, &mut resolver);
+    let mut parser = Parser::new(&tokens, &mut resolver, None);
     let data_type = parser.parse_type_declaration(1);
 
     assert_eq!(
@@ -89,7 +89,7 @@ fn test_object_type() {
 
     let tokens = convert_to_token(input);
     let mut resolver = ParserResolver::new();
-    let mut parser = Parser::new(&tokens, &mut resolver);
+    let mut parser = Parser::new(&tokens, &mut resolver, None);
     let data_type = parser.parse_type_declaration(1);
 
     let mut data_type_entries: IndexMap<String, DataType> = IndexMap::new();
@@ -118,7 +118,7 @@ fn test_function_type() {
 
     let tokens = convert_to_token(input);
     let mut resolver = ParserResolver::new();
-    let mut parser = Parser::new(&tokens, &mut resolver);
+    let mut parser = Parser::new(&tokens, &mut resolver, None);
     let data_type = parser.parse_type_declaration(1);
 
     let arguments = vec![DataType::String, DataType::String];

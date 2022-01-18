@@ -3,8 +3,8 @@ source: packages/llvm/src/tests/modules/mod.rs
 expression: content
 
 ---
-; ModuleID = 'boo'
-source_filename = "boo"
+; ModuleID = '/home/nivekithan/code/work/tpm/packages/llvm/boo'
+source_filename = "/home/nivekithan/code/work/tpm/packages/llvm/boo"
 
 define private void @main() {
 entry:

@@ -1,5 +1,5 @@
 use core::panic;
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 use ast::{
     data_type::DataType,
@@ -21,14 +21,36 @@ pub struct Parser<'a> {
     pub(crate) content: &'a Vec<Token>,
     pub(crate) cur_pos: Option<usize>,
     resolver: &'a mut ParserResolver,
+    cur_file_path: Option<PathBuf>, // Absolute path of file which we are parsing
 }
 
 impl<'a> Parser<'a> {
-    pub fn new(content: &'a Vec<Token>, resolver: &'a mut ParserResolver) -> Parser<'a> {
+    pub fn new(
+        content: &'a Vec<Token>,
+        resolver: &'a mut ParserResolver,
+        cur_file_name: Option<&str>,
+    ) -> Parser<'a> {
+        let cur_file_path = {
+            if let Some(cur_file_name) = cur_file_name {
+                let cur_file_path = PathBuf::from(cur_file_name);
+
+                if !cur_file_path.is_absolute() {
+                    panic!(
+                        "Expected cur_file_name to be absolute path but instead got {}",
+                        cur_file_name
+                    );
+                }
+                Some(cur_file_path)
+            } else {
+                None
+            }
+        };
+
         let mut parser: Parser<'a> = Parser {
             content,
             cur_pos: None,
             resolver,
+            cur_file_path,
         };
 
         parser.next();
@@ -788,10 +810,16 @@ impl<'a> Parser<'a> {
                 Parser::get_internal_compiler_provider_fn()
             } else {
                 let external_file_data = {
-                    if !self.resolver.contains_data(&file_name) {
-                        self.resolver.parse_data(&file_name);
+                    if !self
+                        .resolver
+                        .contains_data(&file_name, self.get_cur_file_name())
+                    {
+                        self.resolver
+                            .parse_data(&file_name, &self.get_cur_file_name().to_string());
                     }
-                    self.resolver.get_data(&file_name).clone()
+                    self.resolver
+                        .get_data(&file_name, self.get_cur_file_name())
+                        .clone()
                 };
                 external_file_data.symbol_table
             }
@@ -892,6 +920,7 @@ impl<'a> Parser<'a> {
             content: self.content,
             cur_pos: self.cur_pos,
             resolver: self.resolver,
+            cur_file_path: self.cur_file_path.clone(),
         };
     }
 
@@ -949,6 +978,15 @@ impl<'a> Parser<'a> {
                 "Next method should be called atleast one time before calling get_cur_token "
                     .to_string(),
             );
+        }
+    }
+
+    fn get_cur_file_name(&self) -> &str {
+        let cur_file_path = &self.cur_file_path;
+        if let Some(cur_file_path) = cur_file_path {
+            return cur_file_path.to_str().unwrap();
+        } else {
+            panic!("Cannot use import declaration inside anonymous modules");
         }
     }
 }

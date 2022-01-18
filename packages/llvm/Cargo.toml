@@ -12,6 +12,8 @@ lexer = {path = "../lexer"}
 indexmap = "1.7.0"
 either = "1.6.1"
 parser = { path = "../parser"}
+path-absolutize = "3.0.11"
+
 
 [dev-dependencies]
 insta = "1.7.2"

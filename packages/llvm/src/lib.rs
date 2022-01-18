@@ -78,7 +78,7 @@ pub fn compile_parser_resolver_to_llvm_ir(parser_resolver: ParserResolver) -> Re
 
     let parser_dependencies = parser_resolver.get_dependencies();
     parser_dependencies.iter().for_each(|file_name| {
-        let data = parser_resolver.get_data(file_name);
+        let data = parser_resolver.get_data_from_absolute_file_path(file_name);
 
         let dependent_content =
             compile_to_llvm_module(data.ast.clone(), &context, file_name, false);
@@ -107,7 +107,7 @@ pub fn compile_parser_resolver_to_llvm_module<'a>(
 
     let parser_dependencies = parser_resolver.get_dependencies();
     parser_dependencies.iter().for_each(|file_name| {
-        let data = parser_resolver.get_data(file_name);
+        let data = parser_resolver.get_data_from_absolute_file_path(file_name);
 
         let dependent_content =
             compile_to_llvm_module(data.ast.clone(), &context, file_name, false);

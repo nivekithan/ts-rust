@@ -19,14 +19,15 @@ use symbol_table::SymbolMetaInsert;
 
 pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
     let mut resolver = ParserResolver::new();
-    return convert_to_ast_with_resolver(input, &mut resolver).0;
+    return convert_to_ast_with_resolver(input, &mut resolver, None).0;
 }
 
 pub fn convert_to_ast_with_resolver<'a>(
     input: Vec<Token>,
     resolver: &'a mut ParserResolver,
+    file_name: Option<&str>,
 ) -> (Vec<Ast>, HashMap<String, SymbolMetaInsert>) {
-    let mut parser = Parser::new(&input, resolver);
+    let mut parser = Parser::new(&input, resolver, file_name);
     let mut asts: Vec<Ast> = vec![];
     let mut context = SymbolContext::create_global_context();
 
@@ -38,8 +39,8 @@ pub fn convert_to_ast_with_resolver<'a>(
     return (asts, context.global_symbols);
 }
 
-pub fn parse_main<'a>(input: Vec<Token>, resolver: &'a mut ParserResolver) {
-    let (ast, symbols) = convert_to_ast_with_resolver(input, resolver);
+pub fn parse_main<'a>(input: Vec<Token>, resolver: &'a mut ParserResolver, main_file_name: &str) {
+    let (ast, symbols) = convert_to_ast_with_resolver(input, resolver, Some(main_file_name));
     let data = ParserResolverData {
         ast,
         symbol_table: symbols,

@@ -1,0 +1,18 @@
+---
+source: packages/llvm/src/tests/modules/mod.rs
+expression: main_content
+
+---
+; ModuleID = 'main'
+source_filename = "main"
+
+define void @main() {
+entry:
+  %y_ = alloca double, align 8
+  %"0" = call double @foo_(double 5.000000e+00)
+  store double %"0", double* %y_, align 8
+  ret void
+}
+
+declare double @foo_(double)
+

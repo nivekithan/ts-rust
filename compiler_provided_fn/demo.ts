@@ -1,10 +1,11 @@
 import {syscallPrint} from "compilerInternal";
+import {isTrue} from "./demo2";
 
 
-let i = 0;
+if (isTrue()) {
+    syscallPrint(1, "its true", 8);
+}
 
-while (i !== 10) {
-    i += 1;
-    const s = "Hello World!";
-    syscallPrint(1, s, 12);
+if (!isTrue()) {
+    syscallPrint(1, "its not true",12 );
 }
