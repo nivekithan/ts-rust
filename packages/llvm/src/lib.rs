@@ -1,8 +1,7 @@
-use std::{collections::HashMap, path::Path};
+use std::path::Path;
 
 use ast::Ast;
 use codegen::Codegen;
-use compiler_provided_fn::get_compiler_provided_module;
 use inkwell::{
     context::Context,
     enums::Linkage,
@@ -12,17 +11,14 @@ use inkwell::{
     },
     types::enums::OptimizationLevel,
 };
-use parser::parser_resolver::ParserResolver;
-use resolver::Resolver;
 
 mod build_assignment;
 mod build_expression;
 mod codegen;
-mod compiler_provided_fn;
+pub mod compiler_provided_fn;
 mod enums;
 mod gen_ast;
 mod llvm_utils;
-mod resolver;
 mod symbol_table;
 #[cfg(test)]
 mod tests;
@@ -67,74 +63,19 @@ pub fn compile_to_llvm_module<'a>(
     return module;
 }
 
-pub fn compile_parser_resolver_to_llvm_ir(parser_resolver: ParserResolver) -> Resolver<String> {
-    let context = Context::create();
+// pub fn link_llvm_module_resolver<'a>(resolver: Resolver<Module<'a>>) -> Module<'a> {
+//     let main = resolver.main.unwrap();
 
-    let main_data = parser_resolver.get_main().clone().unwrap();
+//     for (_, module) in resolver.dependencies {
+//         main.link_module(module).unwrap();
+//     }
 
-    let main_content = compile_to_llvm_module(main_data.ast, &context, "main", true);
+//     if let Some(module) = resolver.compiler_provided {
+//         main.link_module(module).unwrap();
+//     }
 
-    let mut dependencies: HashMap<String, String> = HashMap::new();
-
-    let parser_dependencies = parser_resolver.get_dependencies();
-    parser_dependencies.iter().for_each(|file_name| {
-        let data = parser_resolver.get_data_from_absolute_file_path(file_name);
-
-        let dependent_content =
-            compile_to_llvm_module(data.ast.clone(), &context, file_name, false);
-
-        dependencies.insert(
-            file_name.to_string(),
-            dependent_content.get_string_representation().to_string(),
-        );
-    });
-
-    return Resolver {
-        dependencies,
-        main: Some(main_content.get_string_representation().to_string()),
-        compiler_provided: None,
-    };
-}
-pub fn compile_parser_resolver_to_llvm_module<'a>(
-    parser_resolver: ParserResolver,
-    context: &'a Context,
-) -> Resolver<Module<'a>> {
-    let main_data = parser_resolver.get_main().clone().unwrap();
-
-    let main_module = compile_to_llvm_module(main_data.ast, &context, "main", true);
-
-    let mut dependencies: HashMap<String, Module<'a>> = HashMap::new();
-
-    let parser_dependencies = parser_resolver.get_dependencies();
-    parser_dependencies.iter().for_each(|file_name| {
-        let data = parser_resolver.get_data_from_absolute_file_path(file_name);
-
-        let dependent_content =
-            compile_to_llvm_module(data.ast.clone(), &context, file_name, false);
-
-        dependencies.insert(file_name.to_string(), dependent_content);
-    });
-
-    return Resolver {
-        dependencies,
-        main: Some(main_module),
-        compiler_provided: Some(get_compiler_provided_module(context)),
-    };
-}
-
-pub fn link_llvm_module_resolver<'a>(resolver: Resolver<Module<'a>>) -> Module<'a> {
-    let main = resolver.main.unwrap();
-
-    for (_, module) in resolver.dependencies {
-        main.link_module(module).unwrap();
-    }
-
-    if let Some(module) = resolver.compiler_provided {
-        main.link_module(module).unwrap();
-    }
-
-    return main;
-}
+//     return main;
+// }
 
 pub fn write_assembly_file_to_path<'a>(module: &Module<'a>, path: &Path) {
     Target::initialize_x86(&InitializationConfig::default());

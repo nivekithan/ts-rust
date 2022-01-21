@@ -12,24 +12,26 @@ use indexmap::IndexMap;
 use lexer::token::{KeywordKind, LiteralKind, Token};
 
 use crate::{
-    parser_resolver::ParserResolver,
     symbol_table::{FunctionSymbol, SymbolContext, SymbolMetaInsert},
+    traits::ImportResolver,
     utils::convert_index_map_to_vec,
 };
 
-pub struct Parser<'a> {
+pub struct Parser<'a, R: ImportResolver> {
     pub(crate) content: &'a Vec<Token>,
     pub(crate) cur_pos: Option<usize>,
-    resolver: &'a mut ParserResolver,
+    resolver: &'a mut R,
     cur_file_path: Option<PathBuf>, // Absolute path of file which we are parsing
+    id: usize,
 }
 
-impl<'a> Parser<'a> {
+impl<'a, R: ImportResolver> Parser<'a, R> {
     pub fn new(
         content: &'a Vec<Token>,
-        resolver: &'a mut ParserResolver,
+        resolver: &'a mut R,
         cur_file_name: Option<&str>,
-    ) -> Parser<'a> {
+        id: usize,
+    ) -> Parser<'a, R> {
         let cur_file_path = {
             if let Some(cur_file_name) = cur_file_name {
                 let cur_file_path = PathBuf::from(cur_file_name);
@@ -46,11 +48,12 @@ impl<'a> Parser<'a> {
             }
         };
 
-        let mut parser: Parser<'a> = Parser {
+        let mut parser: Parser<'a, R> = Parser {
             content,
             cur_pos: None,
             resolver,
             cur_file_path,
+            id,
         };
 
         parser.next();
@@ -807,21 +810,16 @@ impl<'a> Parser<'a> {
 
         let external_file_symbols = &{
             if &file_name == "compilerInternal" {
-                Parser::get_internal_compiler_provider_fn()
+                self.get_internal_compiler_provider_fn()
             } else {
                 let external_file_data = {
-                    if !self
-                        .resolver
-                        .contains_data(&file_name, self.get_cur_file_name())
-                    {
+                    if !self.resolver.contains(&file_name, self.get_cur_file_name()) {
                         self.resolver
-                            .parse_data(&file_name, &self.get_cur_file_name().to_string());
+                            .resolve(&file_name, &self.get_cur_file_name().to_string())?;
                     }
-                    self.resolver
-                        .get_data(&file_name, self.get_cur_file_name())
-                        .clone()
+                    self.resolver.get(&file_name, self.get_cur_file_name())
                 };
-                external_file_data.symbol_table
+                external_file_data.unwrap().clone()
             }
         };
 
@@ -899,7 +897,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub(crate) fn get_internal_compiler_provider_fn() -> HashMap<String, SymbolMetaInsert> {
+    pub(crate) fn get_internal_compiler_provider_fn(&self) -> HashMap<String, SymbolMetaInsert> {
         let mut internal_index_map: HashMap<String, SymbolMetaInsert> = HashMap::new();
 
         let syscall_1: SymbolMetaInsert = SymbolMetaInsert {
@@ -915,12 +913,13 @@ impl<'a> Parser<'a> {
         return internal_index_map;
     }
 
-    pub(crate) fn lookup_parser(&mut self) -> Parser {
+    pub(crate) fn lookup_parser(&mut self) -> Parser<R> {
         return Parser {
             content: self.content,
             cur_pos: self.cur_pos,
             resolver: self.resolver,
             cur_file_path: self.cur_file_path.clone(),
+            id: self.id,
         };
     }
 

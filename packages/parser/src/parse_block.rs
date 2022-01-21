@@ -1,9 +1,9 @@
 use ast::{declaration::BlockWithCondition, Ast};
 use lexer::token::Token;
 
-use crate::{parser::Parser, symbol_table::SymbolContext};
+use crate::{parser::Parser, symbol_table::SymbolContext, traits::ImportResolver};
 
-impl<'a> Parser<'a> {
+impl<'a, R: ImportResolver> Parser<'a, R> {
     /*
      * Assumes the current token to be '(' in
      *

@@ -7,10 +7,11 @@ use lexer::token::{KeywordKind, LiteralKind, Token};
 use crate::{
     parser::Parser,
     symbol_table::SymbolContext,
+    traits::ImportResolver,
     utils::{convert_token_to_binary_operator, convert_token_to_unary_operator},
 };
 
-impl<'a> Parser<'a> {
+impl<'a, R: ImportResolver> Parser<'a, R> {
     pub(crate) fn parse_expression(
         &mut self,
         precedence: usize,
@@ -20,7 +21,7 @@ impl<'a> Parser<'a> {
         let next_token = self.get_cur_token()?.clone();
 
         while next_token != Token::SemiColon
-            && precedence < Parser::get_non_prefix_precedence(&next_token)
+            && precedence < self.get_non_prefix_precedence(&next_token)
         {
             let infix_fun = self.get_non_prefix_exp(prefix_fun, context)?;
 
@@ -234,7 +235,7 @@ impl<'a> Parser<'a> {
         context: &SymbolContext,
     ) -> Result<Expression, String> {
         let cur_token = self.get_cur_token()?.clone();
-        let precedence = Parser::get_prefix_precedence(&cur_token);
+        let precedence = self.get_prefix_precedence(&cur_token);
 
         self.next(); // consumes cur_token
 
@@ -400,7 +401,7 @@ impl<'a> Parser<'a> {
     ) -> Result<Expression, String> {
         let cur_tok = self.get_cur_token()?.clone();
 
-        let precedence = Parser::get_non_prefix_precedence(&cur_tok);
+        let precedence = self.get_non_prefix_precedence(&cur_tok);
 
         self.next(); // consumes cur_tok which is binary_tok
 
@@ -412,7 +413,7 @@ impl<'a> Parser<'a> {
         });
     }
 
-    pub(crate) fn get_prefix_precedence(token: &Token) -> usize {
+    pub(crate) fn get_prefix_precedence(&self, token: &Token) -> usize {
         match token {
             Token::Plus | Token::Minus | Token::Bang => return 17,
 
@@ -420,7 +421,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub(crate) fn get_non_prefix_precedence(token: &Token) -> usize {
+    pub(crate) fn get_non_prefix_precedence(&self, token: &Token) -> usize {
         match token {
             Token::BoxOpenBracket | Token::Dot | Token::CurveOpenBracket => 20,
 

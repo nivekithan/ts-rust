@@ -1,11 +1,9 @@
 import {syscallPrint} from "compilerInternal";
-import {isTrue} from "./demo2";
 
 
-if (isTrue()) {
-    syscallPrint(1, "its true", 8);
-}
+let i = 0;
 
-if (!isTrue()) {
-    syscallPrint(1, "its not true",12 );
+while (i !== 10){
+    i += 1;
+    syscallPrint(1, "1",1 )
 }

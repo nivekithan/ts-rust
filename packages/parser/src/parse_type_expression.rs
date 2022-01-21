@@ -2,15 +2,15 @@ use ast::data_type::DataType;
 use indexmap::IndexMap;
 use lexer::token::Token;
 
-use crate::{parser::Parser, utils::convert_index_map_to_vec};
+use crate::{parser::Parser, traits::ImportResolver, utils::convert_index_map_to_vec};
 
-impl<'a> Parser<'a> {
+impl<'a, R: ImportResolver> Parser<'a, R> {
     pub(crate) fn parse_type_declaration(&mut self, precedence: usize) -> Result<DataType, String> {
         let mut prefix_data_type = self.get_prefix_type()?;
 
         let next_token = self.get_cur_token()?.clone();
 
-        while precedence < Parser::get_type_non_prefix_precedence(&next_token) {
+        while precedence < self.get_type_non_prefix_precedence(&next_token) {
             let non_prefix_data_type = self.get_non_prefix_type(prefix_data_type)?;
 
             match non_prefix_data_type {
@@ -195,7 +195,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub(crate) fn get_type_non_prefix_precedence(token: &Token) -> usize {
+    pub(crate) fn get_type_non_prefix_precedence(&self, token: &Token) -> usize {
         match token {
             Token::BoxOpenBracket => 5,
             _ => 1,
