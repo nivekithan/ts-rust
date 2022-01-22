@@ -1,4 +1,4 @@
-define void @syscallPrint_( double %0, i8* %1, double %2) {
+define void @|fn:1|syscallPrint|_|( double %0, i8* %1, double %2) {
 entry:
      %rdi_int = fptosi double %0 to i64
      %size_int = fptosi double %2 to i64

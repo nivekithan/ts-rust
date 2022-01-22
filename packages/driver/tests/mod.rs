@@ -216,7 +216,7 @@ fn test_loops() {
 }
 
 #[test]
-fn test_if_loops() {
+fn test_if() {
     let mut setup = TestSetup::new();
     let main_file = "
     import {syscallPrint} from \"compilerInternal\";
@@ -239,7 +239,7 @@ fn test_if_loops() {
 }
 
 #[test]
-fn test_else_if_loops() {
+fn test_else_if() {
     let mut setup = TestSetup::new();
     let main_file = "
     import {syscallPrint} from \"compilerInternal\";
@@ -264,7 +264,7 @@ fn test_else_if_loops() {
 }
 
 #[test]
-fn test_else_loops() {
+fn test_else() {
     let mut setup = TestSetup::new();
     let main_file = "
     import {syscallPrint} from \"compilerInternal\";
