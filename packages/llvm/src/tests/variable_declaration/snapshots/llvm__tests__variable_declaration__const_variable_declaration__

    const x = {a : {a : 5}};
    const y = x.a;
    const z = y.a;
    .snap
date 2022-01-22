@@ -8,18 +8,18 @@ source_filename = "main"
 
 define void @main() {
 entry:
-  %x_ = alloca <{ <{ double }>* }>, align 8
+  %"x|_|" = alloca <{ <{ double }>* }>, align 8
   %"0" = alloca <{ double }>, align 8
   %"2" = getelementptr <{ double }>, <{ double }>* %"0", i32 1, i32 0
   store double 5.000000e+00, double* %"2", align 8
-  %"3" = getelementptr <{ <{ double }>* }>, <{ <{ double }>* }>* %x_, i32 1, i32 0
+  %"3" = getelementptr <{ <{ double }>* }>, <{ <{ double }>* }>* %"x|_|", i32 1, i32 0
   store <{ double }>* %"0", <{ double }>** %"3", align 8
-  %"5" = getelementptr <{ <{ double }>* }>, <{ <{ double }>* }>* %x_, i32 1, i32 0
-  %y_ = load <{ double }>*, <{ double }>** %"5", align 8
-  %z_ = alloca double, align 8
-  %"8" = getelementptr <{ double }>, <{ double }>* %y_, i32 1, i32 0
+  %"5" = getelementptr <{ <{ double }>* }>, <{ <{ double }>* }>* %"x|_|", i32 1, i32 0
+  %"y|_|" = load <{ double }>*, <{ double }>** %"5", align 8
+  %"z|_|" = alloca double, align 8
+  %"8" = getelementptr <{ double }>, <{ double }>* %"y|_|", i32 1, i32 0
   %"6" = load double, double* %"8", align 8
-  store double %"6", double* %z_, align 8
+  store double %"6", double* %"z|_|", align 8
   ret void
 }
 

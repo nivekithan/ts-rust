@@ -77,7 +77,7 @@ mod test {
 
         let expected_output: Vec<Ast> = vec![
             Ast::new_variable_declaration(
-                "x_",
+                "x|_|",
                 Expression::ObjectLiteral {
                     expression: exp_hash_map,
                     data_type: DataType::ObjectType {
@@ -87,13 +87,13 @@ mod test {
                 VariableDeclarationKind::Const,
             ),
             Ast::new_variable_declaration(
-                "y_",
+                "y|_|",
                 Expression::DotMemberAccess {
                     container: Box::new(Expression::IdentExp {
                         data_type: DataType::ObjectType {
                             entries: indexmap! {"a".to_string() => DataType::Float, "b".to_string() => DataType::Float},
                         },
-                        name: "x_".to_string(),
+                        name: "x|_|".to_string(),
                     }),
                     argument: "a".to_string(),
                 },
@@ -117,20 +117,20 @@ mod test {
 
         let expected_output = vec![
             Ast::new_function_declaration(
-                indexmap! {"x_".to_string() => DataType::Float},
+                indexmap! {"x|_|".to_string() => DataType::Float},
                 Box::new(vec![Ast::new_return_statement(Some(
                     Expression::FloatLiteralExp {
                         name: "1".to_string(),
                         value: 1.0,
                     },
                 ))]),
-                "foo_".to_string(),
+                "foo|_|".to_string(),
                 DataType::Float,
             ),
             Ast::new_variable_declaration(
-                "y_",
+                "y|_|",
                 Expression::FunctionCall {
-                    fn_name: "foo_".to_string(),
+                    fn_name: "foo|_|".to_string(),
                     parameters: vec![Expression::FloatLiteralExp {
                         name: "4".to_string(),
                         value: 4.0,

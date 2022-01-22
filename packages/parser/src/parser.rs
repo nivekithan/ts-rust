@@ -331,7 +331,6 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
         can_export: bool,
     ) -> Result<Ast, String> {
         let cur_tok = self.get_cur_token()?;
-        let suffix = &context.suffix.clone();
 
         match cur_tok {
             Token::Keyword(keyword_kind) => {
@@ -424,9 +423,9 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
 
                         self.skip_semicolon()?;
 
-                        let name_with_suffix = format!("{}{}", name, suffix);
+                        let llvm_var_name = self.get_llvm_var_name(name.as_str(), context);
                         return Ok(Ast::new_variable_declaration(
-                            name_with_suffix.as_str(),
+                            llvm_var_name.as_str(),
                             expression,
                             kind,
                         ));
@@ -594,10 +593,10 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
 
                             self.skip_semicolon()?;
 
-                            let suffix_name = format!("{}{}", name, sym_meta.suffix);
+                            let llvm_name = format!("{}|{}|", name, sym_meta.suffix);
 
                             return Ok(Ast::new_array_member_assignment(
-                                suffix_name.as_str(),
+                                llvm_name.as_str(),
                                 member_access_exp,
                                 operator,
                                 exp,
@@ -640,10 +639,10 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
 
                         self.skip_semicolon()?;
 
-                        let suffix_name = format!("{}{}", name, sym_meta.suffix);
+                        let llvm_name = format!("{}|{}|", name, sym_meta.suffix);
 
                         return Ok(Ast::new_variable_assignment(
-                            suffix_name.as_str(),
+                            llvm_name.as_str(),
                             operator,
                             expression,
                         ));
@@ -695,7 +694,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
                     self.next(); // consumes :
 
                     let data_type = self.parse_type_declaration(1)?;
-                    let name = format!("{}{}", name, context.suffix);
+                    let name = self.get_llvm_var_name(name.as_str(), context);
                     if arguments.contains_key(&name) {
                         return Err(format!("In function declaration each argument must have different names but name : {} is repeated", &name));
                     } else {
@@ -738,8 +737,9 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
                  * */
 
                 let arg_name_cloned = arg_name.clone();
-                let arg_name_without_suffix =
-                    arg_name_cloned.strip_suffix(&context.suffix).unwrap();
+                let arg_name_without_suffix = arg_name_cloned
+                    .strip_suffix(&self.get_llvm_suffix(context))
+                    .unwrap();
 
                 let sym_meta = SymbolMetaInsert::create(arg_data_type.clone(), false, false);
                 function_block_context.insert(arg_name_without_suffix, sym_meta)?;
@@ -760,11 +760,11 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
             )?;
 
             self.skip_semicolon()?;
-            let name_with_suffix = format!("{}{}", name, context.suffix.clone());
+            let llvm_name = self.get_llvm_var_name(name.as_str(), context);
             return Ok(Ast::new_function_declaration(
                 arguments,
                 Box::new(block),
-                name_with_suffix,
+                llvm_name,
                 return_type,
             ));
         } else {
@@ -845,9 +845,9 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
                     SymbolMetaInsert::create(symbol_meta.data_type.clone(), true, false),
                 )?;
 
-                let name_with_suffix = format!("{}{}", name, context.suffix);
+                let llvm_name = self.get_llvm_var_name(name, context);
 
-                context_data_type.insert(name_with_suffix, symbol_meta.data_type.clone());
+                context_data_type.insert(llvm_name, symbol_meta.data_type.clone());
 
                 self.next(); // consumes ident
 
@@ -978,6 +978,16 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
                     .to_string(),
             );
         }
+    }
+
+    pub(crate) fn get_llvm_var_name(&self, var_name: &str, context: &SymbolContext) -> String {
+        let llvm_var_name = format!("{}{}", var_name, self.get_llvm_suffix(context));
+        return llvm_var_name;
+    }
+
+    pub(crate) fn get_llvm_suffix(&self, context: &SymbolContext) -> String {
+        let suffix = format!("|{}|", context.suffix);
+        return suffix;
     }
 
     fn get_cur_file_name(&self) -> &str {

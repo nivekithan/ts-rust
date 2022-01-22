@@ -8,9 +8,9 @@ source_filename = "main"
 
 define void @main() {
 entry:
-  %x_ = alloca double, align 8
-  store double 0.000000e+00, double* %x_, align 8
-  store double 0.000000e+00, double* %x_, align 8
+  %"x|_|" = alloca double, align 8
+  store double 0.000000e+00, double* %"x|_|", align 8
+  store double 0.000000e+00, double* %"x|_|", align 8
   ret void
 }
 

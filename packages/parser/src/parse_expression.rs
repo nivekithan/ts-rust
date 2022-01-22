@@ -95,7 +95,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
 
             Token::Ident { name } => {
                 if let Some(sym_meta) = context.get(&name) {
-                    let suffix_name = format!("{}{}", name, context.get_suffix(name));
+                    let suffix_name = format!("{}|{}|", name, context.get_suffix(name));
 
                     let exp = Ok(Expression::IdentExp {
                         name: suffix_name,

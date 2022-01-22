@@ -8,14 +8,14 @@ source_filename = "main"
 
 define void @main() {
 entry:
-  call void @foo_(double 5.000000e+00)
+  call void @"foo|_|"(double 5.000000e+00)
   ret void
 }
 
-define void @foo_(double %0) {
+define void @"foo|_|"(double %0) {
 main:
-  %x_ = alloca double, align 8
-  store double %0, double* %x_, align 8
+  %"x|_|" = alloca double, align 8
+  store double %0, double* %"x|_|", align 8
   ret void
 }
 

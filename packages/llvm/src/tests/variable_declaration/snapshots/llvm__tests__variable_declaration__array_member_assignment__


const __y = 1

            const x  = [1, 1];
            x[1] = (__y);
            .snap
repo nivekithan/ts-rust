@@ -8,15 +8,15 @@ source_filename = "main"
 
 define void @main() {
 entry:
-  %__y_ = alloca double, align 8
-  store double 1.000000e+00, double* %__y_, align 8
-  %x_ = alloca [2 x double], align 8
-  %"2" = getelementptr [2 x double], [2 x double]* %x_, i64 0, i64 0
+  %"__y|_|" = alloca double, align 8
+  store double 1.000000e+00, double* %"__y|_|", align 8
+  %"x|_|" = alloca [2 x double], align 8
+  %"2" = getelementptr [2 x double], [2 x double]* %"x|_|", i64 0, i64 0
   store double 1.000000e+00, double* %"2", align 8
-  %"4" = getelementptr [2 x double], [2 x double]* %x_, i64 0, i64 1
+  %"4" = getelementptr [2 x double], [2 x double]* %"x|_|", i64 0, i64 1
   store double 1.000000e+00, double* %"4", align 8
-  %"7" = getelementptr [2 x double], [2 x double]* %x_, i64 0, i64 1
-  %"8" = load double, double* %__y_, align 8
+  %"7" = getelementptr [2 x double], [2 x double]* %"x|_|", i64 0, i64 1
+  %"8" = load double, double* %"__y|_|", align 8
   store double %"8", double* %"7", align 8
   ret void
 }

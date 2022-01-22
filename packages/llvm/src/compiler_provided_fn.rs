@@ -27,7 +27,7 @@ fn build_syscall_print<'a>(context: &'a Context, module: &'a Module<'a>) {
         false,
     );
 
-    let name = "syscallPrint_";
+    let name = "syscallPrint|_|";
     let fn_value = module.add_function(name, fn_type, None);
     let entry = context.append_basic_block(&fn_value, "entry");
 

@@ -8,13 +8,13 @@ source_filename = "main"
 
 define void @main() {
 entry:
-  %x_ = alloca <{ double }>, align 8
-  %"1" = getelementptr <{ double }>, <{ double }>* %x_, i32 1, i32 0
+  %"x|_|" = alloca <{ double }>, align 8
+  %"1" = getelementptr <{ double }>, <{ double }>* %"x|_|", i32 1, i32 0
   store double 5.000000e+00, double* %"1", align 8
-  %y_ = alloca double, align 8
-  %"4" = getelementptr <{ double }>, <{ double }>* %x_, i32 1, i32 0
+  %"y|_|" = alloca double, align 8
+  %"4" = getelementptr <{ double }>, <{ double }>* %"x|_|", i32 1, i32 0
   %"2" = load double, double* %"4", align 8
-  store double %"2", double* %y_, align 8
+  store double %"2", double* %"y|_|", align 8
   ret void
 }
 

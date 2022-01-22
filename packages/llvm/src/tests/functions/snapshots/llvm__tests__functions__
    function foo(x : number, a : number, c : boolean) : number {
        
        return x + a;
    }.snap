@@ -11,16 +11,16 @@ entry:
   ret void
 }
 
-define double @foo_(double %0, double %1, i1 %2) {
+define double @"foo|_|"(double %0, double %1, i1 %2) {
 main:
-  %x_ = alloca double, align 8
-  store double %0, double* %x_, align 8
-  %a_ = alloca double, align 8
-  store double %1, double* %a_, align 8
-  %c_ = alloca i1, align 1
-  store i1 %2, i1* %c_, align 1
-  %"4" = load double, double* %x_, align 8
-  %"5" = load double, double* %a_, align 8
+  %"x|_|" = alloca double, align 8
+  store double %0, double* %"x|_|", align 8
+  %"a|_|" = alloca double, align 8
+  store double %1, double* %"a|_|", align 8
+  %"c|_|" = alloca i1, align 1
+  store i1 %2, i1* %"c|_|", align 1
+  %"4" = load double, double* %"x|_|", align 8
+  %"5" = load double, double* %"a|_|", align 8
   %"3" = fadd double %"4", %"5"
   ret double %"3"
 }

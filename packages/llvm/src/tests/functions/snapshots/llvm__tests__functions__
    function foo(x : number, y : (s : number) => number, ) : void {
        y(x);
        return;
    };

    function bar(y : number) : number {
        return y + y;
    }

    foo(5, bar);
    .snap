@@ -8,27 +8,27 @@ source_filename = "main"
 
 define void @main() {
 entry:
-  call void @foo_(double 5.000000e+00, double (double)* @bar_)
+  call void @"foo|_|"(double 5.000000e+00, double (double)* @"bar|_|")
   ret void
 }
 
-define void @foo_(double %0, double (double)* %1) {
+define void @"foo|_|"(double %0, double (double)* %1) {
 main:
-  %x_ = alloca double, align 8
-  store double %0, double* %x_, align 8
+  %"x|_|" = alloca double, align 8
+  store double %0, double* %"x|_|", align 8
   %"|_temp0" = alloca double, align 8
-  %"3" = load double, double* %x_, align 8
+  %"3" = load double, double* %"x|_|", align 8
   %"2" = call double %1(double %"3")
   store double %"2", double* %"|_temp0", align 8
   ret void
 }
 
-define double @bar_(double %0) {
+define double @"bar|_|"(double %0) {
 main:
-  %y_ = alloca double, align 8
-  store double %0, double* %y_, align 8
-  %"2" = load double, double* %y_, align 8
-  %"3" = load double, double* %y_, align 8
+  %"y|_|" = alloca double, align 8
+  store double %0, double* %"y|_|", align 8
+  %"2" = load double, double* %"y|_|", align 8
+  %"3" = load double, double* %"y|_|", align 8
   %"1" = fadd double %"2", %"3"
   ret double %"1"
 }

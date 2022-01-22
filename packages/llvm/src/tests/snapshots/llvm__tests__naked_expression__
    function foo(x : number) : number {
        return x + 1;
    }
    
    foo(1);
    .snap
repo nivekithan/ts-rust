@@ -9,16 +9,16 @@ source_filename = "main"
 define void @main() {
 entry:
   %"|_temp0" = alloca double, align 8
-  %"0" = call double @foo_(double 1.000000e+00)
+  %"0" = call double @"foo|_|"(double 1.000000e+00)
   store double %"0", double* %"|_temp0", align 8
   ret void
 }
 
-define double @foo_(double %0) {
+define double @"foo|_|"(double %0) {
 main:
-  %x_ = alloca double, align 8
-  store double %0, double* %x_, align 8
-  %"2" = load double, double* %x_, align 8
+  %"x|_|" = alloca double, align 8
+  store double %0, double* %"x|_|", align 8
+  %"2" = load double, double* %"x|_|", align 8
   %"1" = fadd double %"2", 1.000000e+00
   ret double %"1"
 }

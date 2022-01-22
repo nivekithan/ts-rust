@@ -188,3 +188,109 @@ fn test_modules_2() {
 
     setup.clean();
 }
+
+#[test]
+fn test_loops() {
+    let mut setup = TestSetup::new();
+    let main_file = "
+    import {syscallPrint} from \"compilerInternal\";
+
+    let x = 0;
+
+    function print_one() : void {
+        syscallPrint(1, \"1\", 1);
+        return;
+    }
+
+    while (x !== 10) {
+        print_one();
+        x += 1;
+    }
+    ";
+
+    let main_file_path = "./main.ts";
+    setup.create_file(main_file_path, main_file);
+
+    
+    setup.compile(main_file_path);
+    setup.assert("1111111111");
+    setup.clean();
+}
+
+#[test]
+fn test_if_loops() {
+    let mut setup = TestSetup::new();
+    let main_file = "
+    import {syscallPrint} from \"compilerInternal\";
+
+    const x = 1;
+
+    if (x === 1) {
+        syscallPrint(1, \"1\", 1);
+    } else {
+        syscallPrint(1, \"2\", 1);
+    }
+    ";
+
+    let main_file_path = "./main.ts";
+    setup.create_file(main_file_path, main_file);
+
+    
+    setup.compile(main_file_path);
+    setup.assert("1");
+    setup.clean();
+}
+
+
+#[test]
+fn test_else_if_loops() {
+    let mut setup = TestSetup::new();
+    let main_file = "
+    import {syscallPrint} from \"compilerInternal\";
+
+    const x = 2;
+
+    if (x === 1) {
+        syscallPrint(1, \"1\", 1);
+    } else if (x === 2) {
+        syscallPrint(1, \"2\", 1);
+    } else {
+        syscallPrint(1, \"3\", 1);
+    }
+    ";
+
+    let main_file_path = "./main.ts";
+    setup.create_file(main_file_path, main_file);
+
+    
+    setup.compile(main_file_path);
+    setup.assert("2");
+    setup.clean();
+}
+
+
+#[test]
+fn test_else_loops() {
+    let mut setup = TestSetup::new();
+    let main_file = "
+    import {syscallPrint} from \"compilerInternal\";
+
+    const x = 10;
+
+    if (x === 1) {
+        syscallPrint(1, \"1\", 1);
+    } else if (x === 2) {
+        syscallPrint(1, \"2\", 1);
+    } else {
+        syscallPrint(1, \"3\", 1);
+    }
+    ";
+
+    let main_file_path = "./main.ts";
+    setup.create_file(main_file_path, main_file);
+
+    
+    setup.compile(main_file_path);
+    setup.assert("3");
+    setup.clean();
+}

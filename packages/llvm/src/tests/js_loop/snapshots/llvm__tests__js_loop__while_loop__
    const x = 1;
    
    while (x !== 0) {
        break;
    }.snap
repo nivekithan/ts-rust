@@ -8,12 +8,12 @@ source_filename = "main"
 
 define void @main() {
 entry:
-  %x_ = alloca double, align 8
-  store double 1.000000e+00, double* %x_, align 8
+  %"x|_|" = alloca double, align 8
+  store double 1.000000e+00, double* %"x|_|", align 8
   br label %Block_0
 
 Block_0:                                          ; preds = %Block_1, %entry
-  %"2" = load double, double* %x_, align 8
+  %"2" = load double, double* %"x|_|", align 8
   %"1" = fcmp one double %"2", 0.000000e+00
   br i1 %"1", label %Block_1, label %Block_2
 
