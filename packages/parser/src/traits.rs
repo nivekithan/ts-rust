@@ -10,6 +10,7 @@ pub trait ImportResolver {
     ) -> Option<&HashMap<String, SymbolMetaInsert>>;
     fn contains(&self, relative_file_name: &str, cur_file_name: &str) -> bool;
     fn get_id(&self, relative_file_name: &str, cur_file_name: &str) -> usize;
+    fn get_id_for_file_name(&self, absolute_file_name: &str) -> usize;
 
     fn resolve(&mut self, relative_file_name: &str, cur_file_name: &str) -> Result<(), String>;
 }
@@ -34,6 +35,9 @@ impl ImportResolver for DummyImportResolver {
         unreachable!();
     }
     fn get_id(&self, _relative_file_name: &str, _cur_file_name: &str) -> usize {
+        unreachable!();
+    }
+    fn get_id_for_file_name(&self, _absolute_file_name: &str) -> usize {
         unreachable!();
     }
 

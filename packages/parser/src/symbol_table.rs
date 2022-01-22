@@ -2,6 +2,10 @@ use std::collections::HashMap;
 
 use ast::data_type::DataType;
 
+#[derive(Debug, PartialEq, Clone)]
+pub struct ExternalVariableData {
+    pub file_id_no: usize,
+}
 #[derive(Debug, PartialEq)]
 pub struct SymbolMeta {
     pub data_type: DataType,
@@ -9,6 +13,7 @@ pub struct SymbolMeta {
     pub is_override_available: bool,
     pub suffix: String,
     pub can_export: bool,
+    pub external_data: Option<ExternalVariableData>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -17,14 +22,21 @@ pub struct SymbolMetaInsert {
     pub data_type: DataType,
     pub is_const: bool,
     pub can_export: bool,
+    pub external_data: Option<ExternalVariableData>,
 }
 
 impl SymbolMetaInsert {
-    pub fn create(data_type: DataType, is_const: bool, can_export: bool) -> Self {
+    pub fn create(
+        data_type: DataType,
+        is_const: bool,
+        can_export: bool,
+        external_data: Option<ExternalVariableData>,
+    ) -> Self {
         return SymbolMetaInsert {
             data_type,
             is_const,
             can_export,
+            external_data,
         };
     }
 }
@@ -93,6 +105,7 @@ impl<'a> SymbolContext<'a> {
                     is_override_available: false,
                     suffix: self.get_suffix(name),
                     can_export: false,
+                    external_data: meta_insert.external_data.clone(),
                 };
 
                 return Some(meta);
@@ -107,6 +120,7 @@ impl<'a> SymbolContext<'a> {
                     is_override_available: is_override,
                     suffix: self.get_suffix(name),
                     can_export: meta_insert.can_export,
+                    external_data: meta_insert.external_data.clone(),
                 };
                 return Some(meta);
             }

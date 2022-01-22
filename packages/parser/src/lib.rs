@@ -19,16 +19,15 @@ use traits::{DummyImportResolver, ImportResolver};
 
 pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
     let resolver = &mut DummyImportResolver::new();
-    return consume_token(input, resolver, None, 0).0;
+    return consume_token(input, resolver, None).0;
 }
 
 pub fn consume_token<'a, R: ImportResolver>(
     input: Vec<Token>,
     resolver: &mut R,
     file_name: Option<&str>,
-    id: usize,
 ) -> (Vec<Ast>, HashMap<String, SymbolMetaInsert>) {
-    let mut parser = Parser::new(&input, resolver, file_name, id);
+    let mut parser = Parser::new(&input, resolver, file_name);
     let mut asts: Vec<Ast> = vec![];
     let mut context = SymbolContext::create_global_context();
 

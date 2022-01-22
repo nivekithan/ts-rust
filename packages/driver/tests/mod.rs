@@ -84,7 +84,6 @@ impl TestSetup {
         cmd.current_dir(self.get_setup_test_dir_path());
         cmd.arg(main_file_path);
         cmd.output().unwrap();
-
         let output = Command::new(self.get_built_exec_path()).output().unwrap();
         self.stdout = Some(String::from_utf8(output.stdout).unwrap());
     }
@@ -211,7 +210,6 @@ fn test_loops() {
     let main_file_path = "./main.ts";
     setup.create_file(main_file_path, main_file);
 
-    
     setup.compile(main_file_path);
     setup.assert("1111111111");
     setup.clean();
@@ -235,12 +233,10 @@ fn test_if_loops() {
     let main_file_path = "./main.ts";
     setup.create_file(main_file_path, main_file);
 
-    
     setup.compile(main_file_path);
     setup.assert("1");
     setup.clean();
 }
-
 
 #[test]
 fn test_else_if_loops() {
@@ -262,12 +258,10 @@ fn test_else_if_loops() {
     let main_file_path = "./main.ts";
     setup.create_file(main_file_path, main_file);
 
-    
     setup.compile(main_file_path);
     setup.assert("2");
     setup.clean();
 }
-
 
 #[test]
 fn test_else_loops() {
@@ -289,8 +283,66 @@ fn test_else_loops() {
     let main_file_path = "./main.ts";
     setup.create_file(main_file_path, main_file);
 
-    
     setup.compile(main_file_path);
     setup.assert("3");
+    setup.clean();
+}
+
+#[test]
+fn test_exporting_variables_with_same_name() {
+    let mut setup = TestSetup::new();
+
+    let main_file = "
+    import {syscallPrint} from \"compilerInternal\";
+    import {foo} from \"./foo.ts\";
+    import {boo} from \"./boo.ts\"
+
+
+    const x = foo(10) + boo(10);
+
+    if (x === 15) {
+        syscallPrint(1, \"15\", 2);
+    } else {
+        syscallPrint(1, \"0\", 1);
+    }
+
+    ";
+
+    let main_file_path = "./main.ts";
+
+    setup.create_file(main_file_path, main_file);
+
+    let foo_file = "
+    import {boo} from \"./boo2.ts\"; 
+
+    export function foo(x : number) : number {
+       return boo(x) + 10;
+    }";
+
+    let foo_file_path = "./foo.ts";
+    setup.create_file(foo_file_path, foo_file);
+
+    let boo_file = "
+
+    export function boo(x : number) : number {
+       return x - 5;
+    }";
+
+    let boo_file_path = "./boo.ts";
+    setup.create_file(boo_file_path, boo_file);
+
+    let boo_file_2 = "
+
+    export function boo(x : number) : number {
+       return x - 10;
+    }";
+
+    let boo_file_2_path = "./boo2.ts";
+    setup.create_file(boo_file_2_path, boo_file_2);
+
+    setup.compile(main_file_path);
+
+    setup.assert("15");
+
     setup.clean();
 }

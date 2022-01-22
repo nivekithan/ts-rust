@@ -1,4 +1,5 @@
 mod cmd_import_resolver;
+mod file_unique_id;
 mod utils;
 use cmd_import_resolver::CommandLineResolver;
 use inkwell::context::Context;

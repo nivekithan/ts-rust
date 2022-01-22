@@ -30,9 +30,9 @@ entry:
   %"9" = getelementptr [10 x i8], [10 x i8]* %"name|_|", i64 0, i64 9
   store i8 110, i8* %"9", align 1
   %"12" = getelementptr [10 x i8], [10 x i8]* %"name|_|", i64 0, i64 0
-  call void @"syscallPrint|_|"(double 1.000000e+00, i8* %"12", double 1.000000e+01)
+  call void @"|fn:1|syscallPrint|_|"(double 1.000000e+00, i8* %"12", double 1.000000e+01)
   ret void
 }
 
-declare void @"syscallPrint|_|"(double, i8*, double)
+declare void @"|fn:1|syscallPrint|_|"(double, i8*, double)
 

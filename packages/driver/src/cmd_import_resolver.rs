@@ -12,11 +12,12 @@ use llvm::{compile_to_llvm_module, compiler_provided_fn::get_compiler_provided_m
 use parser::{consume_token, symbol_table::SymbolMetaInsert, traits::ImportResolver};
 use path_absolutize::Absolutize;
 
-use crate::utils::convert_to_absolute_path;
+use crate::{file_unique_id::FileUniqueId, utils::convert_to_absolute_path};
 
 pub struct CommandLineResolver {
     symbol_db: HashMap<String, HashMap<String, SymbolMetaInsert>>,
     ast_db: HashMap<String, Vec<Ast>>,
+    id_db: FileUniqueId,
 }
 
 impl<'a> CommandLineResolver {
@@ -24,6 +25,7 @@ impl<'a> CommandLineResolver {
         return CommandLineResolver {
             symbol_db: HashMap::new(),
             ast_db: HashMap::new(),
+            id_db: FileUniqueId::new(),
         };
     }
 
@@ -62,7 +64,9 @@ impl<'a> CommandLineResolver {
         let main_file_content = self.get_file_content(&main_file_path);
         let main_tokens = convert_to_token(&main_file_content);
 
-        let (main_ast, _) = consume_token(main_tokens, self, Some(&main_file_name), 0);
+        self.id_db.insert_main(&main_file_name);
+
+        let (main_ast, _) = consume_token(main_tokens, self, Some(&main_file_name));
 
         let main_llvm_module = compile_to_llvm_module(main_ast, &context, "main", true);
 
@@ -116,11 +120,11 @@ impl ImportResolver for CommandLineResolver {
 
         if !self.contains(relative_file_name, cur_file_name) {
             let file_content = self.get_file_content(&PathBuf::from(absolute_file_name.clone()));
+            self.id_db.insert(&absolute_file_name);
             let (ast, table) = consume_token(
                 convert_to_token(&file_content),
                 self,
                 Some(absolute_file_name.as_str()),
-                2,
             );
             self.symbol_db.insert(absolute_file_name.clone(), table);
             self.ast_db.insert(absolute_file_name, ast);
@@ -133,7 +137,12 @@ impl ImportResolver for CommandLineResolver {
         }
     }
 
-    fn get_id(&self, _relative_file_name: &str, _cur_file_name: &str) -> usize {
-        return 0;
+    fn get_id_for_file_name(&self, absolute_file_name: &str) -> usize {
+        return *self.id_db.get(absolute_file_name).unwrap();
+    }
+
+    fn get_id(&self, relative_file_name: &str, cur_file_name: &str) -> usize {
+        let absolute_file_name = self.resolve_imported_file_name(relative_file_name, cur_file_name);
+        return self.get_id_for_file_name(&absolute_file_name);
     }
 }

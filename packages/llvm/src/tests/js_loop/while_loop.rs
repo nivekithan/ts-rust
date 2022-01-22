@@ -60,7 +60,6 @@ fn test_while_loop_with_continue() {
     insta::assert_snapshot!(input, output);
 }
 
-
 #[test]
 fn test_function_call_inside_while_loop() {
     let input = "
@@ -76,7 +75,6 @@ fn test_function_call_inside_while_loop() {
         x += 1;
     }";
 
-    
     let output = compile_to_llvm_ir(convert_to_ast(convert_to_token(input)));
 
     println!("{}", output);

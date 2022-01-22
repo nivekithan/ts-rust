@@ -12,7 +12,7 @@ use indexmap::IndexMap;
 use lexer::token::{KeywordKind, LiteralKind, Token};
 
 use crate::{
-    symbol_table::{FunctionSymbol, SymbolContext, SymbolMetaInsert},
+    symbol_table::{ExternalVariableData, FunctionSymbol, SymbolContext, SymbolMetaInsert},
     traits::ImportResolver,
     utils::convert_index_map_to_vec,
 };
@@ -22,7 +22,6 @@ pub struct Parser<'a, R: ImportResolver> {
     pub(crate) cur_pos: Option<usize>,
     resolver: &'a mut R,
     cur_file_path: Option<PathBuf>, // Absolute path of file which we are parsing
-    id: usize,
 }
 
 impl<'a, R: ImportResolver> Parser<'a, R> {
@@ -30,7 +29,6 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
         content: &'a Vec<Token>,
         resolver: &'a mut R,
         cur_file_name: Option<&str>,
-        id: usize,
     ) -> Parser<'a, R> {
         let cur_file_path = {
             if let Some(cur_file_name) = cur_file_name {
@@ -53,7 +51,6 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
             cur_pos: None,
             resolver,
             cur_file_path,
-            id,
         };
 
         parser.next();
@@ -411,8 +408,12 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
                             ));
                         }
 
-                        let sym_meta =
-                            SymbolMetaInsert::create(expression_data_type, is_const, can_export);
+                        let sym_meta = SymbolMetaInsert::create(
+                            expression_data_type,
+                            is_const,
+                            can_export,
+                            None,
+                        );
 
                         if let Err(_) = context.insert(name.as_str(), sym_meta) {
                             return Err(format!(
@@ -423,7 +424,8 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
 
                         self.skip_semicolon()?;
 
-                        let llvm_var_name = self.get_llvm_var_name(name.as_str(), context);
+                        let llvm_var_name =
+                            self.get_llvm_var_name(name.as_str(), context, can_export);
                         return Ok(Ast::new_variable_declaration(
                             llvm_var_name.as_str(),
                             expression,
@@ -520,7 +522,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
         self.skip_semicolon()?;
         let name = context.get_temp_name();
 
-        let sym_meta = SymbolMetaInsert::create(exp.get_data_type(), true, false);
+        let sym_meta = SymbolMetaInsert::create(exp.get_data_type(), true, false, None);
 
         if let Err(_) = context.insert(name.as_str(), sym_meta) {
             return Err(format!(
@@ -694,7 +696,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
                     self.next(); // consumes :
 
                     let data_type = self.parse_type_declaration(1)?;
-                    let name = self.get_llvm_var_name(name.as_str(), context);
+                    let name = self.get_llvm_var_name(name.as_str(), context, false);
                     if arguments.contains_key(&name) {
                         return Err(format!("In function declaration each argument must have different names but name : {} is repeated", &name));
                     } else {
@@ -741,7 +743,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
                     .strip_suffix(&self.get_llvm_suffix(context))
                     .unwrap();
 
-                let sym_meta = SymbolMetaInsert::create(arg_data_type.clone(), false, false);
+                let sym_meta = SymbolMetaInsert::create(arg_data_type.clone(), false, false, None);
                 function_block_context.insert(arg_name_without_suffix, sym_meta)?;
             }
 
@@ -756,11 +758,12 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
                     },
                     true,
                     can_export,
+                    None,
                 ),
             )?;
 
             self.skip_semicolon()?;
-            let llvm_name = self.get_llvm_var_name(name.as_str(), context);
+            let llvm_name = self.get_llvm_var_name(name.as_str(), context, can_export);
             return Ok(Ast::new_function_declaration(
                 arguments,
                 Box::new(block),
@@ -822,6 +825,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
                 external_file_data.unwrap().clone()
             }
         };
+        let external_file_id = self.get_id_for_file(&file_name);
 
         self.assert_cur_token(&Token::AngleOpenBracket)?;
         self.next(); // consumes {
@@ -842,10 +846,17 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
 
                 context.insert_global_variable(
                     name,
-                    SymbolMetaInsert::create(symbol_meta.data_type.clone(), true, false),
+                    SymbolMetaInsert::create(
+                        symbol_meta.data_type.clone(),
+                        true,
+                        false,
+                        Some(ExternalVariableData {
+                            file_id_no: external_file_id,
+                        }),
+                    ),
                 )?;
 
-                let llvm_name = self.get_llvm_var_name(name, context);
+                let llvm_name = self.get_llvm_import_name(name, &file_name);
 
                 context_data_type.insert(llvm_name, symbol_meta.data_type.clone());
 
@@ -907,6 +918,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
             },
             is_const: true,
             can_export: true,
+            external_data: None,
         };
         internal_index_map.insert("syscallPrint".to_string(), syscall_1);
 
@@ -919,32 +931,8 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
             cur_pos: self.cur_pos,
             resolver: self.resolver,
             cur_file_path: self.cur_file_path.clone(),
-            id: self.id,
         };
     }
-
-    // pub(crate) fn lookup_next(&self) -> Option<&Token> {
-    //     return self.lookup_with_offset(1);
-    // }
-
-    // pub(crate) fn lookup_with_offset(&self, offset: usize) -> Option<&Token> {
-    //     match self.cur_pos {
-    //         None => {
-    //             let value = offset - 1;
-    //             return Some(&self.content[value]);
-    //         }
-
-    //         Some(cur_pos) => {
-    //             let value = cur_pos + offset;
-
-    //             if value > self.content.len() - 1 {
-    //                 return None;
-    //             }
-
-    //             return Some(&self.content[value]);
-    //         }
-    //     }
-    // }
 
     pub(crate) fn assert_cur_token(&self, token_type: &Token) -> Result<(), String> {
         let cur_token = self.get_cur_token()?;
@@ -980,14 +968,57 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
         }
     }
 
-    pub(crate) fn get_llvm_var_name(&self, var_name: &str, context: &SymbolContext) -> String {
-        let llvm_var_name = format!("{}{}", var_name, self.get_llvm_suffix(context));
-        return llvm_var_name;
+    pub(crate) fn get_llvm_var_name(
+        &self,
+        var_name: &str,
+        context: &SymbolContext,
+        is_export: bool,
+    ) -> String {
+        if is_export {
+            let llvm_var_name = format!(
+                "{}{var_name}{}",
+                self.get_llvm_prefix(),
+                self.get_llvm_suffix(context)
+            );
+            return llvm_var_name;
+        } else {
+            let llvm_var_name = format!("{}{}", var_name, self.get_llvm_suffix(context));
+            return llvm_var_name;
+        }
+    }
+
+    pub(crate) fn get_llvm_import_name(&self, var_name: &str, relative_file_name: &str) -> String {
+        if relative_file_name == "compilerInternal" {
+            return format!("|fn:1|{}|_|", var_name);
+        }
+
+        let id = self
+            .resolver
+            .get_id(relative_file_name, self.get_cur_file_name());
+        let import_name = format!("|fn:{}|{}|_|", id, var_name);
+        return import_name;
+    }
+
+    pub(crate) fn get_id_for_file(&self, relative_file_name: &str) -> usize {
+        if relative_file_name == "compilerInternal" {
+            return 1;
+        } else {
+            return self
+                .resolver
+                .get_id(relative_file_name, self.get_cur_file_name());
+        }
     }
 
     pub(crate) fn get_llvm_suffix(&self, context: &SymbolContext) -> String {
         let suffix = format!("|{}|", context.suffix);
         return suffix;
+    }
+
+    pub(crate) fn get_llvm_prefix(&self) -> String {
+        return format!(
+            "|fn:{}|",
+            self.resolver.get_id_for_file_name(self.get_cur_file_name())
+        );
     }
 
     fn get_cur_file_name(&self) -> &str {
