@@ -129,7 +129,14 @@ mod test {
             Ast::new_variable_declaration(
                 "y|_|",
                 Expression::FunctionCall {
-                    fn_name: "foo|_|".to_string(),
+                    fn_exp: Box::new(Expression::IdentExp {
+                        data_type: DataType::FunctionType {
+                            arguments: vec![DataType::Float],
+                            return_type: Box::new(DataType::Float),
+                        },
+                        name: "foo|_|".to_string(),
+                    }),
+                    //  "foo|_|".to_string(),
                     parameters: vec![Expression::FloatLiteralExp {
                         name: "4".to_string(),
                         value: 4.0,

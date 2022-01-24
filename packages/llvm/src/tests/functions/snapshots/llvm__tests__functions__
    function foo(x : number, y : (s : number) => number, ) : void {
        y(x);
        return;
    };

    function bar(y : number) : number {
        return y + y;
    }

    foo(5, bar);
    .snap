@@ -17,8 +17,8 @@ main:
   %"x|_|" = alloca double, align 8
   store double %0, double* %"x|_|", align 8
   %"|_temp0" = alloca double, align 8
-  %"3" = load double, double* %"x|_|", align 8
-  %"2" = call double %1(double %"3")
+  %"4" = load double, double* %"x|_|", align 8
+  %"2" = call double %1(double %"4")
   store double %"2", double* %"|_temp0", align 8
   ret void
 }

@@ -509,7 +509,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
      *
      * TODO:
      *
-     *    -> Hopefully in future when can add code that will ignore expression that has no
+     *    -> Hopefully in future we can add code that will ignore expression that has no
      * sideeffect
      *
      **/

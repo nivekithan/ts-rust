@@ -461,62 +461,86 @@ pub(crate) fn build_expression<'a>(
 
         Expression::FunctionCall {
             parameters,
-            fn_name,
+            fn_exp,
             return_type: _,
         } => {
-            let calling_fn_value = symbol_table.get(fn_name).unwrap().clone();
+            let fn_value = build_expression(
+                fn_exp.as_ref(),
+                context,
+                builder,
+                function_value,
+                symbol_table,
+                module,
+                None,
+            )
+            .unwrap();
 
-            let args: Vec<BasicValueEnum> = parameters
-                .iter()
-                .enumerate()
-                .map(|(i, exp)| {
-                    let value = build_expression(
-                        exp,
-                        context,
-                        builder,
-                        function_value,
-                        symbol_table,
-                        module,
-                        None,
-                    )
-                    .unwrap();
+            if let BasicValueEnum::PointerValue(fn_pointer) = fn_value {
+                let args: Vec<BasicValueEnum> = parameters
+                    .iter()
+                    .enumerate()
+                    .map(|(i, exp)| {
+                        let value = build_expression(
+                            exp,
+                            context,
+                            builder,
+                            function_value,
+                            symbol_table,
+                            module,
+                            None,
+                        )
+                        .unwrap();
 
-                    let argument_data_type = parameters[i].get_data_type();
+                        let argument_data_type = parameters[i].get_data_type();
 
-                    if let DataType::String = argument_data_type {
-                        if let BasicValueEnum::PointerValue(value) = value {
-                            let pointer_array_type = value.get_type().into_array_type().unwrap();
-                            let indicies = &[
-                                context.i64_type().const_int(0, true),
-                                context.i64_type().const_int(0, true),
-                            ];
+                        if let DataType::String = argument_data_type {
+                            if let BasicValueEnum::PointerValue(value) = value {
+                                let pointer_array_type =
+                                    value.get_type().into_array_type().unwrap();
+                                let indicies = &[
+                                    context.i64_type().const_int(0, true),
+                                    context.i64_type().const_int(0, true),
+                                ];
 
-                            let value = builder.build_gep_2(
-                                pointer_array_type,
-                                &value,
-                                indicies,
-                                function_value.get_unique_reg_name().as_str(),
-                            );
+                                let value = builder.build_gep_2(
+                                    pointer_array_type,
+                                    &value,
+                                    indicies,
+                                    function_value.get_unique_reg_name().as_str(),
+                                );
 
-                            return BasicValueEnum::PointerValue(value);
+                                return BasicValueEnum::PointerValue(value);
+                            }
                         }
-                    }
 
-                    return value;
-                })
-                .collect();
+                        return value;
+                    })
+                    .collect();
 
-            let value = builder.build_call2(Either::Right(&calling_fn_value), &args, name);
+                let value = builder.build_call2(Either::Right(&fn_pointer), &args, name);
 
-            // let basic_value = value.try_as_basic_value().unwrap();
+                // let basic_value = value.try_as_basic_value().unwrap();
 
-            if value.is_void() {
-                return None;
+                if value.is_void() {
+                    return None;
+                } else {
+                    return Some(value.to_basic_value_enum().unwrap());
+                }
+
+                // return value;
             } else {
-                return Some(value.to_basic_value_enum().unwrap());
-            }
+                let fn_exp_data_type = fn_exp.get_data_type();
 
-            // return value;
+                if let DataType::FunctionType {
+                    arguments: _,
+                    return_type: _,
+                } = fn_exp_data_type
+                {
+                    panic!("Expected build_expression to return BasicValueEnum::PointerValue for building expression with data type FunctionType")
+                } else {
+                    panic!("Expected fn_exp in Expression::FunctionCall to be of datatype DataType::FunctionType but got {:?}", fn_exp_data_type);
+                }
+            }
         }
     }
 }

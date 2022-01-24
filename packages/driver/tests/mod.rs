@@ -346,3 +346,30 @@ fn test_exporting_variables_with_same_name() {
 
     setup.clean();
 }
+
+#[test]
+fn test_functions_in_objects() {
+    let mut setup = TestSetup::new();
+    let main_file = "
+    import {syscallPrint} from \"compilerInternal\";
+
+    function foo(s : number) : number {
+        return s + 5;
+    }
+    const a = { b : foo};
+    const x = a.b(5);
+
+    if (x === 10) {
+        syscallPrint(1, \"10\", 2);
+    } else {
+        syscallPrint(1, \"0\", 1);
+    }
+    ";
+
+    let main_file_path = "./main.ts";
+    setup.create_file(main_file_path, main_file);
+
+    setup.compile(main_file_path);
+    setup.assert("10");
+    setup.clean();
+}

@@ -19,9 +19,9 @@ Block_0:                                          ; preds = %Block_1, %entry
 
 Block_1:                                          ; preds = %Block_0
   call void @"foo|_|"()
-  %"5" = load double, double* %"x|_|", align 8
-  %"6" = fadd double %"5", 1.000000e+00
-  store double %"6", double* %"x|_|", align 8
+  %"6" = load double, double* %"x|_|", align 8
+  %"7" = fadd double %"6", 1.000000e+00
+  store double %"7", double* %"x|_|", align 8
   br label %Block_0
 
 Block_2:                                          ; preds = %Block_0

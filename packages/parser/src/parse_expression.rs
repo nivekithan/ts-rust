@@ -383,16 +383,8 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
                     }
                     self.next(); // consumes )
 
-                    let fn_name = {
-                        if let Expression::IdentExp { data_type: _, name } = &left {
-                            name.clone()
-                        } else {
-                            return Err(format!("As of now only supported way for calling function is to use name of the function"));
-                        }
-                    };
-
                     return Ok(Ok(Expression::FunctionCall {
-                        fn_name,
+                        fn_exp: Box::new(left),
                         parameters: function_parameters,
                         return_type: return_type.as_ref().clone(),
                     }));

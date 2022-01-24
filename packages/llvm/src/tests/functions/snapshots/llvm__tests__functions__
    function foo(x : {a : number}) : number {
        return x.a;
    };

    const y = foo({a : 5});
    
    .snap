@@ -9,10 +9,10 @@ source_filename = "main"
 define void @main() {
 entry:
   %"y|_|" = alloca double, align 8
-  %"1" = alloca <{ double }>, align 8
-  %"3" = getelementptr <{ double }>, <{ double }>* %"1", i32 1, i32 0
-  store double 5.000000e+00, double* %"3", align 8
-  %"0" = call double @"foo|_|"(<{ double }>* %"1")
+  %"2" = alloca <{ double }>, align 8
+  %"4" = getelementptr <{ double }>, <{ double }>* %"2", i32 1, i32 0
+  store double 5.000000e+00, double* %"4", align 8
+  %"0" = call double @"foo|_|"(<{ double }>* %"2")
   store double %"0", double* %"y|_|", align 8
   ret void
 }

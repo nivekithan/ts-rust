@@ -81,7 +81,7 @@ pub enum Expression {
     },
 
     FunctionCall {
-        fn_name: String,
+        fn_exp: Box<Expression>,
         parameters: Vec<Expression>,
         return_type: DataType,
     },
@@ -187,7 +187,7 @@ impl Expression {
 
             Expression::FunctionCall {
                 parameters: _,
-                fn_name: _,
+                fn_exp: _,
                 return_type,
             } => return return_type.clone(),
         }

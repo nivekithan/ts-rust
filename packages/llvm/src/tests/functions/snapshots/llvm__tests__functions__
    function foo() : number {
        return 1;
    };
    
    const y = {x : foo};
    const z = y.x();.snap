@@ -1,0 +1,26 @@
+---
+source: packages/llvm/src/tests/functions/mod.rs
+expression: output
+
+---
+; ModuleID = 'main'
+source_filename = "main"
+
+define void @main() {
+entry:
+  %"y|_|" = alloca <{ double ()* }>, align 8
+  %"1" = getelementptr <{ double ()* }>, <{ double ()* }>* %"y|_|", i32 1, i32 0
+  store double ()* @"foo|_|", double ()** %"1", align 8
+  %"z|_|" = alloca double, align 8
+  %"5" = getelementptr <{ double ()* }>, <{ double ()* }>* %"y|_|", i32 1, i32 0
+  %"3" = load double ()*, double ()** %"5", align 8
+  %"2" = call double %"3"()
+  store double %"2", double* %"z|_|", align 8
+  ret void
+}
+
+define double @"foo|_|"() {
+main:
+  ret double 1.000000e+00
+}
+
