@@ -373,3 +373,28 @@ fn test_functions_in_objects() {
     setup.assert("10");
     setup.clean();
 }
+
+#[test]
+fn test_reassignment() {
+    let mut setup = TestSetup::new();
+    let main_file = "
+    import {syscallPrint} from \"compilerInternal\";
+
+    let x = 100;
+    x = 100 - 90;
+
+
+    if (x === 10) {
+        syscallPrint(1, \"10\", 2);
+    } else {
+        syscallPrint(1, \"0\", 1);
+    }
+    ";
+
+    let main_file_path = "./main.ts";
+    setup.create_file(main_file_path, main_file);
+
+    setup.compile(main_file_path);
+    setup.assert("10");
+    setup.clean();
+}

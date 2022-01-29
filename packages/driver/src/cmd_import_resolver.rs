@@ -5,7 +5,7 @@ use std::{
     process::Command,
 };
 
-use ast::Ast;
+use ast::AstPtr;
 use inkwell::{context::Context, module::Module};
 use lexer::convert_to_token;
 use llvm::{compile_to_llvm_module, compiler_provided_fn::get_compiler_provided_module};
@@ -16,7 +16,7 @@ use crate::{file_unique_id::FileUniqueId, utils::convert_to_absolute_path};
 
 pub struct CommandLineResolver {
     symbol_db: HashMap<String, HashMap<String, SymbolMetaInsert>>,
-    ast_db: HashMap<String, Vec<Ast>>,
+    ast_db: HashMap<String, Vec<AstPtr>>,
     id_db: FileUniqueId,
 }
 
@@ -50,15 +50,7 @@ impl<'a> CommandLineResolver {
         return content;
     }
 
-    pub fn compile_assembly_to_exec(&self) {
-        let assembly_file_path = self.get_assembly_file_path();
-        Command::new("gcc")
-            .args([assembly_file_path.to_str().unwrap(), "-o", "output"])
-            .status()
-            .unwrap();
-    }
-
-    pub fn compile(&mut self, context: &'a Context) -> Module<'a> {
+    pub fn compile(mut self, context: &'a Context) -> Module<'a> {
         let main_file_path = self.get_main_file_path();
         let main_file_name = main_file_path.to_str().unwrap().to_string();
         let main_file_content = self.get_file_content(&main_file_path);
@@ -66,12 +58,12 @@ impl<'a> CommandLineResolver {
 
         self.id_db.insert_main(&main_file_name);
 
-        let (main_ast, _) = consume_token(main_tokens, self, Some(&main_file_name));
+        let (main_ast, _) = consume_token(main_tokens, &mut self, Some(&main_file_name));
 
         let main_llvm_module = compile_to_llvm_module(main_ast, &context, "main", true);
 
-        for (file_name, ast) in &self.ast_db {
-            let module = compile_to_llvm_module(ast.clone(), &context, file_name, false);
+        for (file_name, ast) in self.ast_db {
+            let module = compile_to_llvm_module(ast, &context, &file_name, false);
             main_llvm_module.link_module(module).unwrap();
         }
 
@@ -145,4 +137,11 @@ impl ImportResolver for CommandLineResolver {
         let absolute_file_name = self.resolve_imported_file_name(relative_file_name, cur_file_name);
         return self.get_id_for_file_name(&absolute_file_name);
     }
+}
+
+pub fn compile_assembly_to_exec(assembly_file_path: &PathBuf) {
+    Command::new("gcc")
+        .args([assembly_file_path.to_str().unwrap(), "-o", "output"])
+        .status()
+        .unwrap();
 }

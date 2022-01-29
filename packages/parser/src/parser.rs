@@ -6,7 +6,7 @@ use ast::{
     declaration::{
         BlockWithCondition, Declaration, VariableAssignmentOperator, VariableDeclarationKind,
     },
-    Ast,
+    leak_ast, Ast, AstPtr,
 };
 use indexmap::IndexMap;
 use lexer::token::{KeywordKind, LiteralKind, Token};
@@ -22,6 +22,7 @@ pub struct Parser<'a, R: ImportResolver> {
     pub(crate) cur_pos: Option<usize>,
     resolver: &'a mut R,
     cur_file_path: Option<PathBuf>, // Absolute path of file which we are parsing
+    compiled_ast: Vec<AstPtr>,
 }
 
 impl<'a, R: ImportResolver> Parser<'a, R> {
@@ -51,6 +52,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
             cur_pos: None,
             resolver,
             cur_file_path,
+            compiled_ast: Vec::new(),
         };
 
         parser.next();
@@ -58,14 +60,25 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
         return parser;
     }
 
-    pub fn next_ast(&mut self, global_context: &mut SymbolContext) -> Ast {
+    pub fn compile(&mut self, global_context: &mut SymbolContext) {
+        while *self.get_cur_token().unwrap() != Token::Eof {
+            let next_ast = self.next_ast(global_context);
+            self.compiled_ast.push(next_ast);
+        }
+    }
+
+    pub fn get_compiled_ast(self) -> Vec<AstPtr> {
+        return self.compiled_ast;
+    }
+
+    pub(crate) fn next_ast(&mut self, global_context: &mut SymbolContext) -> AstPtr {
         return self.next_ast_in_context(global_context).unwrap();
     }
 
     pub(crate) fn next_ast_in_context(
         &mut self,
         context: &mut SymbolContext,
-    ) -> Result<Ast, String> {
+    ) -> Result<AstPtr, String> {
         let first_token = self.get_cur_token()?;
 
         match first_token {
@@ -118,17 +131,17 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
                 KeywordKind::Break => {
                     self.next(); // consumes break
                     self.skip_semicolon()?;
-                    return Ok(Ast::Declaration(Declaration::LoopControlFlow {
+                    return Ok(leak_ast(Ast::Declaration(Declaration::LoopControlFlow {
                         keyword: KeywordKind::Break,
-                    }));
+                    })));
                 }
 
                 KeywordKind::Continue => {
                     self.next(); // consumes continue
                     self.skip_semicolon()?;
-                    return Ok(Ast::Declaration(Declaration::LoopControlFlow {
+                    return Ok(leak_ast(Ast::Declaration(Declaration::LoopControlFlow {
                         keyword: KeywordKind::Continue,
-                    }));
+                    })));
                 }
 
                 KeywordKind::Function => {
@@ -218,7 +231,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
      * Pass current scope context no need to create child context
      *
      * */
-    pub(crate) fn parse_if_block(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
+    pub(crate) fn parse_if_block(&mut self, context: &mut SymbolContext) -> Result<AstPtr, String> {
         let cur_tok = self.get_cur_token()?;
 
         match cur_tok {
@@ -228,7 +241,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
                 self.assert_cur_token(&Token::CurveOpenBracket)?;
                 let if_block = self.parse_block_with_condition(context)?;
                 let mut else_if_block: Vec<BlockWithCondition> = vec![];
-                let mut else_block: Option<Box<Vec<Ast>>> = None;
+                let mut else_block: Option<Vec<AstPtr>> = None;
 
                 loop {
                     let cur_tok = self.get_cur_token()?;
@@ -249,7 +262,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
 
                                 Token::AngleOpenBracket => {
                                     let ast_block = self.parse_block(context)?;
-                                    else_block = Some(Box::new(ast_block));
+                                    else_block = Some(ast_block);
                                     return Ok(Ast::new_if_block(if_block, else_if_block, else_block));
 
                                 },
@@ -285,7 +298,10 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
      * Pass the current scope context no need to create child context
      *
      * */
-    pub(crate) fn parse_while_loop(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
+    pub(crate) fn parse_while_loop(
+        &mut self,
+        context: &mut SymbolContext,
+    ) -> Result<AstPtr, String> {
         self.assert_cur_token(&Token::Keyword(KeywordKind::While))?;
 
         self.next(); // consumes while
@@ -297,7 +313,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
     pub(crate) fn parse_do_while_loop(
         &mut self,
         context: &mut SymbolContext,
-    ) -> Result<Ast, String> {
+    ) -> Result<AstPtr, String> {
         self.assert_cur_token(&Token::Keyword(KeywordKind::Do))?;
 
         self.next(); // consumes do
@@ -315,10 +331,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
         self.assert_cur_token(&Token::CurveCloseBracket)?;
         self.next(); // consumes )
 
-        let block_with_condition = BlockWithCondition {
-            block: Box::new(block),
-            condition,
-        };
+        let block_with_condition = BlockWithCondition::new(condition, block);
         return Ok(Ast::new_do_while_loop(block_with_condition));
     }
 
@@ -326,7 +339,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
         &mut self,
         context: &mut SymbolContext,
         can_export: bool,
-    ) -> Result<Ast, String> {
+    ) -> Result<AstPtr, String> {
         let cur_tok = self.get_cur_token()?;
 
         match cur_tok {
@@ -462,7 +475,10 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
      * I could not come up with a function name that explains its function
      *
      **/
-    pub(crate) fn parse_naked_ident(&mut self, context: &mut SymbolContext) -> Result<Ast, String> {
+    pub(crate) fn parse_naked_ident(
+        &mut self,
+        context: &mut SymbolContext,
+    ) -> Result<AstPtr, String> {
         let cur_tok = &self.get_cur_token()?.clone();
         let mut lookup_parser = self.lookup_parser();
         match cur_tok {
@@ -517,7 +533,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
     pub(crate) fn parse_naked_expression(
         &mut self,
         context: &mut SymbolContext,
-    ) -> Result<Ast, String> {
+    ) -> Result<AstPtr, String> {
         let exp = self.parse_expression(1, context)?;
         self.skip_semicolon()?;
         let name = context.get_temp_name();
@@ -544,7 +560,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
     pub(crate) fn parse_variable_assignment(
         &mut self,
         context: &SymbolContext,
-    ) -> Result<Ast, String> {
+    ) -> Result<AstPtr, String> {
         let cur_tok = &self.get_cur_token()?.clone();
 
         match cur_tok {
@@ -676,7 +692,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
         &mut self,
         context: &mut SymbolContext,
         can_export: bool,
-    ) -> Result<Ast, String> {
+    ) -> Result<AstPtr, String> {
         self.assert_cur_token(&Token::Keyword(KeywordKind::Function))?;
         self.next(); // consumes keyword function
 
@@ -766,7 +782,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
             let llvm_name = self.get_llvm_var_name(name.as_str(), context, can_export);
             return Ok(Ast::new_function_declaration(
                 arguments,
-                Box::new(block),
+                block,
                 llvm_name,
                 return_type,
             ));
@@ -788,7 +804,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
     pub(crate) fn parse_import_declaration(
         &mut self,
         context: &mut SymbolContext,
-    ) -> Result<Ast, String> {
+    ) -> Result<AstPtr, String> {
         self.assert_cur_token(&Token::Keyword(KeywordKind::Import))?;
         self.next(); // consumes import
 
@@ -931,6 +947,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
             cur_pos: self.cur_pos,
             resolver: self.resolver,
             cur_file_path: self.cur_file_path.clone(),
+            compiled_ast: Vec::new(),
         };
     }
 

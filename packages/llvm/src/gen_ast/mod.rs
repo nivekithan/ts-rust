@@ -7,7 +7,7 @@ mod consume_variable_assignment;
 mod consume_variable_declaration;
 mod consume_while_loop;
 
-use ast::{declaration::Declaration, Ast};
+use ast::{declaration::Declaration, Ast, AstPtr};
 use inkwell::{
     basic_block::BasicBlock, builder::Builder, context::Context, module::Module,
     values::fn_value::FunctionValue,
@@ -31,7 +31,7 @@ use self::{
 };
 
 pub(crate) fn consume_single_ast<'a>(
-    ast: &Ast,
+    ast: &AstPtr,
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
@@ -142,7 +142,7 @@ pub(crate) fn consume_single_ast<'a>(
 }
 
 pub(crate) fn consume_generic_ast<'a>(
-    asts: &Vec<Ast>,
+    asts: &Vec<AstPtr>,
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
@@ -162,7 +162,7 @@ pub(crate) fn consume_generic_ast<'a>(
 }
 
 pub(crate) fn consume_ast_in_loop<'a>(
-    asts: &Vec<Ast>,
+    asts: &Vec<AstPtr>,
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,
@@ -196,7 +196,7 @@ pub(crate) fn consume_ast_in_loop<'a>(
 }
 
 pub(crate) fn consume_ast_in_module<'a>(
-    asts: &Vec<Ast>,
+    asts: &Vec<AstPtr>,
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,

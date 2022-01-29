@@ -1,4 +1,4 @@
-use ast::{data_type::DataType, declaration::Declaration, Ast};
+use ast::{data_type::DataType, declaration::Declaration, Ast, AstPtr};
 use indexmap::IndexMap;
 use inkwell::{
     context::Context, module::Module, types::enums::BasicTypeEnum, values::enums::BasicValueEnum,
@@ -10,7 +10,7 @@ use super::consume_single_ast;
 
 pub(crate) fn consume_function_declaration<'a>(
     arguments: &IndexMap<String, DataType>,
-    blocks: &Box<Vec<Ast>>,
+    blocks: &Vec<AstPtr>,
     ident_name: &String,
     return_type: &DataType,
     context: &'a Context,
@@ -94,7 +94,7 @@ pub(crate) fn consume_function_declaration<'a>(
         }
     }
 
-    for cur_ast in blocks.as_ref() {
+    for cur_ast in blocks {
         if let Ast::Declaration(dec) = cur_ast {
             match dec {
                 Declaration::ReturnStatement { return_exp } => {

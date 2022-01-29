@@ -12,12 +12,12 @@ mod tests;
 use std::collections::HashMap;
 
 use crate::{parser::Parser, symbol_table::SymbolContext};
-use ast::Ast;
+use ast::AstPtr;
 use lexer::token::Token;
 use symbol_table::SymbolMetaInsert;
 use traits::{DummyImportResolver, ImportResolver};
 
-pub fn convert_to_ast(input: Vec<Token>) -> Vec<Ast> {
+pub fn convert_to_ast(input: Vec<Token>) -> Vec<AstPtr> {
     let resolver = &mut DummyImportResolver::new();
     return consume_token(input, resolver, None).0;
 }
@@ -26,15 +26,13 @@ pub fn consume_token<'a, R: ImportResolver>(
     input: Vec<Token>,
     resolver: &mut R,
     file_name: Option<&str>,
-) -> (Vec<Ast>, HashMap<String, SymbolMetaInsert>) {
+) -> (Vec<AstPtr>, HashMap<String, SymbolMetaInsert>) {
     let mut parser = Parser::new(&input, resolver, file_name);
-    let mut asts: Vec<Ast> = vec![];
     let mut context = SymbolContext::create_global_context();
 
-    while parser.get_cur_token().unwrap() != &Token::Eof {
-        let next_ast = parser.next_ast(&mut context);
-        asts.push(next_ast);
-    }
+    parser.compile(&mut context);
+
+    let asts = parser.get_compiled_ast();
 
     return (asts, context.global_symbols);
 }
@@ -45,6 +43,7 @@ mod test {
 
     use ast::{
         data_type::DataType, declaration::VariableDeclarationKind, expression::Expression, Ast,
+        AstPtr,
     };
     use indexmap::indexmap;
     use lexer::convert_to_token;
@@ -74,7 +73,7 @@ mod test {
             },
         );
 
-        let expected_output: Vec<Ast> = vec![
+        let expected_output: Vec<AstPtr> = vec![
             Ast::new_variable_declaration(
                 "x|_|",
                 Expression::ObjectLiteral {
@@ -114,15 +113,15 @@ mod test {
         
         const y = foo(4);";
 
-        let expected_output = vec![
+        let expected_output: Vec<AstPtr> = vec![
             Ast::new_function_declaration(
                 indexmap! {"x|_|".to_string() => DataType::Float},
-                Box::new(vec![Ast::new_return_statement(Some(
+                vec![Ast::new_return_statement(Some(
                     Expression::FloatLiteralExp {
                         name: "1".to_string(),
                         value: 1.0,
                     },
-                ))]),
+                ))],
                 "foo|_|".to_string(),
                 DataType::Float,
             ),

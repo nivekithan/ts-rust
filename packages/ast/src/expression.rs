@@ -85,11 +85,7 @@ pub enum Expression {
         parameters: Vec<Expression>,
         return_type: DataType,
     },
-    // Function {
-    //     return_type: DataType,
-    //     arguments: Vec<DataType>,
-    //     block: Box<Vec<Ast>>,
-    // }
+    NAExp,
 }
 
 impl Expression {
@@ -190,6 +186,8 @@ impl Expression {
                 fn_exp: _,
                 return_type,
             } => return return_type.clone(),
+
+            Expression::NAExp => return DataType::NA,
         }
     }
 }

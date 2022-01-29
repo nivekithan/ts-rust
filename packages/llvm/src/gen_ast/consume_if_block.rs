@@ -1,4 +1,4 @@
-use ast::{declaration::BlockWithCondition, Ast};
+use ast::{declaration::BlockWithCondition, AstPtr};
 use inkwell::{
     basic_block::BasicBlock,
     builder::Builder,
@@ -18,7 +18,7 @@ use super::consume_generic_ast;
 pub(crate) fn consume_if_block<'a>(
     if_block: &BlockWithCondition,
     else_if_block: &Vec<BlockWithCondition>,
-    else_block: &Option<Box<Vec<Ast>>>,
+    else_block: &Option<Vec<AstPtr>>,
     context: &'a Context,
     builder: &'a Builder,
     function_value: &mut FunctionValue,

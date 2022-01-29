@@ -6,7 +6,7 @@ use ast::{
     data_type::DataType,
     declaration::VariableDeclarationKind,
     expression::{BinaryOperator, Expression, UnaryOperator},
-    Ast,
+    Ast, AstPtr,
 };
 use indexmap::indexmap;
 
@@ -21,7 +21,7 @@ pub struct ExpressionTest {
     pub generate_input: Box<dyn Fn(Vec<String>, Vec<String>) -> String>, // Input we are testing
     pub expressions_data_type: Vec<(DatatypeOrFn, Vec<String>)>, // Can be used to choose what data_type of expression we have to provide
 
-    pub test: Box<dyn Fn(Vec<Expression>, Vec<Ast>, String) -> ()>, // This is where we can test
+    pub test: Box<dyn Fn(Vec<Expression>, Vec<&AstPtr>, String) -> ()>, // This is where we can test
 }
 
 impl ExpressionTest {
@@ -41,24 +41,24 @@ impl ExpressionTest {
         while clock.get_cur_time() != None {
             let time = clock.get_cur_time().unwrap();
 
-            let valid_t_exp: Vec<TExp> = time
+            let valid_t_exp: Vec<&TExp> = time
                 .iter()
                 .enumerate()
                 .map(|(index, pos)| {
-                    return t_exps[index][*pos].clone();
+                    return &t_exps[index][*pos];
                 })
                 .collect();
 
             let mut test_exp: Vec<Expression> = vec![];
-            let mut test_ast: Vec<Ast> = vec![];
+            let mut test_ast: Vec<&AstPtr> = vec![];
             let mut ast_strings: Vec<String> = vec![];
             let mut test_strings: Vec<String> = vec![];
 
-            for t_exp in valid_t_exp.iter() {
+            for t_exp in valid_t_exp {
                 test_exp.push(t_exp.exp.clone());
 
                 for ast in &t_exp.asts {
-                    test_ast.push(ast.clone());
+                    test_ast.push(ast);
                 }
 
                 ast_strings.push(t_exp.ast_str.clone());
@@ -136,13 +136,12 @@ impl ExpressionTest {
     }
 }
 
-#[derive(Clone)]
 struct TExp {
     exp: Expression,
     exp_str: String,
 
     ast_str: String,
-    asts: Vec<Ast>,
+    asts: Vec<AstPtr>,
 }
 
 fn generate_boolean_true_literal() -> TExp {

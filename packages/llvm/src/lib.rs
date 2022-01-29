@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use ast::Ast;
+use ast::AstPtr;
 use codegen::Codegen;
 use inkwell::{
     context::Context,
@@ -24,14 +24,14 @@ mod symbol_table;
 mod tests;
 mod utils;
 
-pub fn compile_to_llvm_ir(content: Vec<Ast>) -> String {
+pub fn compile_to_llvm_ir(content: Vec<AstPtr>) -> String {
     let context = Context::create();
     let module = compile_to_llvm_module(content, &context, "main", true);
     return module.get_string_representation().to_string();
 }
 
 pub fn compile_to_llvm_module<'a>(
-    content: Vec<Ast>,
+    content: Vec<AstPtr>,
     context: &'a Context,
     module_name: &str,
     is_main_file: bool,

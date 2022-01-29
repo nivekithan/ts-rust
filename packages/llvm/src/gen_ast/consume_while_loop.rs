@@ -1,4 +1,4 @@
-use ast::{expression::Expression, Ast};
+use ast::{expression::Expression, AstPtr};
 use inkwell::{
     builder::Builder,
     context::Context,
@@ -11,7 +11,7 @@ use crate::{build_expression::build_expression, symbol_table::SymbolTable};
 use super::consume_ast_in_loop;
 
 pub(crate) fn consume_while_loop<'a>(
-    block: &Box<Vec<Ast>>,
+    block: &Vec<AstPtr>,
     condition: &Expression,
     context: &'a Context,
     builder: &'a Builder,

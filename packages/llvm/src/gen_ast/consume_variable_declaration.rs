@@ -196,6 +196,7 @@ pub(crate) fn consume_variable_declaration<'a>(
         }
 
         DataType::Unknown => unreachable!(),
+        DataType::NA => unreachable!(),
     };
 
     symbol_table.insert_local(ident_name.to_owned(), pointer);

@@ -1,4 +1,4 @@
-use ast::{declaration::BlockWithCondition, Ast};
+use ast::{declaration::BlockWithCondition, AstPtr};
 use lexer::token::Token;
 
 use crate::{parser::Parser, symbol_table::SymbolContext, traits::ImportResolver};
@@ -54,7 +54,10 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
      * Pass current scope context no need to create child context
      *
      * */
-    pub(crate) fn parse_block(&mut self, context: &mut SymbolContext) -> Result<Vec<Ast>, String> {
+    pub(crate) fn parse_block(
+        &mut self,
+        context: &mut SymbolContext,
+    ) -> Result<Vec<AstPtr>, String> {
         self.assert_cur_token(&Token::AngleOpenBracket)?;
 
         let cur_value = context.counter;
@@ -84,11 +87,11 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
     pub(crate) fn parse_block_with_context(
         &mut self,
         context: &mut SymbolContext,
-    ) -> Result<Vec<Ast>, String> {
+    ) -> Result<Vec<AstPtr>, String> {
         self.assert_cur_token(&Token::AngleOpenBracket)?;
         self.next(); // consumes {
 
-        let mut ast_block: Vec<Ast> = vec![];
+        let mut ast_block: Vec<AstPtr> = vec![];
 
         while self.get_cur_token().unwrap() != &Token::AngleCloseBracket {
             let ast = self.next_ast_in_context(context)?;

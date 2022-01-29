@@ -1,7 +1,7 @@
 use indexmap::IndexMap;
 use lexer::token::{KeywordKind, Token};
 
-use crate::{data_type::DataType, expression::Expression, Ast};
+use crate::{data_type::DataType, expression::Expression, AstPtr};
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum VariableDeclarationKind {
@@ -9,7 +9,7 @@ pub enum VariableDeclarationKind {
     Let,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq)]
 pub enum Declaration {
     ImportDeclaration {
         ident: IndexMap<String, DataType>,
@@ -26,7 +26,7 @@ pub enum Declaration {
         ident_name: String,
         return_type: DataType,
         arguments: IndexMap<String, DataType>,
-        blocks: Box<Vec<Ast>>,
+        blocks: Vec<AstPtr>,
     },
 
     VariableAssignment {
@@ -45,17 +45,17 @@ pub enum Declaration {
     NewIfBlockDeclaration {
         if_block: BlockWithCondition,
         else_if_block: Vec<BlockWithCondition>,
-        else_block: Option<Box<Vec<Ast>>>,
+        else_block: Option<Vec<AstPtr>>,
     },
 
     WhileLoopDeclaration {
         condition: Expression,
-        block: Box<Vec<Ast>>,
+        block: Vec<AstPtr>,
     },
 
     DoWhileLoopDeclaration {
         condition: Expression,
-        block: Box<Vec<Ast>>,
+        block: Vec<AstPtr>,
     },
 
     LoopControlFlow {
@@ -76,17 +76,17 @@ pub enum VariableAssignmentOperator {
     SlashAssign,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq)]
 pub struct BlockWithCondition {
     pub condition: Expression,
-    pub block: Box<Vec<Ast>>,
+    pub block: Vec<AstPtr>,
 }
 
 impl BlockWithCondition {
-    pub fn new(condition: Expression, block: Vec<Ast>) -> Self {
+    pub fn new(condition: Expression, block: Vec<AstPtr>) -> Self {
         return BlockWithCondition {
             condition,
-            block: Box::new(block),
+            block: block,
         };
     }
 }

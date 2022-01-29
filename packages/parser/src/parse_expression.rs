@@ -40,7 +40,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
     }
 
     pub(crate) fn get_prefix_exp(&mut self, context: &SymbolContext) -> Result<Expression, String> {
-        let cur_token = self.get_cur_token()?;
+        let cur_token = &self.get_cur_token()?.clone();
 
         match cur_token {
             Token::Plus | Token::Minus | Token::Bang => {
@@ -95,7 +95,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
 
             Token::Ident { name } => {
                 if let Some(sym_meta) = context.get(&name) {
-                    let suffix_name = {
+                    let llvm_var_name = {
                         if let Some(ext_data) = sym_meta.external_data {
                             format!(
                                 "|fn:{}|{}|{}|",
@@ -109,7 +109,7 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
                     };
 
                     let exp = Ok(Expression::IdentExp {
-                        name: suffix_name,
+                        name: llvm_var_name,
                         data_type: sym_meta.data_type.clone(),
                     });
 
@@ -117,7 +117,14 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
 
                     return exp;
                 } else {
-                    return Err(format!("There is no variable defined with name {}", name));
+                    let exp = Expression::IdentExp {
+                        name: name.to_string(),
+                        data_type: DataType::NA,
+                    };
+                    // self.na_dep.insert(NaDepCondition::GlobalVariable{parser_name : name.to_string()}, &mut exp);
+
+                    return Ok(exp);
+                    // return Err(format!("There is no variable defined with name {}", name));
                 }
             }
 

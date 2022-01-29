@@ -542,6 +542,10 @@ pub(crate) fn build_expression<'a>(
                 }
             }
         }
+
+        Expression::NAExp => {
+            panic!("Expression::NAExp should not be present in Ast passed to llvm")
+        }
     }
 }
 
