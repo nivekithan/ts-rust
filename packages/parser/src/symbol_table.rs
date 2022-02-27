@@ -136,7 +136,7 @@ impl<'a> SymbolContext<'a> {
 
         if self.global_symbols.contains_key(&key) {
             return Err(format!(
-                "There is already a global varaible with key {}",
+                "There is already a global variable with key {}",
                 name
             ));
         } else {

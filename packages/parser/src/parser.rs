@@ -23,6 +23,9 @@ pub struct Parser<'a, R: ImportResolver> {
     resolver: &'a mut R,
     cur_file_path: Option<PathBuf>, // Absolute path of file which we are parsing
     compiled_ast: Vec<AstPtr>,
+
+    ast_id_counter : usize,
+    ast_registar : HashMap<usize, AstPtr>
 }
 
 impl<'a, R: ImportResolver> Parser<'a, R> {
@@ -53,6 +56,8 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
             resolver,
             cur_file_path,
             compiled_ast: Vec::new(),
+            ast_id_counter : 0,
+            ast_registar : HashMap::new(),
         };
 
         parser.next();
@@ -948,6 +953,8 @@ impl<'a, R: ImportResolver> Parser<'a, R> {
             resolver: self.resolver,
             cur_file_path: self.cur_file_path.clone(),
             compiled_ast: Vec::new(),
+            ast_id_counter : 0,
+            ast_registar : HashMap::new(),
         };
     }
 
